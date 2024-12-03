@@ -1,0 +1,151 @@
+body {
+    background-color: rgb(245 248 254 / 1);
+}
+
+details summary::-webkit-details-marker {
+    display: none
+}
+
+details > summary {
+    list-style: none;
+}
+
+.space {
+    min-height: 100vh;
+}
+
+.header {
+    display: block;
+    position: relative;
+    z-index: 10;
+    height: 72px;
+    background-color: white;
+    box-shadow: -6px -6px 20px rgba(186, 202, 247, .1), 24px 24px 30px rgba(209, 220, 250, .12), 8px 8px 8px rgba(163, 184, 245, .1);
+
+    .header-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+        max-width: 72rem;
+        margin-left: auto;
+        margin-right: auto;
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            text-decoration: none;
+            font-family: "Inter", sans-serif;
+
+            img {
+                width: 2.5rem;
+                border-radius: 5px;
+            }
+
+            span {
+                display: inline;
+                --tw-text-opacity: 1;
+                color: rgb(45 143 254 / var(--tw-text-opacity));
+                font-weight: 500;
+            }
+        }
+    }
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: space-around;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    min-height: fit-content;
+    background-color: white;
+    color: rgb(38 67 100 / 1);
+    max-width: 72rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 40px;
+    box-shadow: -6px -6px 20px rgba(186, 202, 247, .1), 24px 24px 30px rgba(209, 220, 250, .12), 8px 8px 8px rgba(163, 184, 245, .1);
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.info-tab-label {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    justify-content: space-between;
+    vertical-align: middle;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.info-tab-label-form {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: start;
+    justify-content: start;
+    margin-bottom: 0.5rem;
+}
+
+.info-tab-label-form-save-btn {
+    height: 50%;
+    margin-top: auto;
+    margin-bottom: auto;
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    background-color: black;
+    color: white;
+    font-size: 15px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+.info-tab-label-form-field {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    justify-content: space-between;
+    align-items: start;
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.info-tab-label-form-field-input {
+    font-family: "Inter", sans-serif;
+    font-weight: 350;
+    font-style: normal;
+    border-radius: 7px;
+    border: solid 1px gray;
+}

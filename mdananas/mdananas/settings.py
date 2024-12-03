@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'root_service'
 ]
 
 MIDDLEWARE = [
@@ -54,7 +55,7 @@ ROOT_URLCONF = 'mdananas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates/', 'root_service/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,14 +73,38 @@ WSGI_APPLICATION = 'mdananas.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+     "default": {
+        "ENGINE": "mssql",
+        "NAME": "MDANANAS",
+        "USER": "forbulk",
+        "PASSWORD": "herobulk24!",
+        "HOST": "HRU07",
+        "PORT": "",
+        "OPTIONS": {"driver": "ODBC Driver 17 for SQL Server"}
+    },
+    "ideal": {
+        "ENGINE": "mssql",
+        "NAME": "IDEAL",
+        "USER": "forbulk",
+        "PASSWORD": "herobulk24!",
+        "HOST": "HRU07",
+        "PORT": "",
+        "OPTIONS": {"driver": "ODBC Driver 17 for SQL Server"}
     }
 }
 
+DATABASE_ROUTERS = ["mdananas.routers.DBAppsRouter"]
+
+DATABASE_APPS_MAPPING = {'contenttypes': 'default',
+                     'auth': 'default',
+                     'admin': 'default',
+                     'migrations': 'default',
+                     'sessions': 'default',
+                     'messages': 'default',
+                     'staticfiles': 'default',
+                     'root_service': 'ideal',
+                     }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -116,6 +141,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    "root_service/static/",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

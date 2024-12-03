@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}speaker_card{% endblock %}
+
+{% block content %}
+    <form action="save/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Product info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="xcode_cu">xcode</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="xcode_cu" value="{{cu.xcode_cu}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="ean_cu">ean_cu</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="ean_cu" value="{{cu.ean_cu}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="category">category</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="category" value="{{cu.category}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="groupname">groupname</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="groupname" value="{{cu.groupname}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="status">status</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="status" value="{{cu.status}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="type">type</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="type" value="{{cu.type}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="shelf_life">shelf_life</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="shelf_life" value="{{cu.shelf_life}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="supplier">supplier</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="supplier">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="definition">definition</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="definition">
+                    </div>
+            </div>
+        </details>
+    </form>
+    <details class="info-tab">
+        <summary class="info-tab-label">
+            <p>Logistic info</p>
+        </summary>
+        <form>
+            <input type="text">
+        </form>
+    </details>
+    <details class="info-tab">
+        <summary class="info-tab-label">
+            <p>Customs info</p>
+        </summary>
+        <form>
+            <input type="text">
+        </form>
+    </details>
+    <details class="info-tab">
+        <summary class="info-tab-label">
+            <p>Product Dimensions</p>
+        </summary>
+        <form>
+            <input type="text">
+        </form>
+    </details>
+    <details class="info-tab">
+        <summary class="info-tab-label">
+            <p>Supplier info</p>
+        </summary>
+        <form>
+            <input type="text">
+        </form>
+    </details>
+</body>
+{% endblock %}

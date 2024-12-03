@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <script src="{% static 'js/detail_btns.js' %}"></script>   
+    <link rel="stylesheet" href="{% static "css/base.css" %}"/>
+</head>
+<body>
+    <div class="space">
+        <div class="header">
+            <div class="header-container">
+                <a class="logo-container" href="/root/">
+                    <img src="{% static "img/logo.png" %}" alt="mdananas" title="mdananas">
+                    <span class="hidden sm:inline font-medium text-blue-500">MDANANAS</span>
+                </a>
+            </div>
+        </div>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
