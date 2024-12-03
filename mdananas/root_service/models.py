@@ -1,4 +1,5 @@
 from django.db import models
+from math import pi
 
 class Supplier(models.Model):
     supplier_name = models.CharField(max_length=50, null=False)
@@ -28,3 +29,16 @@ class Cu(models.Model):
     class Meta:
        managed = False
        db_table = 'ROOT_REF_SKU_CU'
+
+class CuDimensions(models.Model):
+    root_cu = models.OneToOneField('Cu', on_delete=models.PROTECT, null=False)
+    length = models.FloatField(null=True)
+    width = models.FloatField(null=True)
+    height = models.FloatField(null=True)
+    diameter = models.FloatField(null=True)
+    volume = models.FloatField(null=True)
+    net_weight = models.FloatField(null=True)
+
+    class Meta:
+       managed = False
+       db_table = 'ROOT_REF_SKU_CU_Dimensions'
