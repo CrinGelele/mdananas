@@ -9,6 +9,7 @@ class CuForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['ean_cu'].required = False
         self.fields['root_pd'].required = False
         self.fields['shelf_life'].required = False
 
