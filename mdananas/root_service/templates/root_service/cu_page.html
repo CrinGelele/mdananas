@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}speaker_card{% endblock %}
+{% load custom_filters %}
+{% block title %}{% if is_create_mode %}Create CU{% else %}Edit CU{% endif %}{% endblock %}
 
 {% block content %}
-    <form action="save/" method="POST"> 
+    <form action="{% if is_create_mode %}{% url 'cu_create_save' %}{% else %}save/{% endif %}" method="POST"> 
         {% csrf_token %}
         <details open class="info-tab">
             <summary class="info-tab-label">
@@ -21,38 +22,87 @@
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="category">category</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="category" value="{{cu.category|default_if_none:""}}">
+                        <select class="info-tab-label-form-field-input" id="category-field" name="category">
+                            <option value="{{cu.category|default_if_none:""}}" selected>{{cu.category|default_if_none:""}}</option>
+                            {% for category in existing_categories %}
+                                {% if category != cu.category %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="category" id="new-category-field" style="display: none;" disabled>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="groupname">groupname</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="groupname" value="{{cu.groupname|default_if_none:""}}">
-                    </div>
-                    <div class="info-tab-label-form-field">
-                        <label for="status">status</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="status" value="{{cu.status|default_if_none:""}}">
-                    </div>
-                    <div class="info-tab-label-form-field">
-                        <label for="type">type</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="type" value="{{cu.type|default_if_none:""}}">
+                        <select class="info-tab-label-form-field-input" id="groupname-field" name="groupname">
+                            <option value="{{cu.groupname|default_if_none:""}}" selected>{{cu.groupname|default_if_none:""}}</option>
+                            {% for groupname in existing_groupnames %}
+                                {% if groupname != cu.groupname %}
+                                    <option value="{{ groupname }}">{{ groupname }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="groupname" id="new-groupname-field" style="display: none;" disabled>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="shelf_life">shelf_life</label>
                         <input class="info-tab-label-form-field-input" type="text" name="shelf_life" value="{{cu.shelf_life|default_if_none:""}}">
+                        <span class="input-addon">days</span>
                     </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="root_pd">rus_definition</label>
+                        <select class="info-tab-label-form-field-input" id="root_pd-field" name="root_pd">
+                            <option value="{{cu.root_pd.id|default_if_none:""}}" selected>{{cu.root_pd.rus_definition|default_if_none:""}}</option>
+                            {% for definition in definitions %}
+                                {% if definition.id != cu.root_pd.id %}
+                                    <option value="{{ definition.id }}">{{ definition.rus_definition }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="root_pd_eng">eng_definition</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="root_pd_eng" value="{{cu.root_pd.eng_definition|default_if_none:""}}">
+                    </div>
+            </div>
+        </details>
+    </form>
+    {% if not is_create_mode %}
+    <form action="save-supplier/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Supplier info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
                     <div class="info-tab-label-form-field">
                         <label for="supplier">supplier</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="supplier">
+                        <select class="info-tab-label-form-field-input" id="supplier-field" name="supplier">
+                            <option value="{{cu.supplier.id|default_if_none:""}}" selected>{{cu.supplier.supplier_name|default_if_none:""}}</option>
+                            {% for supplier in suppliers %}
+                                {% if supplier.id != cu.supplier.id %}
+                                <option value="{{ supplier.id }}">{{ supplier.supplier_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="info-tab-label-form-field">
-                        <label for="definition">definition</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="definition">
+                        <label for="ownership">ownership</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="ownership" value="{{cu.supplier.ownership|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="currency">currency</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="currency" value="{{cu.supplier.currency|default_if_none:""}}">
                     </div>
             </div>
         </details>
     </form>
     <form action="save-dimensions/" method="POST"> 
         {% csrf_token %}
-        <details class="info-tab">
+        <details open class="info-tab">
             <summary class="info-tab-label">
                 <p>Product dimensions</p>
                 <button class="info-tab-label-form-save-btn" type="submit">Save</button>
@@ -60,30 +110,72 @@
             <div class="info-tab-label-form">
                     <div class="info-tab-label-form-field">
                         <label for="length">length</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="length" value="{{dimensions.length|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input" type="text" id="length-field" name="length" value="{{dimensions.length|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="width">width</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="width" value="{{dimensions.width|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input" type="text" id="width-field" name="width" value="{{dimensions.width|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="height">height</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="height" value="{{dimensions.height|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input" type="text" id="height-field" name="height" value="{{dimensions.height|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="diameter">diameter</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="diameter" value="{{dimensions.diameter|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input" type="text" id="diameter-field" name="diameter" value="{{dimensions.diameter|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="volume">volume</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="volume" value="{{dimensions.volume|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="volume" value="{{dimensions.volume|default_if_none:""}}">
+                        <span class="input-addon">cm<sup style="font-size: 10px;">3</sup></span>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="net_weight">net_weight</label>
                         <input class="info-tab-label-form-field-input" type="text" name="net_weight" value="{{dimensions.net_weight|default_if_none:""}}">
+                        <span class="input-addon">gr</span>
                     </div>
             </div>
         </details>
     </form>
+    <form action="save-customs_info/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Customs info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="customs_code">customs_code</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="customs_code" value="{{customs_info.customs_code|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="duty">duty</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="duty" value="{{customs_info.duty|mul100|default_if_none:""}}">
+                        <span class="input-addon">%</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="okpd2_code">okpd2_code</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="okpd2_code" value="{{customs_info.okpd2_code|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="vat">vat</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="vat" value="{{customs_info.vat|mul100|default_if_none:""}}">
+                        <span class="input-addon">%</span>
+                    </div>
+            </div>
+        </details>
+    </form>
+    {% endif %}
 </body>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/cu_switches.js' %}"></script>
+    <script src="{% static 'js/cu_height_diameter_switch.js' %}"></script> 
+    <script src="{% static 'js/detail_btns.js' %}"></script>  
 {% endblock %}

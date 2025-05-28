@@ -1,3 +1,10 @@
+html {
+    box-sizing: border-box;
+  }
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+
 body {
     background-color: rgb(245 248 254 / 1);
 }
@@ -22,13 +29,20 @@ details > summary {
     background-color: white;
     box-shadow: -6px -6px 20px rgba(186, 202, 247, .1), 24px 24px 30px rgba(209, 220, 250, .12), 8px 8px 8px rgba(163, 184, 245, .1);
 
+    .nav-text {
+        display: inline;
+        color: rgb(45 143 254 / 1);
+        font-weight: 500;
+        text-decoration: none;
+    }
+
     .header-container {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         height: 100%;
-        max-width: 72rem;
+        max-width: 82rem;
         margin-left: auto;
         margin-right: auto;
 
@@ -38,6 +52,7 @@ details > summary {
             gap: .75rem;
             text-decoration: none;
             font-family: "Inter", sans-serif;
+            margin-left: 2px;
 
             img {
                 width: 2.5rem;
@@ -56,11 +71,21 @@ details > summary {
 .container {
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 72px);
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    justify-content: space-around;
     align-items: center;
+}
+
+.vertical-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    max-width: 82rem;
+    height: 80%;
+    max-height: 80%;
 }
 
 form {
@@ -75,13 +100,11 @@ form {
 .info-tab {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     width: 80%;
     min-height: fit-content;
     background-color: white;
     color: rgb(38 67 100 / 1);
-    max-width: 72rem;
+    max-width: 82rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     border-radius: 40px;
@@ -90,8 +113,19 @@ form {
     padding-right: 10%;
 }
 
+.info-tab-vertical {
+    width: 49% !important;
+}
+
+.info-tab-scroll {
+    height: 100% !important;
+    max-height: 750px !important;
+    min-height: 0 !important;
+    padding-left: 2% !important;
+    padding-right: 2% !important;
+}
+
 .info-tab-label {
-    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -112,6 +146,42 @@ form {
     align-items: start;
     justify-content: start;
     margin-bottom: 0.5rem;
+    border-top: 1px solid lightblue;
+}
+
+.info-tab-label-form-scroll {
+    max-height: 700px !important;
+    height: 100% !important;
+    overflow-y: auto !important;  
+}
+
+.info-tab-label-form table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-tab-label-form thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    z-index: 10;
+}
+
+.info-tab-label-form tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.info-tab-label-form tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.vertical {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
 }
 
 .info-tab-label-form-save-btn {
@@ -131,9 +201,12 @@ form {
 }
 
 .info-tab-label-form-field {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 20%;
+    min-width: 9rem;
+    margin-inline: 2%;
     justify-content: space-between;
     align-items: start;
     font-family: "Inter", sans-serif;
@@ -141,10 +214,32 @@ form {
     font-style: normal;
 }
 
+.long {
+    width: 100% !important;
+}
+
 .info-tab-label-form-field-input {
+    max-width: 90%;
+    min-width: 90%;
     font-family: "Inter", sans-serif;
     font-weight: 350;
     font-style: normal;
     border-radius: 7px;
     border: solid 1px gray;
+}
+
+.info-tab-label-form-field .input-addon {
+    position: absolute;
+    font-size: 85%;
+    font-family: "Inter", sans-serif !important;
+    font-weight: 350 !important;
+    font-style: normal !important;
+    left: 70%;
+    bottom: 1.3px;
+    pointer-events: none;
+}
+
+.input-inactive {
+    background-color: rgba(245, 248, 254, 0.3);;
+    pointer-events: none;
 }

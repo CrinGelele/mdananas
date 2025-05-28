@@ -1,4 +1,4 @@
-window.onload = function() {
+window.addEventListener('load', function() {
     let elements = document.querySelectorAll('.info-tab');
     elements.forEach((item) => {
         if (item.open) {
@@ -16,4 +16,4 @@ window.onload = function() {
             }
         })
     });
-}
+});

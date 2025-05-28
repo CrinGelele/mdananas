@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ref_sku_page{% endblock %}
+
+{% block content %}
+    <div class="info-tab info-tab-vertical" style="width: 100% !important;">
+        <summary class="info-tab-label">
+            <p>Filters</p>
+        </summary>
+        <div class="info-tab-label-form">
+                
+        </div>
+    </div>
+    <div class="vertical-container">
+        <div class="info-tab info-tab-vertical info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>CU</p>
+                <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'cu_create' %}'">+New</button>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll">
+                <table>
+                    <thead>
+                        <tr onclick="window.location='?selected_cu='">
+                            <th>Xcode</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cu in existing_cu %}
+                            <tr onclick="window.location='?selected_cu={{ cu.id }}'">
+                                <td> {{ cu.xcode_cu }} </td>
+                                <td> <a href="{% url 'show_cu' cu_id=cu.id %}" style="text-decoration: none;">&#9998;</a> </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div style="width: 49% !important; justify-content: space-between !important;">
+            <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 40% !important;">
+                <summary class="info-tab-label">
+                    <p>MIX</p>
+                    <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'mix_create' %}'">+New</button>
+                </summary>
+                <div class="info-tab-label-form info-tab-label-form-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Xcode</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mix in existing_mix %}
+                                <tr>
+                                    <td> {{ mix.xcode_mix }} </td>
+                                    <td> <a href="{% url 'show_mix' mix_id=mix.id %}" style="text-decoration: none;">&#9998;</a> </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+            <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 59% !important;">
+                <summary class="info-tab-label">
+                    <p>TU</p>
+                    <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'tu_create' %}'">+New</button>
+                </summary>
+                <div class="info-tab-label-form info-tab-label-form-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Xcode</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tu in existing_tu %}
+                                <tr>
+                                    <td> {{ tu.xcode_tu }} </td>
+                                    <td> <a href="{% url 'show_tu' tu_id=tu.id %}" style="text-decoration: none;">&#9998;</a> </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/mix_switches.js' %}"></script>
+    <script src="{% static 'js/detail_btns.js' %}"></script>
+    <script src="{% static 'js/table_row_addition.js' %}"></script>
+{% endblock %}

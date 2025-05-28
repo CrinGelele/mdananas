@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{% if is_create_mode %}Create MIX{% else %}Edit MIX{% endif %}{% endblock %}
+
+{% block content %}
+    <form action="{% if is_create_mode %}{% url 'mix_create_save' %}{% else %}save/{% endif %}" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Product info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="xcode_mix">xcode</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="xcode_mix" value="{{mix.xcode_mix|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="ean_mix">ean_mix</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="ean_mix" value="{{mix.ean_mix|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="category">category</label>
+                        <select class="info-tab-label-form-field-input" id="category-field" name="category">
+                            <option value="{{mix.category|default_if_none:""}}" selected>{{mix.category|default_if_none:""}}</option>
+                            {% for category in existing_categories %}
+                                {% if category != mix.category %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="category" id="new-category-field" style="display: none;" disabled>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="groupname">groupname</label>
+                        <select class="info-tab-label-form-field-input" id="groupname-field" name="groupname">
+                            <option value="{{mix.groupname|default_if_none:""}}" selected>{{mix.groupname|default_if_none:""}}</option>
+                            {% for groupname in existing_groupnames %}
+                                {% if groupname != mix.groupname %}
+                                    <option value="{{ groupname }}">{{ groupname }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="groupname" id="new-groupname-field" style="display: none;" disabled>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="status">status</label>
+                        <select class="info-tab-label-form-field-input" id="status-field" name="status">
+                            <option value="{{mix.status|default_if_none:""}}" selected>{{mix.status|default_if_none:""}}</option>
+                            {% for status in existing_statuses %}
+                                {% if status != mix.status %}
+                                    <option value="{{ status }}">{{ status }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="status" id="new-status-field" style="display: none;" disabled>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="mix_in_box">mix_in_box</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="mix_in_box" value="{{mix.mix_in_box|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="root_pd">rus_definition</label>
+                        <select class="info-tab-label-form-field-input" id="root_pd-field" name="root_pd">
+                            <option value="{{mix.root_pd.id|default_if_none:""}}" selected>{{mix.root_pd.rus_definition|default_if_none:""}}</option>
+                            {% for definition in definitions %}
+                                {% if definition.id != mix.root_pd.id %}
+                                    <option value="{{ definition.id }}">{{ definition.rus_definition }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="root_pd_eng">eng_definition</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="root_pd_eng" value="{{mix.root_pd.eng_definition|default_if_none:""}}">
+                    </div>
+            </div>
+        </details>
+    </form>
+    {% if not is_create_mode %}
+    <form action="save-compositions/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Mix composition</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                <table id="components-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Cu</th>
+                            <th>Количество</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                        <tr class="component-row">
+                            <td>
+                                <button type="button" class="remove-row-btn">Удалить</button>
+                                {{ form.id }}
+                                {{ form.DELETE.as_hidden }}
+                            </td>
+                            <td>{{ form.root_cu }}</td>
+                            <td>{{ form.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {{ formset.management_form }}
+            </div>
+        </details>
+    </form>
+    {% endif %}
+</body>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/mix_switches.js' %}"></script>
+    <script src="{% static 'js/detail_btns.js' %}"></script>
+    <script src="{% static 'js/table_row_addition.js' %}"></script>
+{% endblock %}

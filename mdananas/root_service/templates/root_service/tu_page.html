@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if is_create_mode %}Create TU{% else %}Edit TU{% endif %}{% endblock %}
+
+{% block content %}
+    <form action="{% if is_create_mode %}{% url 'tu_create_save' %}{% else %}save/{% endif %}" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Product info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="xcode_tu">xcode</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="xcode_tu" value="{{tu.xcode_tu|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="ean_tu">ean_tu</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="ean_tu" value="{{tu.ean_tu|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="status">status</label>
+                        <select class="info-tab-label-form-field-input" id="status-field" name="status">
+                            <option value="{{tu.status|default_if_none:""}}" selected>{{tu.status|default_if_none:""}}</option>
+                            {% for status in existing_statuses %}
+                                {% if status != tu.status %}
+                                    <option value="{{ status }}">{{ status }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новый...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="status" id="new-status-field" style="display: none;" disabled>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="type">type</label>
+                        <select class="info-tab-label-form-field-input" id="type-field" name="type">
+                            <option value="{{tu.type|default_if_none:""}}" selected>{{tu.type|default_if_none:""}}</option>
+                            {% for type in existing_types %}
+                                {% if type != tu.type %}
+                                    <option value="{{ type }}">{{ type }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новый...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="type" id="new-type-field" style="display: none;" disabled>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="cu_in_tu">cu_in_tu</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="cu_in_tu" value="{{tu.cu_in_tu|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="root_cu">root_cu</label>
+                        <select class="info-tab-label-form-field-input" id="root_cu-field" name="root_cu">
+                            <option value="{{tu.root_cu.id|default_if_none:""}}" selected>{{tu.root_cu.xcode_cu|default_if_none:""}}</option>
+                            {% for cu in existing_cu %}
+                                {% if cu.id != tu.root_cu.id %}
+                                    <option value="{{ cu.id }}">{{ cu.xcode_cu }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+            </div>
+        </details>
+    </form>
+    {% if not is_create_mode %}
+    <form action="save-dimensions/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Product dimensions</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="length">length</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="length-field" name="length" value="{{dimensions.length|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="width">width</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="width-field" name="width" value="{{dimensions.width|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="height">height</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="height-field" name="height" value="{{dimensions.height|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="volume">volume</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="volume" value="{{dimensions.volume|default_if_none:""}}">
+                        <span class="input-addon">cm<sup style="font-size: 10px;">3</sup></span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="net_weight">net_weight</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="net_weight" value="{{dimensions.net_weight|default_if_none:""}}">
+                        <span class="input-addon">kg</span>
+                    </div>
+            </div>
+        </details>
+    </form>
+    <form action="save-descriptions/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Descriptions</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form vertical">
+                <div class="info-tab-label-form-field long">
+                    <label for="rus_description">rus_description</label>
+                    <input class="info-tab-label-form-field-input" type="text" name="rus_description" value="{{tu_descriptions.rus_description|default_if_none:""}}">
+                </div>
+                <div class="info-tab-label-form-field long">
+                    <label for="eng_description">eng_description</label>
+                    <input class="info-tab-label-form-field-input" type="text" name="eng_description" value="{{tu_descriptions.eng_description|default_if_none:""}}">
+                </div>
+            </div>
+        </details>
+    </form>
+    <form action="save-logistics_info/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Logistics info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="tu_per_layer">tu_per_layer</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="tu_per_layer-field" name="tu_per_layer" value="{{logistics_info.tu_per_layer|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="layers_per_pal">layers_per_pal</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="layers_per_pal-field" name="layers_per_pal" value="{{logistics_info.layers_per_pal|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="pal_per_truck">pal_per_truck</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="pal_per_truck-field" name="pal_per_truck" value="{{logistics_info.pal_per_truck|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="gross_weight_pal">gross_weight_pal</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="gross_weight_pal" value="{{logistics_info.gross_weight_pal|default_if_none:""}}">
+                        <span class="input-addon">kg</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="gross_weight_tu">gross_weight_tu</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="gross_weight_tu" value="{{logistics_info.gross_weight_tu|default_if_none:""}}">
+                        <span class="input-addon">kg</span>
+                    </div>
+            </div>
+        </details>
+    </form>
+    <form action="save-order_info/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Order info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="moq">moq</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="moq-field" name="moq" value="{{order_info.moq|default_if_none:""}}">
+                        <span class="input-addon">tu</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="order_inc">order_inc</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="order_inc-field" name="order_inc" value="{{order_info.order_inc|default_if_none:""}}">
+                        <span class="input-addon">tu</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="is_shared">is_shared</label>
+                        <select class="info-tab-label-form-field-input" id="is_shared-field" name="is_shared">
+                            <option value="{{order_info.is_shared|default_if_none:""}}" selected>{{order_info.is_shared|default_if_none:""}}</option>
+                            {% for is_shared in existing_is_shared %}
+                                {% if is_shared != order_info.is_shared %}
+                                    <option value="{{ is_shared }}">{{ is_shared }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="is_shared" id="new-is_shared-field" style="display: none;" disabled>
+                    </div>
+            </div>
+        </details>
+    </form>
+    {% endif %}
+</body>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/tu_switches.js' %}"></script>
+    <script src="{% static 'js/detail_btns.js' %}"></script> 
+    <script src="{% static 'js/tu_descriptions_table.js' %}"></script>  
+{% endblock %}
