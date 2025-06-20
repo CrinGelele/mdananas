@@ -30,28 +30,30 @@
             </div>
         </div>
         <div style="width: 49% !important; justify-content: space-between !important;">
-            <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 40% !important;">
-                <summary class="info-tab-label">
-                    <p>MIX</p>
-                    <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'mix_create' %}'">+New</button>
-                </summary>
-                <div class="info-tab-label-form info-tab-label-form-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Xcode</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for mix in existing_mix %}
-                                <tr>
-                                    <td> {{ mix.xcode_mix }} </td>
-                                    <td> <a href="{% url 'show_mix' mix_id=mix.id %}" style="text-decoration: none;">&#9998;</a> </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>  
+            <div style="display: flex; width: 100%; justify-content: space-between; flex-direction: row;">
+                <div class="upload-tab">
+                    <summary class="upload-tab-label">
+                        <p>Sales</p>
+                    </summary>
+                    <div class="upload-tab-content">
+                        <form method="post" enctype="multipart/form-data" id="file-upload-form">
+                            {% csrf_token %}
+                            <input type="text" name="form_name" id="form_name" style="display: none;" value="Sales">
+                            <input type="file" name="file" id="file-input" style="display: none;">
+                            <label for="file-input" class="plus-upload-btn">
+                                <span class="plus-icon">+</span>
+                            </label>
+                            <button type="submit" style="display: none;">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="upload-tab">
+                    <summary class="info-tab-label">
+                        <p>Sales</p>
+                    </summary>
+                    <div class="upload-tab-content">
+
+                    </div>
                 </div>
             </div>
             <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 59% !important;">
@@ -87,4 +89,5 @@
     <script src="{% static 'js/mix_switches.js' %}"></script>
     <script src="{% static 'js/detail_btns.js' %}"></script>
     <script src="{% static 'js/table_row_addition.js' %}"></script>
+    <script src="{% static 'js/auto_upload.js' %}"></script>
 {% endblock %}

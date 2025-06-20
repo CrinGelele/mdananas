@@ -191,7 +191,7 @@ form {
     font-family: "Inter", sans-serif;
     font-weight: 500;
     font-style: normal;
-    background-color: rgb(45 143 254 / 1);;
+    background-color: rgb(45 143 254 / 1);
     color: white;
     font-size: 15px;
     justify-content: center;
@@ -242,4 +242,59 @@ form {
 .input-inactive {
     background-color: rgba(245, 248, 254, 0.3);;
     pointer-events: none;
+}
+
+.upload-tab {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    aspect-ratio: 1 / 1;
+    background-color: white;
+    color: rgb(38 67 100 / 1);
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 40px;
+    box-shadow: -6px -6px 20px rgba(186, 202, 247, .1), 24px 24px 30px rgba(209, 220, 250, .12), 8px 8px 8px rgba(163, 184, 245, .1);
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.upload-tab-label {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    justify-content: center;
+    vertical-align: middle;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.upload-tab-content {
+    border-top: 1px solid lightblue;
+}
+
+.plus-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border: 2px dashed rgb(45 143 254 / 1);
+    border-radius: 20px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 20px auto;
+}
+
+.plus-upload-btn:hover {
+    background-color: #e8f0fe;
+}
+
+.plus-icon {
+    font-size: 36px;
+    color: #4285f4;
+    line-height: 1;
 }
