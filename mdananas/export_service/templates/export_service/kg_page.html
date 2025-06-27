@@ -7,22 +7,35 @@
     <div class="vertical-container">
         <div class="info-tab info-tab-vertical info-tab-scroll">
             <summary class="info-tab-label">
-                <p>CU</p>
-                <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'cu_create' %}'">+New</button>
+                <p>SKU PIVOT</p>
             </summary>
             <div class="info-tab-label-form info-tab-label-form-scroll">
                 <table>
                     <thead>
-                        <tr onclick="window.location='?selected_cu='">
+                        <tr>
+                            <th>Material</th>
                             <th>Xcode</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for cu in existing_cu %}
-                            <tr onclick="window.location='?selected_cu={{ cu.id }}'">
-                                <td> {{ cu.xcode_cu }} </td>
-                                <td> <a href="{% url 'show_cu' cu_id=cu.id %}" style="text-decoration: none;">&#9998;</a> </td>
+                        {% for pivot_sku in existing_pivot_sku %}
+                            <tr>
+                                <td> {{ pivot_sku.material }} </td>
+                                <td>
+                                    <form class="auto-submit-form" method="post">
+                                        {% csrf_token %}
+                                        <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                        <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
+                                        <select class="info-tab-label-form-field-input" style="width: 100px !important;" id="pivot_cu_select" name="root_cu">
+                                            <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}} | {{pivot_sku.root_cu.tus.first.desc.first.rus_description}}</option>
+                                            {% for cu_with_desc in cus_with_desc %}
+                                                {% if cu_with_desc.id != pivot_sku.root_cu.id %}
+                                                    <option value="{{ cu_with_desc.id|default_if_none:"" }}">{{ cu_with_desc.xcode_cu }} | {{ cu_with_desc.rus_description }} </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -36,12 +49,12 @@
                         <p>Sales</p>
                     </summary>
                     <div class="upload-tab-content">
-                        <form method="post" enctype="multipart/form-data" id="file-upload-form">
+                        <form method="post" enctype="multipart/form-data" id="sales-file-upload-form">
                             {% csrf_token %}
                             <input type="text" name="form_name" id="form_name" style="display: none;" value="Sales">
                             <input type="file" name="file" id="file-input" style="display: none;">
                             <label for="file-input" class="plus-upload-btn">
-                                <span class="plus-icon">+</span>
+                                <span class="plus-icon" id="progress-percent">+</span>
                             </label>
                             <button type="submit" style="display: none;">Отправить</button>
                         </form>
@@ -86,8 +99,6 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'js/mix_switches.js' %}"></script>
-    <script src="{% static 'js/detail_btns.js' %}"></script>
-    <script src="{% static 'js/table_row_addition.js' %}"></script>
-    <script src="{% static 'js/auto_upload.js' %}"></script>
+    <script src="{% static 'js/progress_indicators.js' %}"></script>
+    <script src="{% static 'js/kg_pivot_sku_autosave.js' %}"></script>
 {% endblock %}

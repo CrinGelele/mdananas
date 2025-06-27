@@ -57,7 +57,7 @@ class CuCustomsInfo(models.Model):
 
 class Tu(models.Model):
     xcode_tu = models.CharField(max_length=15, unique=True, null=False)
-    root_cu = models.ForeignKey('Cu', on_delete=models.PROTECT, null=False)
+    root_cu = models.ForeignKey('Cu', on_delete=models.PROTECT, null=False, related_name='tus')
     ean_tu = models.CharField(max_length=14, null=True)
     status = models.CharField(max_length=5, null=False)
     type = models.CharField(max_length=1, null=False)
@@ -91,7 +91,7 @@ class TuLogisticsInfo(models.Model):
        db_table = '[00_ROOT].[ROOT_REF_SKU_TU_Logistics_info]'
 
 class TuDescription(models.Model):
-    root_tu = models.ForeignKey('Tu', on_delete=models.PROTECT, null=False)
+    root_tu = models.ForeignKey('Tu', on_delete=models.PROTECT, null=False, related_name='desc')
     rus_description = models.TextField(null=True)
     eng_description = models.TextField(null=True)
     class Meta:
