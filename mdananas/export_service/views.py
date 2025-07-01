@@ -4,8 +4,10 @@ from numpy import nan
 from mdananas.idealSchemaEditor import IdealSchemaEditor
 from django.db import connections, connection
 from django.core.cache import cache
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
+import Levenshtein
 from .models import *
 from .forms import *
 
@@ -14,7 +16,6 @@ def main_page(request):
     return HttpResponse("Hello, world!")
 
 def process_sales_file(file, request):
-    print('------------------------hy!')
     cache.set(f'sales_file_processing_active_{request.session.session_key}', 1, 300)
     cache.set(f'sales_file_processing_progress_{request.session.session_key}', 0, 300)
     if 'рабат' in file.name.lower():
@@ -61,7 +62,6 @@ def upload_sales_data(sales_data):
             schema_editor.create_model(KG_TMP_Sale)
             KG_TMP_Sale.objects.bulk_create(sales_data)
             cursor.execute("EXEC [11_KG].[KG_PROC_MERGE_Sales]")
-    return redirect('kg_page')
 
 def get_upload_progress(request):
     progress = cache.get(f'sales_file_processing_progress_{request.session.session_key}', 0)
@@ -78,8 +78,27 @@ def get_cus_with_desc():
         result = [dict(zip(columns, row)) for row in rows]
     return result
 
+def predict_xcode_cu(object):
+    cus_with_desc = get_cus_with_desc()
+    result = None
+    max_c = -1
+    for cu in cus_with_desc:
+        c = Levenshtein.ratio(cu['rus_description'], object.material)
+        if c >= max_c:
+            max_c = c
+            result = cu
+    return result['id']
+
 def kg_page(request):
-    existing_pivot_sku = KG_PIVOT_SKU.objects.all()
+    if 'kg_pivot_sku_suo' in request.GET:
+        response = HttpResponseRedirect(request.path)
+        response.set_cookie('kg_pivot_sku_suo', 'on' if request.GET.get('kg_pivot_sku_suo') == 'on' else 'off', max_age = 86400)
+        return response
+    kg_pivot_sku_suo = request.COOKIES.get('kg_pivot_sku_suo', 'on') == 'on'
+    existing_pivot_sku = KG_PIVOT_SKU.objects.filter(is_last_upload=True) if kg_pivot_sku_suo else KG_PIVOT_SKU.objects.all()
+    existing_ref_stores = KG_REF_Store.objects.all()
+    existing_chains = KG_REF_Store.objects.values_list('chain', flat=True).distinct()
+    existing_types = KG_REF_Store.objects.values_list('type', flat=True).distinct()
     cus_with_desc = get_cus_with_desc()
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
@@ -88,6 +107,7 @@ def kg_page(request):
                 case 'Sales':
                     sales_data = process_sales_file(form.cleaned_data['file'], request)
                     upload_sales_data(sales_data)
+                    return JsonResponse({'status': 'success','redirect_url': reverse('kg_page')})
                 case 'Competitors':
                     pass
                 case _:
@@ -98,6 +118,27 @@ def kg_page(request):
                 object = KG_PIVOT_SKU.objects.get(id = form.cleaned_data['pivot_sku_id'])
                 object.root_cu = Cu.objects.get(id = form.cleaned_data['root_cu'])
                 object.save()
+            else:
+                form = PredictPivotSKUForm(request.POST)
+                if form.is_valid():
+                    object = KG_PIVOT_SKU.objects.get(id = form.cleaned_data['pivot_sku_id'])
+                    predicted_cu_id = predict_xcode_cu(object)
+                    object.root_cu = Cu.objects.get(id = predicted_cu_id)
+                    object.save()
+                    response = HttpResponseRedirect(request.path)
+                    if 'scroll_position' in request.POST:
+                        response.set_cookie('scroll_pos', request.POST['scroll_position'], max_age=86400)
+                    return response
+                else:
+                    form = KgRefStoreForm(request.POST)
+                    if form.is_valid():
+                        object = KG_REF_Store.objects.get(id=form.cleaned_data['kg_store_id'])
+                        if object.chain != form.cleaned_data['chain'] or object.type != form.cleaned_data['type']:
+                            object.chain = form.cleaned_data['chain']
+                            object.type = form.cleaned_data['type']
+                            object.save()
     else:
         form = FileUploadForm()
-    return render(request, 'export_service/kg_page.html', context={'form': form, 'existing_pivot_sku': existing_pivot_sku, 'cus_with_desc': cus_with_desc})
+    return render(request, 'export_service/kg_page.html', context={'form': form, 'existing_pivot_sku': existing_pivot_sku, 'cus_with_desc': cus_with_desc,
+                                                                   'kg_pivot_sku_suo': kg_pivot_sku_suo, 'existing_ref_stores': existing_ref_stores,
+                                                                   'existing_chains': existing_chains, 'existing_types': existing_types})

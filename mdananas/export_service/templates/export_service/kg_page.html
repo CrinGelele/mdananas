@@ -5,41 +5,115 @@
 
 {% block content %}
     <div class="vertical-container">
-        <div class="info-tab info-tab-vertical info-tab-scroll">
-            <summary class="info-tab-label">
-                <p>SKU PIVOT</p>
-            </summary>
-            <div class="info-tab-label-form info-tab-label-form-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Material</th>
-                            <th>Xcode</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pivot_sku in existing_pivot_sku %}
+        <div style="width: 49% !important; justify-content: space-between !important;">
+            <div class="info-tab info-tab-scroll" style="height: 50% !important; width: 100% !important;">
+                <summary class="info-tab-label">
+                    <p>SKU PIVOT</p>
+                    <form method="get" action="" style="width: 150px;">
+                        <input type="hidden" name="kg_pivot_sku_suo" value="off">
+                        <label>
+                            Last upl
+                            <input type="checkbox" value="on" name="kg_pivot_sku_suo" {% if kg_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
+                        </label>
+                    </form>
+                </summary>
+                <div class="info-tab-label-form info-tab-label-form-scroll" id="kg_pivot_sku_table">
+                    <table>
+                        <thead>
                             <tr>
-                                <td> {{ pivot_sku.material }} </td>
-                                <td>
-                                    <form class="auto-submit-form" method="post">
-                                        {% csrf_token %}
-                                        <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
-                                        <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
-                                        <select class="info-tab-label-form-field-input" style="width: 100px !important;" id="pivot_cu_select" name="root_cu">
-                                            <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}} | {{pivot_sku.root_cu.tus.first.desc.first.rus_description}}</option>
-                                            {% for cu_with_desc in cus_with_desc %}
-                                                {% if cu_with_desc.id != pivot_sku.root_cu.id %}
-                                                    <option value="{{ cu_with_desc.id|default_if_none:"" }}">{{ cu_with_desc.xcode_cu }} | {{ cu_with_desc.rus_description }} </option>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </select>
-                                    </form>
-                                </td>
+                                <th>Material</th>
+                                <th>Xcode</th>
+                                <th></th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for pivot_sku in existing_pivot_sku %}
+                                <tr>
+                                    <td> {{ pivot_sku.material }} </td>
+                                    <td>
+                                        <form class="auto-submit-form" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
+                                            <select class="info-tab-label-form-field-input" style="width: 100px !important;" id="pivot_cu_select" name="root_cu">
+                                                <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}} | {{pivot_sku.root_cu.tus.first.desc.first.rus_description}}</option>
+                                                {% for cu_with_desc in cus_with_desc %}
+                                                    {% if cu_with_desc.id != pivot_sku.root_cu.id %}
+                                                        <option value="{{ cu_with_desc.id|default_if_none:"" }}">{{ cu_with_desc.xcode_cu }} | {{ cu_with_desc.rus_description }} </option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form class="predict-form" method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="scroll_position" class="scroll-position-input" value="0">
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="predict_pivot_sku">
+                                            <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                            <button type="submit" class="predict-btn info-tab-label-form-save-btn">Predict</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="info-tab info-tab-scroll" style="height: 50% !important; width: 100% !important;">
+                <summary class="info-tab-label">
+                    <p>Stores REF</p>
+                    <button type="submit" class="info-tab-label-form-save-btn" id="ref-stores-save-btn">Save</button>
+                </summary>
+                <div class="info-tab-label-form info-tab-label-form-scroll" id="kg_pivot_sku_table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>store_kg</th>
+                                <th>chain</th>
+                                <th>type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ref_store in existing_ref_stores %}
+                                <tr>
+                                    <form class="ref-stores-form">
+                                        {% csrf_token %}
+                                        <td> 
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="ref_stores">
+                                            <input type="text" name="kg_store_id" style="display: none;" value="{{ ref_store.id }}">
+                                            {{ ref_store.store_kg }}
+                                        </td>
+                                        <td>
+                                            <select class="info-tab-label-form-field-input chain-field" style="width: 100px !important;" name="chain" data-default="ref_store.chain|default_if_none:""">
+                                                <option value="{{ref_store.chain|default_if_none:""}}" selected>{{ref_store.chain|default_if_none:""}}</option>
+                                                {% for chain in existing_chains %}
+                                                    {% if chain != ref_store.chain %}
+                                                        <option value="{{ chain }}">{{ chain }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input new-chain-field" type="text" name="chain" style="display: none; width: 100px !important;" disabled>
+                                        </td>
+                                        <td>
+                                            <select class="info-tab-label-form-field-input type-field" style="width: 100px !important;" name="type" data-default="{{ref_store.type|default_if_none:""}}">
+                                                <option value="{{ref_store.type|default_if_none:""}}" selected>{{ref_store.type|default_if_none:""}}</option>
+                                                {% for type in existing_types %}
+                                                    {% if type != ref_store.type %}
+                                                        <option value="{{ type }}">{{ type }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input new-type-field" type="text" name="type" style="display: none; width: 100px !important;" disabled>
+                                        </td>
+                                    </form>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div style="width: 49% !important; justify-content: space-between !important;">
@@ -58,14 +132,6 @@
                             </label>
                             <button type="submit" style="display: none;">Отправить</button>
                         </form>
-                    </div>
-                </div>
-                <div class="upload-tab">
-                    <summary class="info-tab-label">
-                        <p>Sales</p>
-                    </summary>
-                    <div class="upload-tab-content">
-
                     </div>
                 </div>
             </div>
@@ -101,4 +167,6 @@
 {% block scripts %}
     <script src="{% static 'js/progress_indicators.js' %}"></script>
     <script src="{% static 'js/kg_pivot_sku_autosave.js' %}"></script>
+    <script src="{% static 'js/kg_switches.js' %}"></script>
+    <script src="{% static 'js/kg_save_ref_stores.js' %}"></script>
 {% endblock %}
