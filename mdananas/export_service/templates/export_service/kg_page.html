@@ -3,79 +3,223 @@
 {% load custom_filters %}
 {% block title %}ref_sku_page{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'export_service/kg/css/kg.css' %}">
+{% endblock %}
+
 {% block content %}
     <div class="vertical-container">
-        <div class="info-tab info-tab-vertical info-tab-scroll">
-            <summary class="info-tab-label">
-                <p>CU</p>
-                <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'cu_create' %}'">+New</button>
-            </summary>
-            <div class="info-tab-label-form info-tab-label-form-scroll">
-                <table>
-                    <thead>
-                        <tr onclick="window.location='?selected_cu='">
-                            <th>Xcode</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cu in existing_cu %}
-                            <tr onclick="window.location='?selected_cu={{ cu.id }}'">
-                                <td> {{ cu.xcode_cu }} </td>
-                                <td> <a href="{% url 'show_cu' cu_id=cu.id %}" style="text-decoration: none;">&#9998;</a> </td>
+        <div style="width: 49% !important; justify-content: space-between !important;">
+            <div class="info-tab info-tab-scroll" style="height: 50% !important; width: 100% !important;">
+                <summary class="info-tab-label">
+                    <p>SKU PIVOT</p>
+                    <form method="get" action="" style="width: 150px;">
+                        <input type="hidden" name="kg_pivot_sku_suo" value="off">
+                        <label>
+                            Last upl
+                            <input type="checkbox" value="on" name="kg_pivot_sku_suo" {% if kg_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
+                        </label>
+                    </form>
+                </summary>
+                <div class="info-tab-label-form info-tab-label-form-scroll" id="kg_pivot_sku_table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Xcode</th>
+                                <th></th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for pivot_sku in existing_pivot_sku %}
+                                <tr>
+                                    <td> {{ pivot_sku.material }} </td>
+                                    <td>
+                                        <form class="auto-submit-form" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
+                                            <select class="info-tab-label-form-field-input" style="width: 100px !important;" id="pivot_cu_select" name="root_cu">
+                                                <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}} | {{pivot_sku.root_cu.tus.first.desc.first.rus_description}}</option>
+                                                {% for cu_with_desc in cus_with_desc %}
+                                                    {% if cu_with_desc.id != pivot_sku.root_cu.id %}
+                                                        <option value="{{ cu_with_desc.id|default_if_none:"" }}">{{ cu_with_desc.xcode_cu }} | {{ cu_with_desc.rus_description }} </option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form class="predict-form" method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="scroll_position" class="scroll-position-input" value="0">
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="predict_pivot_sku">
+                                            <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                            <button type="submit" class="predict-btn info-tab-label-form-save-btn">Predict</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="info-tab info-tab-scroll" style="height: 50% !important; width: 100% !important;">
+                <summary class="info-tab-label">
+                    <p>Stores REF</p>
+                    <button type="submit" class="info-tab-label-form-save-btn" id="ref-stores-save-btn">Save</button>
+                </summary>
+                <div class="info-tab-label-form info-tab-label-form-scroll" id="kg_pivot_sku_table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>store_kg</th>
+                                <th>chain</th>
+                                <th>type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ref_store in existing_ref_stores %}
+                                <form class="ref-stores-form" method="post" action="">
+                                {% csrf_token %}
+                                <tr>
+                                        <td style="display: none;">
+                                            <input type="text" name="form_changed" id="form_changed" style="display: none;" value="0">
+                                        </td>
+                                        <td> 
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="ref_stores">
+                                            <input type="text" name="kg_store_id" style="display: none;" value="{{ ref_store.id }}">
+                                            {{ ref_store.store_kg }}
+                                        </td>
+                                        <td>
+                                            <select class="info-tab-label-form-field-input chain-field" id="" style="width: 100px !important;" name="chain" data-default="ref_store.chain|default_if_none:""">
+                                                <option value="{{ref_store.chain|default_if_none:""}}" selected>{{ref_store.chain|default_if_none:""}}</option>
+                                                {% for chain in existing_chains %}
+                                                    {% if chain != ref_store.chain %}
+                                                        <option value="{{ chain }}">{{ chain }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input" id="new-chain-field" type="text" name="chain" style="display: none; width: 100px !important;" disabled>
+                                        </td>
+                                        <td>
+                                            <select class="info-tab-label-form-field-input type-field" style="width: 100px !important;" name="type" data-default="{{ref_store.type|default_if_none:""}}">
+                                                <option value="{{ref_store.type|default_if_none:""}}" selected>{{ref_store.type|default_if_none:""}}</option>
+                                                {% for type in existing_types %}
+                                                    {% if type != ref_store.type %}
+                                                        <option value="{{ type }}">{{ type }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input" id="new-type-field" type="text" name="type" style="display: none; width: 100px !important;" disabled>
+                                        </td>
+                                    </tr>
+                                </form>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div style="width: 49% !important; justify-content: space-between !important;">
-            <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 40% !important;">
-                <summary class="info-tab-label">
-                    <p>MIX</p>
-                    <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'mix_create' %}'">+New</button>
-                </summary>
-                <div class="info-tab-label-form info-tab-label-form-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Xcode</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for mix in existing_mix %}
-                                <tr>
-                                    <td> {{ mix.xcode_mix }} </td>
-                                    <td> <a href="{% url 'show_mix' mix_id=mix.id %}" style="text-decoration: none;">&#9998;</a> </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>  
+            <div style="display: flex; width: 100%; justify-content: space-between; flex-direction: row;">
+                <div class="upload-tab">
+                    <summary class="upload-tab-label">
+                        <p>Sales</p>
+                    </summary>
+                    <div class="upload-tab-content">
+                        <form method="post" enctype="multipart/form-data" id="sales-file-upload-form">
+                            {% csrf_token %}
+                            <input type="text" name="form_name" id="form_name" style="display: none;" value="Sales">
+                            <input type="file" name="file" id="sales-file-input" style="display: none;">
+                            <label for="sales-file-input" class="plus-upload-btn">
+                                <span class="plus-icon" id="progress-percent">+</span>
+                            </label>
+                            <button type="submit" style="display: none;">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="upload-tab">
+                    <summary class="upload-tab-label">
+                        <p>Competitors</p>
+                    </summary>
+                    <div class="upload-tab-content">
+                        <form method="post" enctype="multipart/form-data" id="competitors-file-upload-form">
+                            {% csrf_token %}
+                            <input type="text" name="form_name" id="form_name" style="display: none;" value="Competitors">
+                            <input type="file" name="file" id="competitors-file-input" style="display: none;">
+                            <label for="competitors-file-input" class="plus-upload-btn">
+                                <span class="plus-icon" id="progress-percent">+</span>
+                            </label>
+                            <button type="submit" style="display: none;">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="upload-tab" style="background-image: url('{% static 'img/logo.png' %}'); background-size: cover; background-position: center;">
                 </div>
             </div>
-            <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 59% !important;">
+            <div class="info-tab info-tab-scroll" style="height: calc(100% - 168px) !important; width: 100% !important;">
                 <summary class="info-tab-label">
-                    <p>TU</p>
-                    <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'tu_create' %}'">+New</button>
+                    <p>Competitors SKU REF</p>
+                    <button type="submit" class="info-tab-label-form-save-btn" id="ref-comp-save-btn">Save</button>
                 </summary>
-                <div class="info-tab-label-form info-tab-label-form-scroll">
+                <div class="info-tab-label-form info-tab-label-form-scroll" id="kg_pivot_sku_table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Xcode</th>
-                                <th></th>
+                                <th>brand</th>
+                                <th>material</th>
+                                <th>category</th>
+                                <th>groupname</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for tu in existing_tu %}
+                            {% for competitor_sku in existing_ref_competitors_sku %}
+                                <form class="ref-comp-form" method="post" action="">
+                                {% csrf_token %}
                                 <tr>
-                                    <td> {{ tu.xcode_tu }} </td>
-                                    <td> <a href="{% url 'show_tu' tu_id=tu.id %}" style="text-decoration: none;">&#9998;</a> </td>
-                                </tr>
+                                        <td style="display: none;">
+                                            <input type="text" name="form_changed" id="form_changed" style="display: none;" value="0">
+                                        </td>
+                                        <td> 
+                                            {{ competitor_sku.brand }}
+                                        </td>
+                                        <td> 
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="ref_comp_sku">
+                                            <input type="text" name="ref_comp_sku_id" style="display: none;" value="{{ competitor_sku.id }}">
+                                            {{ competitor_sku.material }}
+                                        </td>
+                                        <td>
+                                            <select class="info-tab-label-form-field-input category-field" style="width: 100px !important;" name="category" data-default="competitor_sku.category|default_if_none:""">
+                                                <option value="{{competitor_sku.category|default_if_none:""}}" selected>{{competitor_sku.category|default_if_none:""}}</option>
+                                                {% for category in existing_categories %}
+                                                    {% if category != competitor_sku.category %}
+                                                        <option value="{{ category }}">{{ category }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input" id="new-category-field" type="text" name="category" style="display: none; width: 100px !important;" disabled>
+                                        </td>
+                                        <td>
+                                            <select class="info-tab-label-form-field-input groupname-field" style="width: 100px !important;" name="groupname" data-default="{{competitor_sku.groupname|default_if_none:""}}">
+                                                <option value="{{competitor_sku.groupname|default_if_none:""}}" selected>{{competitor_sku.groupname|default_if_none:""}}</option>
+                                                {% for groupname in existing_groupnames %}
+                                                    {% if groupname != competitor_sku.groupname %}
+                                                        <option value="{{ groupname }}">{{ groupname }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input" id="new-groupname-field" type="text" name="groupname" style="display: none; width: 100px !important;" disabled>
+                                        </td>
+                                    </tr>
+                                </form>
                             {% endfor %}
                         </tbody>
-                    </table>  
+                    </table>
                 </div>
             </div>
         </div>
@@ -84,7 +228,9 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'js/mix_switches.js' %}"></script>
-    <script src="{% static 'js/detail_btns.js' %}"></script>
-    <script src="{% static 'js/table_row_addition.js' %}"></script>
+    <script src="{% static 'export_service/kg/js/progress_indicators.js' %}"></script>
+    <script src="{% static 'export_service/kg/js/kg_pivot_sku_autosave.js' %}"></script>
+    <script src="{% static 'export_service/kg/js/kg_switches.js' %}"></script>
+    <script src="{% static 'export_service/kg/js/kg_save_ref_stores.js' %}"></script>
+    <script src="{% static 'export_service/kg/js/kg_save_ref_comp.js' %}"></script>
 {% endblock %}

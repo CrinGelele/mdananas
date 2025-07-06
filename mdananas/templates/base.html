@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static "css/base.css" %}"/>
     <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="space">
@@ -21,6 +22,7 @@
                     <span class="hidden sm:inline font-medium text-blue-500">MDANANAS</span>
                 </a>
                 <a class="nav-text" href="/root/ref_sku/"">ROOT_REF_SKU</a>
+                <a class="nav-text" href="/export/kg/"">KG</a>
             </div>
         </div>
         <div class="container">
