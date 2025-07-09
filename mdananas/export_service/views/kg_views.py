@@ -2,7 +2,7 @@ import pandas as pd
 import dateparser
 from numpy import nan
 from mdananas.idealSchemaEditor import IdealSchemaEditor
-from django.db import connections, connection
+from django.db import connections
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -99,6 +99,7 @@ def upload_sales_data(sales_data):
             schema_editor.create_model(KG_TMP_Sale)
             KG_TMP_Sale.objects.bulk_create(sales_data)
             cursor.execute("EXEC [11_KG].[KG_PROC_MERGE_Sales]")
+            cursor.execute("DROP TABLE IF EXISTS [11_KG].[KG_TMP_Sales];")
 
 def upload_competitors_data(competitors_data):
     with connections['ideal'].cursor() as cursor:
@@ -107,6 +108,7 @@ def upload_competitors_data(competitors_data):
             schema_editor.create_model(KG_TMP_Competitor_Sale)
             KG_TMP_Competitor_Sale.objects.bulk_create(competitors_data)
             cursor.execute("EXEC [11_KG].[KG_PROC_MERGE_Competitors_Sales]")
+            cursor.execute("DROP TABLE IF EXISTS [11_KG].[KG_TMP_Competitors_sales];")
 
 def get_upload_progress(request):
     return JsonResponse({'sales_file_processing_progress': cache.get(f'sales_file_processing_progress_{request.session.session_key}', 0),

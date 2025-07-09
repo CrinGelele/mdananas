@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ref_sku_page{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'domestic_service/dm/css/dm.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="upload-container-long">
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>BY</p>
+            </summary>
+            <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="by-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="by">
+                    <input type="file" class="file-input" id="by-file-input" name="file" style="display: none;">
+                    <label for="by-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="by-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
+            </div>
+        </div>
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>RU</p>
+            </summary>
+            <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="implant-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="implant">
+                    <input type="file" class="file-input" id="implant-file-input" name="file" style="display: none;">
+                    <label for="implant-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="implant-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
+            </div>
+        </div>
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>Clusters</p>
+            </summary>
+            <div class="upload-tab-content">
+            </div>
+        </div>
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>Implant Stores</p>
+            </summary>
+            <div class="upload-tab-content">
+            </div>
+        </div>
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>Decades</p>
+            </summary>
+            <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="decade-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="decade">
+                    <input type="file" class="file-input" id="decade-file-input" name="file" style="display: none;">
+                    <label for="decade-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="decade-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
+            </div>
+        </div>
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>L.ARGO</p>
+            </summary>
+            <div class="upload-tab-content">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'domestic_service/dm/js/progress_indicators.js' %}"></script>
+{% endblock %}
