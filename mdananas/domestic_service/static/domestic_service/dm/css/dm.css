@@ -8,3 +8,24 @@
     padding-left: 35px;
     padding-right: 35px;
 }
+
+.pivots-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1312px;
+    padding-left: 35px;
+    padding-right: 35px;
+    height: 65%;
+    max-height: 65%;
+}
+
+.w-50 {
+    width: 49% !important;
+}
+
+.l-100 {
+    width: 100px !important;
+}

@@ -60,6 +60,7 @@
                 <p>Decades</p>
             </summary>
             <div class="upload-tab-content">
+                <div style="display: none !important;">
                 <form method="post" enctype="multipart/form-data" id="decade-file-upload-form">
                     {% csrf_token %}
                     <input type="text" name="form_name" id="form_name" style="display: none;" value="decade">
@@ -69,6 +70,7 @@
                     </label>
                     <button type="submit" style="display: none;">Отправить</button>
                 </form>
+                </div>
             </div>
         </div>
         <div class="upload-tab">
@@ -79,8 +81,70 @@
             </div>
         </div>
     </div>
+    <div class="pivots-container">
+        <div class="info-tab w-50 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>SKU PIVOT</p>
+                <form method="get" action="" style="width: 150px;">
+                    <input type="hidden" name="dm_pivot_sku_suo" value="off">
+                    <label>
+                        Last upl
+                        <input type="checkbox" value="on" name="dm_pivot_sku_suo" {% if dm_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
+                    </label>
+                </form>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>is_mix</th>
+                            <th>Xcode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pivot_sku in existing_pivot_sku %}
+                            <tr>
+                                <td> {{ pivot_sku.material }} </td>
+                                <form class="auto-submit-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <td>
+                                            <input type="checkbox" class="auto-submit-input" value="1" name="is_mix" {% if pivot_sku.is_mix %} checked {% endif %}>
+                                    </td>
+                                    <td>
+                                            <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input cu-select" {% if pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_cu">
+                                                <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}}</option>
+                                                {% for cu in existing_cu %}
+                                                    {% if cu.id != pivot_sku.root_cu.id %}
+                                                        <option value="{{ cu.id|default_if_none:"" }}">{{ cu.xcode_cu }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input mix-select" {% if not pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_mix">
+                                                <option value="{{pivot_sku.root_mix.id|default_if_none:""}}" selected>{{pivot_sku.root_mix.xcode_mix}}</option>
+                                                {% for mix in existing_mix %}
+                                                    {% if mix.id != pivot_sku.root_mix.id %}
+                                                        <option value="{{ mix.id|default_if_none:"" }}">{{ mix.xcode_mix }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                    </td>
+                                </form>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="info-tab w-50 info-tab-scroll">
+
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
     <script src="{% static 'domestic_service/dm/js/progress_indicators.js' %}"></script>
+    <script src="{% static 'domestic_service/dm/js/pivot_sku_autosave.js' %}"></script>
 {% endblock %}
