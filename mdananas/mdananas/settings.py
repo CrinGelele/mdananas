@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'root_service',
-    'export_service'
+    'export_service',
+    'domestic_service'
 ]
 
 MIDDLEWARE = [
@@ -147,7 +148,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
     "root_service/static/",
-    os.path.join(BASE_DIR, 'export_service/static'),  # Если используется кастомная структура
+    os.path.join(BASE_DIR, 'export_service/static'),
+    os.path.join(BASE_DIR, 'domestic_service/static'), 
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
