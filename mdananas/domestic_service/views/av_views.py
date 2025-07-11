@@ -66,6 +66,8 @@ def av_page(request):
         return response
     av_pivot_sku_suo = request.COOKIES.get('av_pivot_sku_suo', 'on') == 'on'
     existing_pivot_sku = AV_PIVOT_SKU.objects.filter(is_last_upload=True) if av_pivot_sku_suo else AV_PIVOT_SKU.objects.all()
+    existing_cu = Cu.objects.all().order_by('xcode_cu')
+    existing_mix = Mix.objects.all().order_by('xcode_mix')
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -73,13 +75,22 @@ def av_page(request):
                 case 'sales':
                     upload_file(process_sales_file(form.cleaned_data['file'], request), AV_TMP_Sale, '[21_AV].[AV_PROC_MERGE_Sales]')
                     return JsonResponse({'status': 'success','redirect_url': reverse('av_page')})
-                case 'decade':
-                    #upload_file(process_decade_file(form.cleaned_data['file'], request), DM_TMP_BY_Sale, '[20_DM].[DM_PROC_MERGE_BY_Sales]')
-                    #process_decade_file(form.cleaned_data['file'], request)
-                    #return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
-                    pass
                 case _:
                     pass
+        else:
+            form = PivotSKUForm(request.POST)
+            if form.is_valid():
+                object = AV_PIVOT_SKU.objects.get(id = form.cleaned_data['pivot_sku_id'])
+                if form.cleaned_data['is_mix']:
+                    object.is_mix = True
+                    object.root_cu = None
+                    object.root_mix = Mix.objects.get(id = form.cleaned_data['root_mix']) if form.cleaned_data['root_mix'] else None
+                else:
+                    object.is_mix = False
+                    object.root_mix = None
+                    object.root_cu = Cu.objects.get(id = form.cleaned_data['root_cu']) if form.cleaned_data['root_cu'] else None
+                object.save()
     else:
         print(0)
-    return render(request, "domestic_service/av_page.html", context={'av_pivot_sku_suo': av_pivot_sku_suo, 'existing_pivot_sku': existing_pivot_sku})
+    return render(request, "domestic_service/av_page.html", context={'av_pivot_sku_suo': av_pivot_sku_suo, 'existing_pivot_sku': existing_pivot_sku,
+                                                                     'existing_cu': existing_cu, 'existing_mix': existing_mix})

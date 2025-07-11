@@ -91,6 +91,7 @@
                         {% for pivot_sku in existing_pivot_sku %}
                             <tr>
                                 <td> {{ pivot_sku.material }} </td>
+                                <td> {{ pivot_sku.av_description }} </td>
                                 <form class="auto-submit-form" method="post" action="">
                                     {% csrf_token %}
                                     <td>
@@ -131,4 +132,5 @@
 
 {% block scripts %}
     <script src="{% static 'domestic_service/av/js/progress_indicators.js' %}"></script>
+    <script src="{% static 'domestic_service/av/js/pivot_sku_autosave.js' %}"></script>
 {% endblock %}
