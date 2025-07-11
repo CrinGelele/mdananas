@@ -24,6 +24,22 @@ function trackProgress(active_form, file_name) {
                         percentElement.textContent = '100%';
                     }
                 }
+                if (file_name === 'stock') {
+                    console.log(data)
+                    percentElement.textContent = data.av_stock_file_progress + '%';
+                    if (!data.av_stock_file_active) {
+                        console.log(1)
+                        clearInterval(progressInterval);
+                        percentElement.textContent = '100%';
+                    }
+                }
+                if (file_name === 'matrix') {
+                    percentElement.textContent = data.av_matrix_file_progress + '%';
+                    if (!data.av_matrix_file_active) {
+                        clearInterval(progressInterval);
+                        percentElement.textContent = '100%';
+                    }
+                }
             });
     }, 500);
     return progressInterval
@@ -49,4 +65,6 @@ function addFileInputChangeListener(active_form, file_name) {
 
 window.addEventListener('load', function() {
     addFileInputChangeListener(document.getElementById('sales-file-upload-form'), 'sales');
+    addFileInputChangeListener(document.getElementById('stock-file-upload-form'), 'stock');
+    addFileInputChangeListener(document.getElementById('matrix-file-upload-form'), 'matrix');
 });

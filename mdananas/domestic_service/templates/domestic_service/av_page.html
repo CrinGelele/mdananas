@@ -27,42 +27,37 @@
         </div>
         <div class="upload-tab">
             <summary class="upload-tab-label">
-                <p>Clusters</p>
+                <p>Stock</p>
             </summary>
             <div class="upload-tab-content">
-            </div>
-        </div>
-        <div class="upload-tab">
-            <summary class="upload-tab-label">
-                <p>Implant Stores</p>
-            </summary>
-            <div class="upload-tab-content">
-            </div>
-        </div>
-        <div class="upload-tab">
-            <summary class="upload-tab-label">
-                <p>Decades</p>
-            </summary>
-            <div class="upload-tab-content">
-                <div style="display: none !important;">
-                <form method="post" enctype="multipart/form-data" id="decade-file-upload-form">
+                <form method="post" enctype="multipart/form-data" id="stock-file-upload-form">
                     {% csrf_token %}
-                    <input type="text" name="form_name" id="form_name" style="display: none;" value="decade">
-                    <input type="file" class="file-input" id="decade-file-input" name="file" style="display: none;">
-                    <label for="decade-file-input" class="plus-upload-btn">
-                        <span class="plus-icon progress-percent" id="decade-progress-percent">+</span>
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="stock">
+                    <input type="file" class="file-input" id="stock-file-input" name="file" style="display: none;">
+                    <label for="stock-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="stock-progress-percent">+</span>
                     </label>
                     <button type="submit" style="display: none;">Отправить</button>
                 </form>
-                </div>
             </div>
         </div>
         <div class="upload-tab">
             <summary class="upload-tab-label">
-                <p>L.ARGO</p>
+                <p>Matrix</p>
             </summary>
             <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="matrix-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="matrix">
+                    <input type="file" class="file-input" id="matrix-file-input" name="file" style="display: none;">
+                    <label for="matrix-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="matrix-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
             </div>
+        </div>
+        <div class="upload-tab" style="background-image: url('{% static 'img/av_ananas.jpg' %}'); background-size: cover; background-position: center;">
         </div>
     </div>
     <div class="pivots-container">
