@@ -1,5 +1,5 @@
 from django.db import models
-from root_service.models import Cu, Tu, TuDescription
+from root_service.models import Cu
 
 class KG_TMP_Sale(models.Model):
     date_year = models.CharField(max_length=255)

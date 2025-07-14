@@ -2,12 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.core.cache import cache
-from .forms import *
-from .models import *
+from ..forms.dm_forms import *
+from ..models.dm_models import *
 import pandas as pd
 from django.db import connections
 from mdananas.idealSchemaEditor import IdealSchemaEditor
-from xml.etree import ElementTree as ET
 from pyxlsb import open_workbook, convert_date
 import tempfile
 import csv
