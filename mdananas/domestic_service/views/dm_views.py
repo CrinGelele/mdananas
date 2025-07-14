@@ -84,6 +84,7 @@ def process_implant_file(file, request):
                         case _:
                             pass
                 result.append(object)
+                print(int(current_row / total_rows * 100))
                 cache.set(f'implant_file_progress_{request.session.session_key}', int(current_row / total_rows * 100), 300)
     cache.set(f'implant_file_active_{request.session.session_key}', 0, 300)
     cache.set(f'implant_file_progress_{request.session.session_key}', 0, 300)
