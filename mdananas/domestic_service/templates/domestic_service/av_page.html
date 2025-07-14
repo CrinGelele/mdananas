@@ -120,12 +120,50 @@
             </div>
         </div>
         <div class="info-tab w-50 info-tab-scroll">
-
+            <summary class="info-tab-label">
+                <p>Stores REF</p>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Format</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for store in existing_stores %}
+                            <tr>
+                                <td> {{ store.store_av }} </td>
+                                    <td>
+                                        <form class="auto-submit-form" method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="text" name="store_id" id="store_id" style="display: none;" value="{{store.id}}">
+                                            <div class="info-tab-label-form-field">
+                                                <select class="info-tab-label-form-field-input format-select l-100" name="store_format">
+                                                    <option value="{{store.store_format|default_if_none:""}}" selected>{{store.store_format|default_if_none:""}}</option>
+                                                    {% for format in existing_formats %}
+                                                        {% if format != store.store_format %}
+                                                            <option value="{{ format }}">{{ format }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <option value="new">Добавить новую...</option>
+                                                </select>
+                                                <input class="info-tab-label-form-field-input l-100 new-format-field type="text" name="store_format" style="display: none;" disabled>
+                                            </div>
+                                        </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
+<script src="{% static 'domestic_service/av/js/av_switches.js' %}"></script>
     <script src="{% static 'domestic_service/av/js/progress_indicators.js' %}"></script>
     <script src="{% static 'domestic_service/av/js/pivot_sku_autosave.js' %}"></script>
 {% endblock %}

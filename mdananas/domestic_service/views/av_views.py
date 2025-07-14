@@ -161,6 +161,12 @@ def av_page(request):
                     object.root_mix = None
                     object.root_cu = Cu.objects.get(id = form.cleaned_data['root_cu']) if form.cleaned_data['root_cu'] else None
                 object.save()
+            else:
+                form = StoreRefForm(request.POST)
+                if form.is_valid():
+                    object = AV_REF_Store.objects.get(id = form.cleaned_data['store_id'])
+                    object.store_format = form.cleaned_data['store_format']
+                    object.save()
     else:
         print(0)
     return render(request, "domestic_service/av_page.html", context={'av_pivot_sku_suo': av_pivot_sku_suo, 'existing_pivot_sku': existing_pivot_sku,

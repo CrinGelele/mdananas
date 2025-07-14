@@ -9,3 +9,7 @@ class PivotSKUForm(forms.Form):
     is_mix = forms.BooleanField(required=False)
     root_mix = forms.IntegerField(required=False)
     pivot_sku_id = forms.IntegerField()
+
+class StoreRefForm(forms.Form):
+    store_format = forms.CharField(required=False)
+    store_id = forms.IntegerField()
