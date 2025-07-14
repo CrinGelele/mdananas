@@ -46,39 +46,34 @@
                 <p>Clusters</p>
             </summary>
             <div class="upload-tab-content">
-            </div>
-        </div>
-        <div class="upload-tab">
-            <summary class="upload-tab-label">
-                <p>Implant Stores</p>
-            </summary>
-            <div class="upload-tab-content">
-            </div>
-        </div>
-        <div class="upload-tab">
-            <summary class="upload-tab-label">
-                <p>Decades</p>
-            </summary>
-            <div class="upload-tab-content">
-                <div style="display: none !important;">
-                <form method="post" enctype="multipart/form-data" id="decade-file-upload-form">
+                <form method="post" enctype="multipart/form-data" id="dm-clusters-file-upload-form">
                     {% csrf_token %}
-                    <input type="text" name="form_name" id="form_name" style="display: none;" value="decade">
-                    <input type="file" class="file-input" id="decade-file-input" name="file" style="display: none;">
-                    <label for="decade-file-input" class="plus-upload-btn">
-                        <span class="plus-icon progress-percent" id="decade-progress-percent">+</span>
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="clusters">
+                    <input type="file" class="file-input" id="dm-clusters-file-input" name="file" style="display: none;">
+                    <label for="dm-clusters-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="dm-clusters-progress-percent">+</span>
                     </label>
                     <button type="submit" style="display: none;">Отправить</button>
                 </form>
-                </div>
             </div>
         </div>
         <div class="upload-tab">
             <summary class="upload-tab-label">
-                <p>L.ARGO</p>
+                <p>Stores</p>
             </summary>
             <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="dm-stores-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="stores">
+                    <input type="file" class="file-input" id="dm-stores-file-input" name="file" style="display: none;">
+                    <label for="dm-stores-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="dm-stores-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
             </div>
+        </div>
+        <div class="upload-tab" style="background-image: url('{% static 'img/dm_ananas.jpg' %}'); background-size: cover; background-position: center;">
         </div>
     </div>
     <div class="pivots-container">

@@ -20,18 +20,28 @@ function trackProgress(active_form, file_name) {
                 if (file_name === 'by') {
                     percentElement.textContent = data.by_file_progress + '%';
                     if (!data.by_file_active) {
+                        percentElement.textContent = '100%';
                         clearInterval(progressInterval);
                     }
                 }
                 if (file_name === 'implant') {
                     percentElement.textContent = data.implant_file_progress + '%';
                     if (!data.implant_file_active) {
+                        percentElement.textContent = '100%';
                         clearInterval(progressInterval);
                     }
                 }
-                if (file_name === 'decade') {
-                    percentElement.textContent = data.decade_file_progress + '%';
-                    if (!data.decade_file_active) {
+                if (file_name === 'stores') {
+                    percentElement.textContent = data.dm_stores_file_progress + '%';
+                    if (!data.dm_stores_file_active) {
+                        percentElement.textContent = '100%';
+                        clearInterval(progressInterval);
+                    }
+                }
+                if (file_name === 'clusters') {
+                    percentElement.textContent = data.dm_clusters_file_progress + '%';
+                    if (!data.dm_clusters_file_active) {
+                        percentElement.textContent = '100%';
                         clearInterval(progressInterval);
                     }
                 }
@@ -60,6 +70,7 @@ function addFileInputChangeListener(active_form, file_name) {
 
 window.addEventListener('load', function() {
     addFileInputChangeListener(document.getElementById('by-file-upload-form'), 'by');
-    addFileInputChangeListener(document.getElementById('decade-file-upload-form'), 'decade');
     addFileInputChangeListener(document.getElementById('implant-file-upload-form'), 'implant');
+    addFileInputChangeListener(document.getElementById('dm-stores-file-upload-form'), 'stores');
+    addFileInputChangeListener(document.getElementById('dm-clusters-file-upload-form'), 'clusters');
 });
