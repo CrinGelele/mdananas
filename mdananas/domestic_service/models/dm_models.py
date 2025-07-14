@@ -31,6 +31,30 @@ class DM_TMP_RU_Sale(models.Model):
        managed = False
        db_table = '[20_DM].[DM_TMP_RU_Sales]'
 
+class DM_TMP_Store(models.Model):
+    store_dm = models.CharField(max_length=255)
+    store_name = models.CharField(max_length=255)
+    open_date = models.CharField(max_length=255)
+    close_date = models.CharField(max_length=255)
+    address_city = models.CharField(max_length=255)
+    address_street = models.CharField(max_length=255)
+    address_house = models.CharField(max_length=255)
+    class Meta:
+       managed = False
+       db_table = '[20_DM].[DM_TMP_Stores]'
+
+class DM_TMP_Cluster(models.Model):
+    date_year = models.CharField(max_length=255)
+    date_month = models.CharField(max_length=255)
+    date_day = models.CharField(max_length=255)
+    material = models.CharField(max_length=255)
+    store_dm = models.CharField(max_length=255)
+    cluster = models.CharField(max_length=255)
+    min_balance = models.CharField(max_length=255)
+    class Meta:
+       managed = False
+       db_table = '[20_DM].[DM_TMP_Clusters]'
+
 class DM_PIVOT_SKU(models.Model):
     root_cu = models.ForeignKey(Cu, on_delete=models.PROTECT, null=True, )
     root_mix = models.ForeignKey(Mix, on_delete=models.PROTECT, null=True)

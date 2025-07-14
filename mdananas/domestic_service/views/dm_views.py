@@ -11,6 +11,8 @@ from pyxlsb import open_workbook, convert_date
 import tempfile
 import csv
 import os
+import dateparser
+import re
 
 def main_page(request):
     return HttpResponse("Hello, world!")
@@ -36,7 +38,7 @@ def process_by_file(file, request):
             value = row['Товарооборот ФЦ руб'],
             stock = row['Остаток ШТ']
         ))
-        cache.set(f'by_file_progress_{request.session.session_key}', (index + 1) / total_rows * 100, 300) 
+        cache.set(f'by_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300) 
     cache.set(f'by_file_active_{request.session.session_key}', 0, 300)
     cache.set(f'by_file_progress_{request.session.session_key}', 0, 300) 
     return result
@@ -84,10 +86,74 @@ def process_implant_file(file, request):
                         case _:
                             pass
                 result.append(object)
-                print(int(current_row / total_rows * 100))
                 cache.set(f'implant_file_progress_{request.session.session_key}', int(current_row / total_rows * 100), 300)
     cache.set(f'implant_file_active_{request.session.session_key}', 0, 300)
     cache.set(f'implant_file_progress_{request.session.session_key}', 0, 300)
+    return result
+
+def process_stores_file(file, request):
+    cache.set(f'dm_stores_file_progress_{request.session.session_key}', 0, 300)
+    df = pd.read_excel(file, header=0)
+    result = []
+    total_rows = df.shape[0]
+    for index, row in df.iterrows():
+        result.append(DM_TMP_Store(
+            store_dm = row['Завод'],
+            store_name = row['Имя'],
+            open_date = row['Дата открытия'],
+            close_date = row['Дата закрытия'],
+            address_city = row['Город'],
+            address_street = row['Улица'],
+            address_house = row['Номер дома']
+        ))
+        cache.set(f'dm_stores_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300)
+    cache.set(f'dm_stores_file_active_{request.session.session_key}', 0, 300)
+    cache.set(f'dm_stores_file_progress_{request.session.session_key}', 0, 300) 
+    return result
+
+def get_latest_clusters(date_year, date_month, date_day):
+    query = '''
+        WITH ranked_clusters AS (
+        SELECT dm_store_id, dm_pivot_sku_id, cluster, DATEFROMPARTS(date_year, date_month, date_day) AS cluster_date,
+                ROW_NUMBER() OVER (
+                    PARTITION BY dm_store_id, dm_pivot_sku_id 
+                    ORDER BY DATEFROMPARTS(date_year, date_month, date_day) DESC
+                ) AS rn
+            FROM 
+                [20_DM].DM_REF_Clusters
+            WHERE 
+                DATEFROMPARTS(date_year, date_month, date_day) <= DATEFROMPARTS(%s, %s, %s)  -- Фильтр по дате
+        )
+        SELECT store_dm, material, cluster FROM ranked_clusters A
+        LEFT JOIN [20_DM].DM_PIVOT_SKU B ON A.dm_pivot_sku_id = B.id
+        LEFT JOIN [20_DM].DM_REF_Stores C ON A.dm_store_id = C.id WHERE  rn = 1;'''
+    with connections['ideal'].cursor() as cursor:
+        cursor.execute(query, [date_year, date_month, date_day])
+        result = cursor.fetchall()
+    df = pd.DataFrame(result, columns=["store_dm", "material", "cluster"])
+    return df
+
+def process_clusters_file(file, request):
+    cache.set(f'dm_clusters_file_progress_{request.session.session_key}', 0, 300)
+    date_match = re.search(r'\b\d{2}\.\d{2}\.\d{2,4}\b', file.name)
+    date_str = date_match.group()
+    dt = dateparser.parse(date_str, date_formats=['%d.%m.%y', '%d.%m.%Y'])
+    df = pd.read_excel(file, header=0)
+    result = []
+    total_rows = df.shape[0]
+    for index, row in df.iterrows():
+        result.append(DM_TMP_Cluster(
+            date_year = dt.year,
+            date_month = dt.month,
+            date_day = dt.day,
+            material = row['Материал'],
+            store_dm = row['Завод'],
+            cluster = row['Название подформата магазина'],
+            min_balance = row['Мин.неснижаемый запас']
+        ))
+        cache.set(f'dm_clusters_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300)
+    cache.set(f'dm_clusters_file_active_{request.session.session_key}', 0, 300)
+    cache.set(f'dm_clusters_file_progress_{request.session.session_key}', 0, 300) 
     return result
 
 
@@ -115,7 +181,7 @@ def upload_file(file_data, model, proc, big=False):
                 NETWORK_FOLDER = r"\\hru03\Public\BI\40. ERP data for SQL"
                 with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', encoding='utf-8', dir=NETWORK_FOLDER, delete=False) as tmp_file:
                     writer = csv.writer(tmp_file, delimiter=';', lineterminator='\n')
-                    writer.writerow([f.name for f in model._meta.fields])  # Заголовки
+                    writer.writerow([f.name for f in model._meta.fields])
                     for obj in file_data:
                         writer.writerow([getattr(obj, f.name) for f in model._meta.fields])
                     tmp_file.flush()
@@ -129,11 +195,17 @@ def get_progress(request):
     return JsonResponse({'by_file_progress': cache.get(f'by_file_progress_{request.session.session_key}', 0),
                          'by_file_active': cache.get(f'by_file_active_{request.session.session_key}', 0),
                          'implant_file_progress': cache.get(f'implant_file_progress_{request.session.session_key}', 0),
-                         'implant_file_active': cache.get(f'implant_file_active_{request.session.session_key}', 0),})
+                         'implant_file_active': cache.get(f'implant_file_active_{request.session.session_key}', 0),
+                         'dm_stores_file_progress': cache.get(f'dm_stores_file_progress_{request.session.session_key}', 0),
+                         'dm_stores_file_active': cache.get(f'dm_stores_file_active_{request.session.session_key}', 0),
+                         'dm_clusters_file_progress': cache.get(f'dm_clusters_file_progress_{request.session.session_key}', 0),
+                         'dm_clusters_file_active': cache.get(f'dm_clusters_file_active_{request.session.session_key}', 0),})
 
 def dm_page(request):
     cache.set(f'by_file_active_{request.session.session_key}', 1, 300)
     cache.set(f'implant_file_active_{request.session.session_key}', 1, 300)
+    cache.set(f'dm_stores_file_active_{request.session.session_key}', 1, 300)
+    cache.set(f'dm_clusters_file_active_{request.session.session_key}', 1, 300)
     if 'dm_pivot_sku_suo' in request.GET:
         response = HttpResponseRedirect(request.path)
         response.set_cookie('dm_pivot_sku_suo', 'on' if request.GET.get('dm_pivot_sku_suo') == 'on' else 'off', max_age = 86400)
@@ -152,11 +224,12 @@ def dm_page(request):
                 case 'implant':
                     upload_file(process_implant_file(form.cleaned_data['file'], request), DM_TMP_RU_Sale, '[20_DM].[DM_PROC_MERGE_RU_Sales]', big=True)
                     return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
-                case 'decade':
-                    #upload_file(process_decade_file(form.cleaned_data['file'], request), DM_TMP_BY_Sale, '[20_DM].[DM_PROC_MERGE_BY_Sales]')
-                    #process_decade_file(form.cleaned_data['file'], request)
-                    #return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
-                    pass
+                case 'stores':
+                    upload_file(process_stores_file(form.cleaned_data['file'], request), DM_TMP_Store, '[20_DM].[DM_PROC_MERGE_Stores]')
+                    return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
+                case 'clusters':
+                    upload_file(process_clusters_file(form.cleaned_data['file'], request), DM_TMP_Cluster, '[20_DM].[DM_PROC_MERGE_Clusters]', big=True)
+                    return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
                 case _:
                     pass
         else:
