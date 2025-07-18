@@ -10,7 +10,7 @@ from django.urls import reverse
 import Levenshtein
 import json
 from ..models.kg_models import *
-from ..forms.forms import *
+from ..forms.kg_forms import *
 
 def main_page(request):
     return HttpResponse("Hello, world!")
