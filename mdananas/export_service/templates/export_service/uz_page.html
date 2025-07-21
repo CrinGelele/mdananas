@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ref_sku_page{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'export_service/uz/css/uz.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="vertical-pivots-container">
+        <div class="upload-container-half">
+            <div class="upload-tab">
+                <summary class="upload-tab-label">
+                    <p>Sales</p>
+                </summary>
+                <div class="upload-tab-content">
+                    <form method="post" enctype="multipart/form-data" id="sales-file-upload-form">
+                        {% csrf_token %}
+                        <input type="text" name="form_name" id="form_name" style="display: none;" value="sales">
+                        <input type="file" class="file-input" id="sales-file-input" name="file" style="display: none;">
+                        <label for="sales-file-input" class="plus-upload-btn">
+                            <span class="plus-icon progress-percent" id="sales-progress-percent">+</span>
+                        </label>
+                        <button type="submit" style="display: none;">Отправить</button>
+                    </form>
+                </div>
+            </div>
+            <div class="upload-tab">
+                <summary class="upload-tab-label">
+                    <p>Kidpoint</p>
+                </summary>
+                <div class="upload-tab-content">
+                    <form method="post" enctype="multipart/form-data" id="kidpoint-file-upload-form">
+                        {% csrf_token %}
+                        <input type="text" name="form_name" id="form_name" style="display: none;" value="kidpoint">
+                        <input type="file" class="file-input" id="kidpoint-file-input" name="file" style="display: none;">
+                        <label for="kidpoint-file-input" class="plus-upload-btn">
+                            <span class="plus-icon progress-percent" id="kidpoint-progress-percent">+</span>
+                        </label>
+                        <button type="submit" style="display: none;">Отправить</button>
+                    </form>
+                </div>
+            </div>
+            <div class="upload-tab" style="background-image: url('{% static 'img/uz_ananas.jpg' %}'); background-size: cover; background-position: center;">
+            </div>
+        </div>
+        <div class="info-tab w-100 h-75 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>SKU PIVOT</p>
+                <div class="l-300">
+                    <form method="get" action="" style="width: 120px;">
+                        <input type="hidden" name="uz_pivot_sku_suo" value="off">
+                        <label>
+                            Last upl
+                            <input type="checkbox" value="on" name="uz_pivot_sku_suo" {% if uz_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
+                        </label>
+                    </form>
+                    <form style="width: 70px;" method="get" action="">
+                        <input type="hidden" name="uz_pivot_sku_update" value="do">
+                        <button type="submit" class="predict-btn info-tab-label-form-save-btn">Update</button>
+                    </form>
+                </div>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>is_mix</th>
+                            <th>Xcode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pivot_sku in existing_pivot_sku %}
+                            <tr>
+                                <td> {{ pivot_sku.material }} </td>
+                                <td>
+                                    <input type="checkbox" class="auto-submit-input disabled" value="1" name="is_mix" {% if pivot_sku.is_mix %} checked {% endif %}>
+                                </td>
+                                <td>
+                                    <input class="info-tab-label-form-field-input l-100 disabled" value="{% if pivot_sku.is_mix %}{{pivot_sku.root_mix.xcode_mix}}{% else %}{{ pivot_sku.root_cu.xcode_cu }}{% endif %}">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="vertical-pivots-container">
+        <div class="info-tab w-100 h-50 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>Chains REF</p>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Chain</th>
+                            <th>Type</th>
+                            <th>Class</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for chain in existing_chains %}
+                            <tr>
+                                <td> {{ chain.chain_name }} </td>
+                                <td> {{ chain.chain_type }} </td>
+                                    <td>
+                                        <form class="auto-submit-form" method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="text" name="chain_id" id="chain_id" style="display: none;" value="{{chain.id}}">
+                                            <div class="info-tab-label-form-field">
+                                                <select class="info-tab-label-form-field-input class-select l-100" name="chain_class">
+                                                    <option value="{{chain.chain_class|default_if_none:""}}" selected>{{chain.chain_class|default_if_none:""}}</option>
+                                                    {% for class in existing_classes %}
+                                                        {% if class != chain.chain_class %}
+                                                            <option value="{{ class|default_if_none:"" }}">{{ class|default_if_none:"" }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <option value="new">Добавить новую...</option>
+                                                </select>
+                                                <input class="info-tab-label-form-field-input l-100 new-class-field type="text" name="chain_class" style="display: none;" disabled>
+                                            </div>
+                                        </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="info-tab w-100 h-50 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>Competing SKUs REF</p>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" style="overflow-x: hidden;" id="dm_pivot_sku_table">
+                <table class="table-fixed">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Description</th>
+                            <th>Brand</th>
+                            <th>Group</th>
+                            <th>Subgroup</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sku in existing_comp_sku %}
+                            <tr>
+                                <td> {{ sku.material }} </td>
+                                <td> {{ sku.rus_description }} </td>
+                                <td>
+                                    <form class="auto-submit-form" method="post" action="">
+                                        {% csrf_token %}
+                                        <input type="text" name="comp_sku_id" id="comp_sku_id" style="display: none;" value="{{sku.id}}">
+                                        <div class="info-tab-label-form-field">
+                                            <select class="info-tab-label-form-field-input brand-select l-30" name="brand">
+                                                <option value="{{sku.brand|default_if_none:""}}" selected>{{sku.brand|default_if_none:""}}</option>
+                                                {% for brand in existing_brands %}
+                                                    {% if brand != sku.brand %}
+                                                        <option value="{{ brand }}">{{ brand }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input l-100 new-brand-field type="text" name="brand" style="display: none;" disabled>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="auto-submit-form" method="post" action="">
+                                        {% csrf_token %}
+                                        <input type="text" name="comp_sku_id" id="comp_sku_id" style="display: none;" value="{{sku.id}}">
+                                        <div class="info-tab-label-form-field">
+                                            <select class="info-tab-label-form-field-input group-select l-30" name="group">
+                                                <option value="{{sku.groupname|default_if_none:""}}" selected>{{sku.groupname|default_if_none:""}}</option>
+                                                {% for group in existing_groups %}
+                                                    {% if group != sku.groupname %}
+                                                        <option value="{{ group }}">{{ group }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input l-100 new-group-field type="text" name="group" style="display: none;" disabled>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="auto-submit-form" method="post" action="">
+                                        {% csrf_token %}
+                                        <input type="text" name="comp_sku_id" id="comp_sku_id" style="display: none;" value="{{sku.id}}">
+                                        <div class="info-tab-label-form-field">
+                                            <select class="info-tab-label-form-field-input subgroup-select l-30" name="subgroup">
+                                                <option value="{{sku.subgroupname|default_if_none:""}}" selected>{{sku.subgroupname|default_if_none:""}}</option>
+                                                {% for subgroup in existing_subgroups %}
+                                                    {% if subgroup != sku.subgroupname %}
+                                                        <option value="{{ subgroup }}">{{ subgroup }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input l-100 new-subgroup-field type="text" name="subgroup" style="display: none;" disabled>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'export_service/uz/js/progress_indicators.js' %}"></script>
+    <script src="{% static 'export_service/uz/js/uz_switches.js' %}"></script>
+{% endblock %}

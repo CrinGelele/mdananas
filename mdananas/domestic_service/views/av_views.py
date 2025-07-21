@@ -7,12 +7,9 @@ from ..models.av_models import *
 import pandas as pd
 from django.db import connections
 from mdananas.idealSchemaEditor import IdealSchemaEditor
-from pyxlsb import open_workbook, convert_date
-import tempfile
-import csv
-import os
 from numpy import nan
 import dateparser
+from mdananas.upload_tmp_file import upload_file
 
 def main_page(request):
     return HttpResponse("Hello, world!")
@@ -101,15 +98,6 @@ def process_matrix_file(file, request):
     cache.set(f'av_matrix_file_active_{request.session.session_key}', 0, 300)
     cache.set(f'av_matrix_file_progress_{request.session.session_key}', 0, 300)
     return result
-
-def upload_file(file_data, model, proc):
-    with connections['ideal'].cursor() as cursor:
-        cursor.execute(f"DROP TABLE IF EXISTS {model._meta.db_table}")
-        with IdealSchemaEditor(connection=connections['ideal']) as schema_editor:
-            schema_editor.create_model(model)
-            model.objects.bulk_create(file_data)
-            cursor.execute(f"EXEC {proc}")
-            cursor.execute(f"DROP TABLE IF EXISTS {model._meta.db_table}")
 
 def get_progress(request):
     return JsonResponse({'av_sales_file_progress': cache.get(f'av_sales_file_progress_{request.session.session_key}', 0),
