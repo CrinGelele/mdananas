@@ -52,7 +52,16 @@
     width: 100px !important;
 }
 
+.l-300 {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    width: 300px !important;
+}
+
+
 .l-30 {
-    width: 60px !important;
+    width: 100px !important;
+    max-width: 100px !important;
     min-width: 100px !important;
 }

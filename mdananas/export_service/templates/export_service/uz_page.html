@@ -48,17 +48,17 @@
         <div class="info-tab w-100 h-75 info-tab-scroll">
             <summary class="info-tab-label">
                 <p>SKU PIVOT</p>
-                <div class="l-200">
-                    <form method="get" action="">
-                        <input type="hidden" name="uz_pivot_sku_update" value="do">
-                        <button type="submit" class="predict-btn info-tab-label-form-save-btn">Update</button>
-                    </form>
-                    <form method="get" action="" style="width: 150px;">
+                <div class="l-300">
+                    <form method="get" action="" style="width: 120px;">
                         <input type="hidden" name="uz_pivot_sku_suo" value="off">
                         <label>
                             Last upl
                             <input type="checkbox" value="on" name="uz_pivot_sku_suo" {% if uz_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
                         </label>
+                    </form>
+                    <form style="width: 70px;" method="get" action="">
+                        <input type="hidden" name="uz_pivot_sku_update" value="do">
+                        <button type="submit" class="predict-btn info-tab-label-form-save-btn">Update</button>
                     </form>
                 </div>
             </summary>
@@ -135,8 +135,8 @@
             <summary class="info-tab-label">
                 <p>Competing SKUs REF</p>
             </summary>
-            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
-                <table>
+            <div class="info-tab-label-form info-tab-label-form-scroll" style="overflow-x: hidden;" id="dm_pivot_sku_table">
+                <table class="table-fixed">
                     <thead>
                         <tr>
                             <th>Material</th>
@@ -151,7 +151,7 @@
                             <tr>
                                 <td> {{ sku.material }} </td>
                                 <td> {{ sku.rus_description }} </td>
-                                <td class="l-30">
+                                <td>
                                     <form class="auto-submit-form" method="post" action="">
                                         {% csrf_token %}
                                         <input type="text" name="comp_sku_id" id="comp_sku_id" style="display: none;" value="{{sku.id}}">
