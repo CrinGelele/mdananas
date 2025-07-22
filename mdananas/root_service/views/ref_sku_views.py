@@ -1,6 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import inlineformset_factory
+from django.db.models import Q
 from ..models.ref_sku_models import *
 from ..forms.ref_sku_forms import *
 
@@ -8,12 +9,42 @@ def main_page(request):
     return HttpResponse("Hello, world!")
 
 def ref_sku(request):
+    if 'category' in request.GET or 'groupname' in request.GET or 'xcode' in request.GET:
+        response = HttpResponseRedirect(request.path)
+        response.set_cookie('category-filter', request.GET['category'], max_age = 86400)
+        response.set_cookie('groupname-filter', request.GET['groupname'], max_age = 86400)
+        response.set_cookie('xcode-filter', request.GET['xcode'], max_age = 86400)
+        return response
+    selected_category = request.COOKIES.get('category-filter')
+    selected_groupname = request.COOKIES.get('groupname-filter')
+    selected_xcode = request.COOKIES.get('xcode-filter')
+    cu_filters = Q()
+    tu_filters = Q()
+    mix_filters = Q()
+    if selected_category or selected_groupname or selected_xcode:
+        if selected_category:
+            cu_filters &= Q(category=selected_category)
+            tu_filters &= Q(root_cu__category=selected_category)
+            mix_filters &= Q(category=selected_category)
+        if selected_groupname:
+            cu_filters &= Q(groupname=selected_groupname)
+            tu_filters &= Q(root_cu__groupname=selected_groupname)
+            mix_filters &= Q(groupname=selected_groupname)
+        if selected_xcode:
+            cu_filters &= Q(xcode_cu__contains=selected_xcode)
+            tu_filters &= Q(xcode_tu__contains=selected_xcode)
+            mix_filters &= Q(xcode_mix__contains=selected_xcode)
     selected_cu = request.GET.get('selected_cu')
-    existing_cu = Cu.objects.all().order_by('xcode_cu')
-    existing_tu = Tu.objects.filter(root_cu_id = selected_cu).order_by('xcode_tu') if selected_cu else Tu.objects.all().order_by('xcode_tu')
-    existing_mix = Mix.objects.filter(mixcomposition__root_cu_id = selected_cu).order_by('xcode_mix') if selected_cu else Mix.objects.all().order_by('xcode_mix')
-    return render(request, 'root_service/ref_sku_page.html', context = {'existing_cu': existing_cu, 'existing_tu': existing_tu, 'existing_mix': existing_mix,
-                                                                        'selected_cu': int(selected_cu) if selected_cu else None})
+    existing_cu = Cu.objects.filter(cu_filters)
+    existing_tu = Tu.objects.filter(root_cu_id = selected_cu).order_by('xcode_tu') if selected_cu else Tu.objects.filter(tu_filters).order_by('xcode_tu')
+    existing_mix = Mix.objects.filter(mixcomposition__root_cu_id = selected_cu) if selected_cu else Mix.objects.filter(mix_filters)
+    existing_categories = existing_cu.values_list('category', flat=True).union(existing_mix.values_list('category', flat=True)).order_by('category')
+    existing_groupnames = existing_cu.values_list('groupname', flat=True).union(existing_mix.values_list('groupname', flat=True)).order_by('groupname')
+    return render(request, 'root_service/ref_sku_page.html', context = {'existing_cu': existing_cu.order_by('xcode_cu'), 'existing_tu': existing_tu, 'existing_mix': existing_mix.order_by('xcode_mix'),
+                                                                        'selected_cu': int(selected_cu) if selected_cu else None,
+                                                                        'existing_categories': existing_categories, 'existing_groupnames': existing_groupnames,
+                                                                        'selected_category': selected_category, 'selected_groupname': selected_groupname,
+                                                                        'selected_xcode': selected_xcode})
 
 def cu_creation_page(request):
     existing_categories = Cu.objects.values_list('category', flat=True).distinct().order_by('category')

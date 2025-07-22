@@ -4,15 +4,50 @@
 {% block title %}ref_sku_page{% endblock %}
 
 {% block content %}
-    <div class="info-tab info-tab-vertical" style="width: 100% !important;">
+    <div class="vertical-container" style="display: flex; flex-direction: row; height: 15%; width: 100%; justify-content: space-between; ">
+    <div class="info-tab info-tab-vertical" style="width: 90% !important; padding-left: 2%;">
         <summary class="info-tab-label">
             <p>Filters</p>
         </summary>
+        <form action="" method="get">
         <div class="info-tab-label-form">
-                
+            <div class="info-tab-label-form-field">
+                <label for="category">category</label>
+                <select class="info-tab-label-form-field-input" id="category-filter" name="category">
+                    <option selected value="{{ selected_category }}">{{ selected_category }}</option>
+                    {% if selected_category %}
+                        <option value=""></option>
+                    {% endif %}
+                    {% for category in existing_categories %}
+                        {% if category != selected_category %}
+                            <option value="{{ category }}">{{ category }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="info-tab-label-form-field">
+                <label for="groupname">groupname</label>
+                <select class="info-tab-label-form-field-input" id="groupname-filter" name="groupname">
+                    <option selected value="{{ selected_groupname }}">{{ selected_groupname }}</option>
+                    {% if selected_groupname %}
+                        <option value=""></option>
+                    {% endif %}
+                    {% for groupname in existing_groupnames %}
+                        <option value="{{ groupname }}">{{ groupname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="info-tab-label-form-field">
+                <label for="xcode">xcode</label>
+                <input class="info-tab-label-form-field-input" id="xcode-filter" name="xcode" value="{{ selected_xcode }}">
+            </div>
         </div>
+        </form>
     </div>
-    <div class="vertical-container">
+    <div class="upload-tab" style="background-image: url('{% static 'img/sku_ananas.jpg' %}'); background-size: cover; background-position: center; width: 100px; height: 100px;">
+    </div>
+    </div>
+    <div class="vertical-container" style="height: 85% !important;">
         <div class="info-tab info-tab-vertical info-tab-scroll">
             <summary class="info-tab-label">
                 <p>CU</p>
@@ -95,4 +130,5 @@
     <script src="{% static 'js/mix_switches.js' %}"></script>
     <script src="{% static 'js/detail_btns.js' %}"></script>
     <script src="{% static 'js/table_row_addition.js' %}"></script>
+    <script src="{% static 'js/filters.js' %}"></script>
 {% endblock %}
