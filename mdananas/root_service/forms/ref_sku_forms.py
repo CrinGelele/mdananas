@@ -1,5 +1,5 @@
 from django import forms
-from .models import *
+from ..models.ref_sku_models import *
 from django.forms import formset_factory
 
 class CuForm(forms.ModelForm):

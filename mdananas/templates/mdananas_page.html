@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ref_sku_page{% endblock %}
+
+{% block content %}
+    <div class="info-tab info-tab-vertical" style="width: 100% !important; height: 90%; margin-top: 2%; padding-left: 0; flex-direction: row !important;">
+        <div style="border-bottom-left-radius: 30px; border-top-left-radius: 30px; display: flex;overflow: hidden;width: 50%; height: 100%; background-image: url('{% static 'img/mdananas_ananas.jpg' %}');
+        background-size: cover; background-position: center;">
+                
+        </div>
+        <div class="mdananas-text" style="display: flex; flex-direction: column; width: 50%; align-items: center;">
+            <p style="display: inline; color: rgb(45 143 254 / 1); font-weight: 500; font-size: 50px; text-align: center;">MDANANAS</p>
+            <p style="display: inline; color: rgb(45 143 254 / 1); font-weight: 500; font-size: 30px; text-align: right;">На самом деле, ананас <br>
+                — это <span style="color: blue;">соплодие,</span> состоящее из <span style="color: blue;">множества</span> сросшихся ягод, которые образуются вокруг <span style="color: blue;">центрального стержня.</span> Каждая "чешуйка" на кожуре <br>
+                — это отдельный цветок, который превратился в мини-плод.</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

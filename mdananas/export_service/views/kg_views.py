@@ -5,7 +5,7 @@ from mdananas.idealSchemaEditor import IdealSchemaEditor
 from django.db import connections
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.urls import reverse
 import Levenshtein
 import json

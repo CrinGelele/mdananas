@@ -1,5 +1,5 @@
 from django.db import models
-from root_service.models import Cu, Mix
+from root_service.models.ref_sku_models import Cu, Mix
 
 class DM_TMP_BY_Sale(models.Model):
     date_year = models.CharField(max_length=255)

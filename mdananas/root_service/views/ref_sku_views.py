@@ -1,8 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import inlineformset_factory
-from .models import *
-from .forms import *
+from ..models.ref_sku_models import *
+from ..forms.ref_sku_forms import *
 
 def main_page(request):
     return HttpResponse("Hello, world!")
