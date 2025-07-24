@@ -28,26 +28,22 @@ def process_sales_file(file, request):
     total_cells = (df.shape[0] - 10) * (df.shape[1] - 6) 
     matrix = df.values
     result = []
-    for i in range(9, df.shape[0] - 1):
+    date = str(matrix[0][1]).replace('Анализ продаж', '')
+    for i in range(8, df.shape[0] - 1):
         if matrix[i][3] is not nan:
             current_sku = matrix[i][3]
-            next_continue_flag = True
             continue
-        if next_continue_flag:
-            next_continue_flag = False
-            continue
-        for j in range(6, df.shape[1]):
-            date = matrix[4][j - (j + 1) % 7]
+        for j in range(5, df.shape[1]):
             if date != 'Итог':
                 dt = dateparser.parse(date, languages=['ru'])
                 if matrix[i][j] is not nan:
                     result.append(KG_TMP_Sale(
                         date_year = dt.year,
                         date_month = dt.month,
-                        store_kg = matrix[i][5] if not const_store_kg else const_store_kg,
-                        channel = 'Частное лицо' if not const_store_kg else matrix[i][5],
+                        store_kg = matrix[i][4] if not const_store_kg else const_store_kg,
+                        channel = 'Частное лицо' if not const_store_kg else matrix[i][4],
                         material = current_sku,
-                        measure_name = matrix[6][j],
+                        measure_name = matrix[5][j],
                         measure_value = matrix[i][j]
                     ))
             progress = int(((i - 10) * (df.shape[1] - 6) + (j - 6)) / total_cells * 100)
@@ -68,12 +64,15 @@ def process_competitors_file(file, request):
     total_cells = (df.shape[0] - 9) * (df.shape[1] - 4) 
     matrix = df.values
     result = []
-    for i in range(8, df.shape[0] - 1):
+    date = str(matrix[0][1]).replace('Анализ продаж', '')
+    for i in range(7, df.shape[0] - 1):
         if matrix[i][2] is not nan:
             current_brand = matrix[i][2]
             continue
-        for j in range(4, df.shape[1]):
-            date = matrix[4][j - (j + 2) % 6]
+        if matrix[i][3] is not nan:
+            current_material = matrix[i][3]
+            continue
+        for j in range(5, df.shape[1]):
             if date != 'Итог':
                 dt = dateparser.parse(date, languages=['ru'])
                 if matrix[i][j] is not nan:
@@ -83,8 +82,8 @@ def process_competitors_file(file, request):
                         store_kg = const_store_kg,
                         channel = 'Частное лицо',
                         brand = current_brand,
-                        material = matrix[i][3],
-                        measure_name = matrix[6][j],
+                        material = current_material,
+                        measure_name = matrix[5][j],
                         measure_value = matrix[i][j]
                     ))
                     progress = int(((i - 8) * (df.shape[1] - 4) + (j - 4)) / total_cells * 100)

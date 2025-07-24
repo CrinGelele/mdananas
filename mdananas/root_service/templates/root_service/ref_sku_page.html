@@ -4,8 +4,8 @@
 {% block title %}ref_sku_page{% endblock %}
 
 {% block content %}
-    <div class="vertical-container" style="display: flex; flex-direction: row; height: 15%; width: 100%; justify-content: space-between; ">
-    <div class="info-tab info-tab-vertical" style="width: 90% !important; padding-left: 2%;">
+    <div class="vertical-container" style="display: flex; flex-direction: row; height: 120px; width: 100%; justify-content: space-between; margin-top: 1%;">
+    <div class="info-tab info-tab-vertical" style="width: 90% !important; padding-left: 2%; margin: 0;">
         <summary class="info-tab-label">
             <p>Filters</p>
         </summary>
@@ -14,7 +14,7 @@
             <div class="info-tab-label-form-field">
                 <label for="category">category</label>
                 <select class="info-tab-label-form-field-input" id="category-filter" name="category">
-                    <option selected value="{{ selected_category }}">{{ selected_category }}</option>
+                    <option selected value="{{ selected_category|default_if_none:"" }}">{{ selected_category|default_if_none:"" }}</option>
                     {% if selected_category %}
                         <option value=""></option>
                     {% endif %}
@@ -28,7 +28,7 @@
             <div class="info-tab-label-form-field">
                 <label for="groupname">groupname</label>
                 <select class="info-tab-label-form-field-input" id="groupname-filter" name="groupname">
-                    <option selected value="{{ selected_groupname }}">{{ selected_groupname }}</option>
+                    <option selected value="{{ selected_groupname|default_if_none:"" }}">{{ selected_groupname|default_if_none:"" }}</option>
                     {% if selected_groupname %}
                         <option value=""></option>
                     {% endif %}
@@ -39,12 +39,12 @@
             </div>
             <div class="info-tab-label-form-field">
                 <label for="xcode">xcode</label>
-                <input class="info-tab-label-form-field-input" id="xcode-filter" name="xcode" value="{{ selected_xcode }}">
+                <input class="info-tab-label-form-field-input" id="xcode-filter" name="xcode" value="{{ selected_xcode|default_if_none:"" }}">
             </div>
         </div>
         </form>
     </div>
-    <div class="upload-tab" style="background-image: url('{% static 'img/sku_ananas.jpg' %}'); background-size: cover; background-position: center; width: 100px; height: 100px;">
+    <div class="upload-tab" style="background-image: url('{% static 'img/sku_ananas.jpg' %}'); background-size: cover; background-position: center; width: 120px; height: 120px; margin: 0;">
     </div>
     </div>
     <div class="vertical-container" style="height: 85% !important;">
