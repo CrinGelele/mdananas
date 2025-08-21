@@ -2,16 +2,14 @@ from django import forms
 from ..models.ref_sku_models import *
 from django.forms import formset_factory
 
-class CuForm(forms.ModelForm):
-    class Meta:
-        model = Cu
-        exclude = ["id", "supplier"]
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['ean_cu'].required = False
-        self.fields['root_pd'].required = False
-        self.fields['shelf_life'].required = False
+class CuForm(forms.Form):
+    xcode_cu = forms.CharField()
+    ean_cu = forms.CharField(required=False)
+    category = forms.CharField()
+    groupname = forms.CharField()
+    shelf_life = forms.IntegerField(required=False)
+    rus_definition = forms.CharField(required=False)
+    root_pd = forms.CharField(required=False)
 
 class CuDimensionsForm(forms.ModelForm):
     length = forms.FloatField(required=False)

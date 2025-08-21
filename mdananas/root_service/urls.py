@@ -10,6 +10,7 @@ urlpatterns = [
     path('cu/<int:cu_id>/save/', ref_sku_views.cu_page_save, name='save_cu'),
     path('cu/<int:cu_id>/save-dimensions/', ref_sku_views.cu_page_save_dimensions, name='save_cu_dimensions'),
     path('cu/<int:cu_id>/save-supplier/', ref_sku_views.cu_page_save_supplier, name='save_cu_supplier'),
+    path('cu/get-supplier-info/', ref_sku_views.cu_page_get_supplier_info, name='cu_page_get_supplier_info'),
     path('cu/<int:cu_id>/save-customs_info/', ref_sku_views.cu_page_save_customs_info, name='save_cu_customs_info'),
     path('tu/<int:tu_id>/', ref_sku_views.tu_page, name='show_tu'),
     path('tu/create/', ref_sku_views.tu_creation_page, name='tu_create'),

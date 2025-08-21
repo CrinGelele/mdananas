@@ -60,11 +60,9 @@
                                     <option value="{{ definition.id }}">{{ definition.rus_definition }}</option>
                                 {% endif %}
                             {% endfor %}
+                            <option value="new">Добавить новую...</option>
                         </select>
-                    </div>
-                    <div class="info-tab-label-form-field">
-                        <label for="root_pd_eng">eng_definition</label>
-                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="root_pd_eng" value="{{cu.root_pd.eng_definition|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input" type="text" name="rus_definition" id="new-rus_definition-field" style="display: none;" disabled>
                     </div>
             </div>
         </details>
@@ -87,15 +85,17 @@
                                 <option value="{{ supplier.id }}">{{ supplier.supplier_name }}</option>
                                 {% endif %}
                             {% endfor %}
+                            <option value="new">Добавить новую...</option>
                         </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="supplier_name" id="new-supplier_name-field" style="display: none;" disabled>
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="ownership">ownership</label>
-                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="ownership" value="{{cu.supplier.ownership|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" id="ownership-field" name="ownership" value="{{cu.supplier.ownership|default_if_none:""}}">
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="currency">currency</label>
-                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="currency" value="{{cu.supplier.currency|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" id="currency-field" name="currency" value="{{cu.supplier.currency|default_if_none:""}}">
                     </div>
             </div>
         </details>
@@ -170,6 +170,27 @@
             </div>
         </details>
     </form>
+    <details open class="info-tab">
+        <summary class="info-tab-label">
+            <p>Related TU & MIX</p>
+        </summary>
+        <div class="info-tab-label-form">
+            <div style="display: flex; flex-direction: column; width: 100%; justify-content: space-between; margin-top: 10px;">
+                <div style="display: flex; flex-direction: row; width: 100%; justify-content: start;">
+                    <a style="font-size: 15px; margin-right: 20px; width: 20px; font-weight: bolder;">TU:</a>
+                    {% for related_tu in related_tus%}
+                        <a style="background-color: rgb(45, 143, 254);color: white;text-decoration: none; font-size: 15px; border: 1px solid rgb(45, 143, 254); border-radius: 9px; width: 100px; height: 17px; text-align: center; margin-left: 20px; margin-right: 20px;" href="/root/tu/{{related_tu.id}}/"> {{ related_tu.xcode_tu }} </a>
+                    {% endfor %}
+                </div>
+                <div style="display: flex; flex-direction: row; width: 100%; justify-content: start; margin-top: 10px;">
+                    <a style="font-size: 15px; margin-right: 20px; width: 20px; font-weight: bolder;">MIX:</a>
+                    {% for related_mix in related_mixes%}
+                        <a style="background-color: rgb(45, 143, 254);color: white;text-decoration: none; font-size: 15px; border: 1px solid rgb(45, 143, 254); border-radius: 9px; width: 100px; height: 17px; text-align: center; margin-left: 20px; margin-right: 20px;" href="/root/mix/{{related_mix.id}}/"> {{ related_mix.xcode_mix }} </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </details>
     {% endif %}
 </body>
 {% endblock %}
