@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import inlineformset_factory
 from django.db.models import Q
@@ -80,18 +80,29 @@ def cu_page(request, cu_id):
     suppliers = Supplier.objects.all().order_by('supplier_name')
     cu_dimensions, created_cu_dimensions = CuDimensions.objects.get_or_create(root_cu=cu_object)
     cu_customs_info, created_cu_customs_info = CuCustomsInfo.objects.get_or_create(root_cu=cu_object)
+    related_tus = Tu.objects.filter(root_cu = cu_object)
+    related_mixes = [comp.root_mix for comp in MixComposition.objects.filter(root_cu = cu_object)]
     return render(request, 'root_service/cu_page.html', context = {'is_create_mode': False,
                                                                    'cu': cu_object, 'dimensions': created_cu_dimensions if created_cu_dimensions else cu_dimensions,
                                                                    'customs_info': created_cu_customs_info if created_cu_customs_info else cu_customs_info,
                                                                    'existing_categories': existing_categories, 'existing_groupnames': existing_groupnames,
-                                                                   'suppliers': suppliers, 'definitions': definitions})
+                                                                   'suppliers': suppliers, 'definitions': definitions, 'related_tus': related_tus, 'related_mixes': related_mixes})
 
 def cu_page_save(request, cu_id):
     cu_object = get_object_or_404(Cu, id=cu_id)
     if request.method == 'POST':
-        form = CuForm(request.POST, instance=cu_object)
+        form = CuForm(request.POST)
         if form.is_valid():
-            form.save()
+            if form.cleaned_data.get('rus_definition'):
+                cu_object.root_pd = Definition.objects.get_or_create(rus_definition=form.cleaned_data.get('rus_definition'))[0]
+            else:
+                cu_object.root_pd = Definition.objects.get(id=form.cleaned_data.get('root_pd'))
+            cu_object.xcode_cu = form.cleaned_data.get('xcode_cu')
+            cu_object.ean_cu = form.cleaned_data.get('ean_cu')
+            cu_object.category = form.cleaned_data.get('category')
+            cu_object.groupname = form.cleaned_data.get('groupname')
+            cu_object.shelf_life = form.cleaned_data.get('shelf_life')
+            cu_object.save()
     return redirect('show_cu', cu_id=cu_id)
 
 def cu_page_save_dimensions(request, cu_id):
@@ -102,6 +113,11 @@ def cu_page_save_dimensions(request, cu_id):
         if form.is_valid():
             form.save()
     return redirect('show_cu', cu_id=cu_id)
+
+def cu_page_get_supplier_info(request):
+    supplier_id = request.GET.get('supplier_id')
+    if supplier_id:
+        return JsonResponse({'ownership': Supplier.objects.get(id = supplier_id).ownership, 'currency': Supplier.objects.get(id = supplier_id).currency})
 
 def cu_page_save_customs_info(request, cu_id):
     cu_object = get_object_or_404(Cu, id=cu_id)
@@ -117,8 +133,14 @@ def cu_page_save_customs_info(request, cu_id):
 def cu_page_save_supplier(request, cu_id):
     cu_object = get_object_or_404(Cu, id=cu_id)
     if request.method == 'POST':
-        supplier_id = request.POST.get('supplier')
-        cu_object.supplier = Supplier.objects.get(id = supplier_id)
+        if request.POST.get('supplier_name'):
+            supplier_object = Supplier.objects.get_or_create(supplier_name=request.POST.get('supplier_name'))[0]
+            supplier_object.ownership = request.POST.get('ownership')
+            supplier_object.currency = request.POST.get('currency')
+            supplier_object.save()
+        else:
+            supplier_object = Supplier.objects.get(id = request.POST.get('supplier'))
+        cu_object.supplier = supplier_object
         cu_object.save()
     return redirect('show_cu', cu_id=cu_id)
 
