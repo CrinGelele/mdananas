@@ -62,14 +62,24 @@ def cu_creation_page_save(request):
         xcode_cu = request.POST.get('xcode_cu')
         if not xcode_cu:
             return redirect('cu_create')
-        cu_form = CuForm(request.POST)
-        if cu_form.is_valid():
-            cu = cu_form.save()
-            CuDimensions.objects.create(root_cu=cu)
-            CuCustomsInfo.objects.create(root_cu=cu)
-            return redirect('show_cu', cu_id=cu.id)
+        form = CuForm(request.POST)
+        if form.is_valid():
+            cu_object = Cu()
+            if form.cleaned_data.get('rus_definition'):
+                cu_object.root_pd = Definition.objects.get_or_create(rus_definition=form.cleaned_data.get('rus_definition'))[0]
+            else:
+                cu_object.root_pd = Definition.objects.get(id=form.cleaned_data.get('root_pd'))
+            cu_object.xcode_cu = form.cleaned_data.get('xcode_cu')
+            cu_object.ean_cu = form.cleaned_data.get('ean_cu')
+            cu_object.category = form.cleaned_data.get('category')
+            cu_object.groupname = form.cleaned_data.get('groupname')
+            cu_object.shelf_life = form.cleaned_data.get('shelf_life')
+            cu_object.save()
+            CuDimensions.objects.create(root_cu=cu_object)
+            CuCustomsInfo.objects.create(root_cu=cu_object)
+            return redirect('show_cu', cu_id=cu_object.id)
         else:
-            print(cu_form.errors)
+            print(form.errors)
     return redirect('cu_create')
 
 def cu_page(request, cu_id):
