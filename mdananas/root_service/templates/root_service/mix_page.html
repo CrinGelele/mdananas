@@ -72,16 +72,119 @@
                                     <option value="{{ definition.id }}">{{ definition.rus_definition }}</option>
                                 {% endif %}
                             {% endfor %}
+                            <option value="new">Добавить новую...</option>
                         </select>
-                    </div>
-                    <div class="info-tab-label-form-field">
-                        <label for="root_pd_eng">eng_definition</label>
-                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="root_pd_eng" value="{{mix.root_pd.eng_definition|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input" type="text" name="rus_definition" id="new-rus_definition-field" style="display: none;" disabled>
                     </div>
             </div>
         </details>
     </form>
     {% if not is_create_mode %}
+    <form action="save-dimensions/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Product dimensions</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="length">length</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="length-field" name="length" value="{{dimensions.length|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="width">width</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="width-field" name="width" value="{{dimensions.width|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="height">height</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="height-field" name="height" value="{{dimensions.height|default_if_none:""}}">
+                        <span class="input-addon">cm</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="volume">volume</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="volume" value="{{dimensions.volume|default_if_none:""}}">
+                        <span class="input-addon">cm<sup style="font-size: 10px;">3</sup></span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="net_weight">net_weight</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="net_weight" value="{{dimensions.net_weight|default_if_none:""}}">
+                        <span class="input-addon">kg</span>
+                    </div>
+            </div>
+        </details>
+    </form>
+    <form action="save-logistics_info/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Logistics info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="tu_per_layer">tu_per_layer</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="tu_per_layer-field" name="tu_per_layer" value="{{logistics_info.tu_per_layer|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="layers_per_pal">layers_per_pal</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="layers_per_pal-field" name="layers_per_pal" value="{{logistics_info.layers_per_pal|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="pal_per_truck">pal_per_truck</label>
+                        <input class="info-tab-label-form-field-input" type="text" id="pal_per_truck-field" name="pal_per_truck" value="{{logistics_info.pal_per_truck|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="gross_weight_pal">gross_weight_pal</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="gross_weight_pal" value="{{logistics_info.gross_weight_pal|default_if_none:""}}">
+                        <span class="input-addon">kg</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="gross_weight_tu">gross_weight_tu</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="gross_weight_tu" value="{{logistics_info.gross_weight_tu|default_if_none:""}}">
+                        <span class="input-addon">kg</span>
+                    </div>
+            </div>
+        </details>
+    </form>
+    <form action="save-customs_info/" method="POST"> 
+        {% csrf_token %}
+        <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>Customs info</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form">
+                    <div class="info-tab-label-form-field">
+                        <label for="customs_code">customs_code</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="customs_code" value="{{customs_info.customs_code|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="duty">duty</label>
+                        {%if customs_info.duty == 0%}
+                        <input class="info-tab-label-form-field-input" type="text" name="duty" value='0'>
+                        {% else %}
+                        <input class="info-tab-label-form-field-input" type="text" name="duty" value="{{customs_info.duty|mul100|default_if_none:""}}">
+                        {% endif %}
+                        <span class="input-addon">%</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="okpd2_code">okpd2_code</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="okpd2_code" value="{{customs_info.okpd2_code|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="vat">vat</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="vat" value="{{customs_info.vat|mul100|default_if_none:""}}">
+                        <span class="input-addon">%</span>
+                    </div>
+            </div>
+        </details>
+    </form>
     <form action="save-compositions/" method="POST"> 
         {% csrf_token %}
         <details open class="info-tab">

@@ -89,20 +89,15 @@ class TuOrderInfoForm(forms.ModelForm):
         model = TuOrderInfo
         fields = ['moq', 'order_inc', 'is_shared']
 
-class MixForm(forms.ModelForm):
+class MixForm(forms.Form):
     xcode_mix = forms.CharField(required=True)
     ean_mix = forms.CharField(required=False)
     category = forms.CharField(required=False)
     groupname = forms.CharField(required=False)
     status = forms.CharField(required=False)
     mix_in_box = forms.FloatField(required=False)
-    class Meta:
-        model = Mix
-        exclude = ["id"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['root_pd'].required = False  # делае
+    rus_definition = forms.CharField(required=False)
+    root_pd = forms.CharField(required=False)
 
 class MixCompositionForm(forms.ModelForm):
     class Meta:
@@ -118,3 +113,44 @@ class MixCompositionForm(forms.ModelForm):
 
 
 MixCompositionFormSet = formset_factory(MixCompositionForm, extra=1, can_delete=True)
+
+class MixDimensionsForm(forms.ModelForm):
+    length = forms.FloatField(required=False)
+    width = forms.FloatField(required=False)
+    height = forms.FloatField(required=False)
+    volume = forms.FloatField(required=False)
+    net_weight = forms.FloatField(required=False)
+    class Meta:
+        model = MixDimensions
+        exclude = ["id", "root_mix"]
+
+class MixLogisticsInfoForm(forms.ModelForm):
+    tu_per_layer = forms.IntegerField(required=False)
+    layers_per_pal = forms.IntegerField(required=False)
+    pal_per_truck = forms.IntegerField(required=False)
+    gross_weight_pal = forms.FloatField(required=False)
+    gross_weight_tu = forms.FloatField(required=False)
+    class Meta:
+        model = MixLogisticsInfo
+        exclude = ["id", "root_mix"]
+
+class MixCustomsInfoForm(forms.ModelForm):
+    customs_code = forms.CharField(max_length=10, required=False)
+    duty = forms.FloatField(required=False)
+    okpd2_code = forms.CharField(max_length=12, required=False)
+    vat = forms.FloatField(required=False)
+    class Meta:
+        model = MixCustomsInfo
+        exclude = ["id", "root_mix"]
+
+    def clean_duty(self):
+        duty = self.cleaned_data['duty']
+        if duty:
+            return duty / 100  # Преобразуем процент в дробь
+        return duty
+    
+    def clean_vat(self):
+        vat = self.cleaned_data['vat']
+        if vat:
+            return vat / 100  # Преобразуем процент в дробь
+        return vat

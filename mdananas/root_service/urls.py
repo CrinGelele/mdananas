@@ -24,5 +24,8 @@ urlpatterns = [
     path('mix/create/', ref_sku_views.mix_creation_page, name='mix_create'),
     path('mix/create/save/', ref_sku_views.mix_creation_page_save, name='mix_create_save'),
     path('mix/<int:mix_id>/save/', ref_sku_views.mix_page_save, name='save_mix'),
-    path('mix/<int:mix_id>/save-compositions/', ref_sku_views.mix_page_save_compositions, name='save_mix_compositions')
+    path('mix/<int:mix_id>/save-compositions/', ref_sku_views.mix_page_save_compositions, name='save_mix_compositions'),
+    path('mix/<int:mix_id>/save-dimensions/', ref_sku_views.mix_page_save_dimensions, name='save_mix_dimensions'),
+    path('mix/<int:mix_id>/save-logistics_info/', ref_sku_views.mix_page_save_logistics_info, name='save_mix_logistics_info'),
+    path('mix/<int:mix_id>/save-customs_info/', ref_sku_views.mix_page_save_customs_info, name='save_mix_customs_info'),
 ]

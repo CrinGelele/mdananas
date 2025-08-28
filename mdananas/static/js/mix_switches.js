@@ -29,4 +29,15 @@ window.addEventListener('load', function() {
             newStatusField.style.display = 'none';
         }
     });
+        document.getElementById('root_pd-field').addEventListener('change', function() {
+        const newDefinitionField = document.getElementById('new-rus_definition-field');
+        if (this.value === 'new') {
+            newDefinitionField.style.display = 'flex';
+            newDefinitionField.disabled = false;
+            this.style.display = 'none';
+        } else {
+            newDefinitionField.style.display = 'none';
+            newDefinitionField.value = null;
+        }
+    });
 });
