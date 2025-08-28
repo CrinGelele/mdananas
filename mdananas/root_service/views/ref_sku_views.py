@@ -325,10 +325,23 @@ def mix_creation_page_save(request):
         xcode_mix = request.POST.get('xcode_mix')
         if not xcode_mix:
             return redirect('mix_create')
-        mix_form = MixForm(request.POST)
-        if mix_form.is_valid():
-            mix = mix_form.save()
-            return redirect('show_mix', mix_id=mix.id)
+        form = MixForm(request.POST)
+        if form.is_valid():
+            mix_object = Mix()
+            if form.cleaned_data.get('rus_definition'):
+                mix_object.root_pd = Definition.objects.get_or_create(rus_definition=form.cleaned_data.get('rus_definition'))[0]
+            else:
+                mix_object.root_pd = Definition.objects.get(id=form.cleaned_data.get('root_pd'))
+            mix_object.xcode_mix = form.cleaned_data.get('xcode_mix')
+            mix_object.ean_mix = form.cleaned_data.get('ean_mix')
+            mix_object.category = form.cleaned_data.get('category')
+            mix_object.groupname = form.cleaned_data.get('groupname')
+            mix_object.status = form.cleaned_data.get('status')
+            mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
+            mix_object.save()
+            return redirect('show_mix', mix_id=mix_object.id)
+        else:
+            print(form.errors)
     return redirect('mix_create')
 
 def mix_page_save(request, mix_id):
