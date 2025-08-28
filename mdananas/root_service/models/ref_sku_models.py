@@ -126,3 +126,38 @@ class MixComposition(models.Model):
     class Meta:
        managed = False
        db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Compositions]'
+
+class MixDimensions(models.Model):
+    root_mix = models.OneToOneField('Mix', on_delete=models.PROTECT, null=False)
+    length = models.FloatField(null=True)
+    width = models.FloatField(null=True)
+    height = models.FloatField(null=True)
+    volume = models.FloatField(null=True)
+    net_weight = models.FloatField(null=True)
+
+    class Meta:
+       managed = False
+       db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Dimensions]'
+
+class MixLogisticsInfo(models.Model):
+    root_mix = models.OneToOneField('Mix', on_delete=models.PROTECT, null=False)
+    tu_per_layer = models.IntegerField(null=True)
+    layers_per_pal = models.IntegerField(null=True)
+    pal_per_truck = models.IntegerField(null=True)
+    gross_weight_pal = models.FloatField(null=True)
+    gross_weight_tu = models.FloatField(null=True)
+
+    class Meta:
+       managed = False
+       db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Logistics_info]'
+
+class MixCustomsInfo(models.Model):
+    root_mix = models.OneToOneField('Mix', on_delete=models.PROTECT, null=False)
+    customs_code = models.CharField(max_length=10)
+    duty = models.FloatField(null=True)
+    okpd2_code = models.CharField(max_length=10)
+    vat = models.FloatField(null=True)
+
+    class Meta:
+       managed = False
+       db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Customs_info]'

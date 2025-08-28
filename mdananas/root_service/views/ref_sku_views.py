@@ -248,6 +248,9 @@ def mix_page(request, mix_id):
     existing_categories = Mix.objects.values_list('category', flat=True).distinct().order_by('category')
     existing_groupnames = Mix.objects.values_list('groupname', flat=True).distinct().order_by('groupname')
     definitions = Definition.objects.all()
+    mix_dimensions, created_mix_dimensions = MixDimensions.objects.get_or_create(root_mix=mix_object)
+    mix_logistics_info, created_mix_logistics_info = MixLogisticsInfo.objects.get_or_create(root_mix=mix_object)
+    mix_customs_info, created_mix_customs_info = MixCustomsInfo.objects.get_or_create(root_mix=mix_object)
     existing_statuses = Tu.objects.values_list('status', flat=True).distinct().order_by('status')
     compositions = MixComposition.objects.filter(root_mix = mix_id)
     MixComponentFormSet = inlineformset_factory(
@@ -262,7 +265,38 @@ def mix_page(request, mix_id):
                                                                    'mix': mix_object,
                                                                    'existing_categories': existing_categories, 'existing_groupnames': existing_groupnames,
                                                                    'existing_statuses': existing_statuses, 'definitions': definitions, 'compositions': compositions,
-                                                                   'formset': formset})
+                                                                   'formset': formset, 'dimensions': created_mix_dimensions if created_mix_dimensions else mix_dimensions,
+                                                                   'logistics_info': created_mix_logistics_info if created_mix_logistics_info else mix_logistics_info,
+                                                                   'customs_info': created_mix_customs_info if created_mix_customs_info else mix_customs_info})
+
+def mix_page_save_dimensions(request, mix_id):
+    mix_object = get_object_or_404(Mix, id=mix_id)
+    mix_dimensions, created_mix_dimensions = MixDimensions.objects.get_or_create(root_mix=mix_object)
+    if request.method == 'POST':
+        form = MixDimensionsForm(request.POST, instance=created_mix_dimensions if created_mix_dimensions else mix_dimensions)
+        if form.is_valid():
+            form.save()
+    return redirect('show_mix', mix_id=mix_id)
+
+def mix_page_save_logistics_info(request, mix_id):
+    mix_object = get_object_or_404(Mix, id=mix_id)
+    mix_logistics_info, created_mix_logistics_info = MixLogisticsInfo.objects.get_or_create(root_mix=mix_object)
+    if request.method == 'POST':
+        form = MixLogisticsInfoForm(request.POST, instance=created_mix_logistics_info if created_mix_logistics_info else mix_logistics_info)
+        if form.is_valid():
+            form.save()
+    return redirect('show_mix', mix_id=mix_id)
+
+def mix_page_save_customs_info(request, mix_id):
+    mix_object = get_object_or_404(Mix, id=mix_id)
+    mix_customs_info, created_mix_customs_info = MixCustomsInfo.objects.get_or_create(root_mix=mix_object)
+    if request.method == 'POST':
+        form = MixCustomsInfoForm(request.POST, instance=created_mix_customs_info if created_mix_customs_info else mix_customs_info)
+        if form.is_valid():
+            form.save()
+        else:
+            print(form.errors)
+    return redirect('show_mix', mix_id=mix_id)
 
 def mix_creation_page(request):
     existing_categories = Mix.objects.values_list('category', flat=True).distinct().order_by('category')
@@ -289,9 +323,19 @@ def mix_creation_page_save(request):
 def mix_page_save(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
     if request.method == 'POST':
-        form = MixForm(request.POST, instance=mix_object)
+        form = MixForm(request.POST)
         if form.is_valid():
-            form.save()
+            if form.cleaned_data.get('rus_definition'):
+                mix_object.root_pd = Definition.objects.get_or_create(rus_definition=form.cleaned_data.get('rus_definition'))[0]
+            else:
+                mix_object.root_pd = Definition.objects.get(id=form.cleaned_data.get('root_pd'))
+            mix_object.xcode_mix = form.cleaned_data.get('xcode_mix')
+            mix_object.ean_cu = form.cleaned_data.get('ean_mix')
+            mix_object.category = form.cleaned_data.get('category')
+            mix_object.groupname = form.cleaned_data.get('groupname')
+            mix_object.status = form.cleaned_data.get('status')
+            mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
+            mix_object.save()
     return redirect('show_mix', mix_id=mix_id)
 
 def mix_page_save_compositions(request, mix_id):
