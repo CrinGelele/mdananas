@@ -28,4 +28,5 @@ urlpatterns = [
     path('mix/<int:mix_id>/save-dimensions/', ref_sku_views.mix_page_save_dimensions, name='save_mix_dimensions'),
     path('mix/<int:mix_id>/save-logistics_info/', ref_sku_views.mix_page_save_logistics_info, name='save_mix_logistics_info'),
     path('mix/<int:mix_id>/save-customs_info/', ref_sku_views.mix_page_save_customs_info, name='save_mix_customs_info'),
+    path('mix/<int:mix_id>/save-descriptions/', ref_sku_views.mix_page_save_descriptions, name='save_mix_descriptions'),
 ]

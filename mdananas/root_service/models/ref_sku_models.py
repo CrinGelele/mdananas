@@ -161,3 +161,11 @@ class MixCustomsInfo(models.Model):
     class Meta:
        managed = False
        db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Customs_info]'
+
+class MixDescription(models.Model):
+    root_mix = models.ForeignKey('Mix', on_delete=models.PROTECT, null=False, related_name='desc')
+    rus_description = models.TextField(null=True)
+    eng_description = models.TextField(null=True)
+    class Meta:
+        managed = False
+        db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Descriptions]'

@@ -154,3 +154,10 @@ class MixCustomsInfoForm(forms.ModelForm):
         if vat:
             return vat / 100  # Преобразуем процент в дробь
         return vat
+
+class MixDescriptionForm(forms.ModelForm):
+    rus_description = forms.CharField(required=False)
+    eng_description = forms.CharField(required=False)
+    class Meta:
+        model = MixDescription
+        fields = ['rus_description', 'eng_description']
