@@ -251,6 +251,7 @@ def mix_page(request, mix_id):
     mix_dimensions, created_mix_dimensions = MixDimensions.objects.get_or_create(root_mix=mix_object)
     mix_logistics_info, created_mix_logistics_info = MixLogisticsInfo.objects.get_or_create(root_mix=mix_object)
     mix_customs_info, created_mix_customs_info = MixCustomsInfo.objects.get_or_create(root_mix=mix_object)
+    mix_descriptions, created_mix_descriptions = MixDescription.objects.get_or_create(root_mix=mix_object)
     existing_statuses = Tu.objects.values_list('status', flat=True).distinct().order_by('status')
     compositions = MixComposition.objects.filter(root_mix = mix_id)
     MixComponentFormSet = inlineformset_factory(
@@ -267,7 +268,8 @@ def mix_page(request, mix_id):
                                                                    'existing_statuses': existing_statuses, 'definitions': definitions, 'compositions': compositions,
                                                                    'formset': formset, 'dimensions': created_mix_dimensions if created_mix_dimensions else mix_dimensions,
                                                                    'logistics_info': created_mix_logistics_info if created_mix_logistics_info else mix_logistics_info,
-                                                                   'customs_info': created_mix_customs_info if created_mix_customs_info else mix_customs_info})
+                                                                   'customs_info': created_mix_customs_info if created_mix_customs_info else mix_customs_info,
+                                                                   'descriptions': created_mix_descriptions if created_mix_descriptions else mix_descriptions})
 
 def mix_page_save_dimensions(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
@@ -296,6 +298,15 @@ def mix_page_save_customs_info(request, mix_id):
             form.save()
         else:
             print(form.errors)
+    return redirect('show_mix', mix_id=mix_id)
+
+def mix_page_save_descriptions(request, mix_id):
+    mix_object = get_object_or_404(Mix, id=mix_id)
+    mix_descriptions, created_mix_descriptions = MixDescription.objects.get_or_create(root_mix=mix_object)
+    if request.method == 'POST':
+        form = MixDescriptionForm(request.POST, instance=created_mix_descriptions if created_mix_descriptions else mix_descriptions)
+        if form.is_valid():
+            form.save()
     return redirect('show_mix', mix_id=mix_id)
 
 def mix_creation_page(request):

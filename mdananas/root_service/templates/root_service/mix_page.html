@@ -118,7 +118,7 @@
     </form>
     <form action="save-logistics_info/" method="POST"> 
         {% csrf_token %}
-        <details open class="info-tab">
+        <details class="info-tab">
             <summary class="info-tab-label">
                 <p>Logistics info</p>
                 <button class="info-tab-label-form-save-btn" type="submit">Save</button>
@@ -152,9 +152,28 @@
             </div>
         </details>
     </form>
+        <form action="save-descriptions/" method="POST"> 
+        {% csrf_token %}
+        <details class="info-tab">
+            <summary class="info-tab-label">
+                <p>Descriptions</p>
+                <button class="info-tab-label-form-save-btn" type="submit">Save</button>
+            </summary>
+            <div class="info-tab-label-form vertical">
+                <div class="info-tab-label-form-field long">
+                    <label for="rus_description">rus_description</label>
+                    <input class="info-tab-label-form-field-input" type="text" name="rus_description" value="{{descriptions.rus_description|default_if_none:""}}">
+                </div>
+                <div class="info-tab-label-form-field long">
+                    <label for="eng_description">eng_description</label>
+                    <input class="info-tab-label-form-field-input" type="text" name="eng_description" value="{{descriptions.eng_description|default_if_none:""}}">
+                </div>
+            </div>
+        </details>
+    </form>
     <form action="save-customs_info/" method="POST"> 
         {% csrf_token %}
-        <details open class="info-tab">
+        <details class="info-tab">
             <summary class="info-tab-label">
                 <p>Customs info</p>
                 <button class="info-tab-label-form-save-btn" type="submit">Save</button>
