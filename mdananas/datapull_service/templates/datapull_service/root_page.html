@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ref_sku_page{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'export_service/uz/css/uz.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="vertical-pivots-container">
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
+                <p>Invoice</p>
+            </summary>
+            <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="invoice-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="invoice">
+                    <input type="file" class="file-input" id="invoice-file-input" name="file" style="display: none;">
+                    <label for="invoice-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="invoice-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'datapull_service/js/progress_indicators.js' %}"></script>
+{% endblock %}
