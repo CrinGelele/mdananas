@@ -4,30 +4,87 @@
 {% block title %}ref_sku_page{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'export_service/uz/css/uz.css' %}">
+    <link rel="stylesheet" href="{% static 'datapull_service/css/root.css' %}">
 {% endblock %}
 
 {% block content %}
-    <div class="vertical-pivots-container">
-        <div class="upload-tab">
-            <summary class="upload-tab-label">
-                <p>Invoice</p>
+    <div class="root-pivots-container">
+        <div class="upload-tabs-column">
+            <div class="upload-tab">
+                <summary class="upload-tab-label">
+                    <p>Invoice</p>
+                </summary>
+                <div class="upload-tab-content">
+                    <form method="post" enctype="multipart/form-data" id="invoice-file-upload-form">
+                        {% csrf_token %}
+                        <input type="text" name="form_name" id="form_name" style="display: none;" value="invoice">
+                        <input type="file" class="file-input" id="invoice-file-input" name="file" style="display: none;">
+                        <label for="invoice-file-input" class="plus-upload-btn">
+                            <span class="plus-icon progress-percent" id="invoice-progress-percent">+</span>
+                        </label>
+                        <button type="submit" style="display: none;">Отправить</button>
+                    </form>
+                </div>
+            </div>
+            <div class="upload-tab" style="background-image: url('{% static 'datapull_service/img/root_ananas.jpg' %}'); background-size: cover; background-position: center; width: 150px; height: 150px; margin: 0;">
+            </div>
+        </div>
+        <div class="info-tab w-42 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>CUSTOMERS PIVOT</p>
             </summary>
-            <div class="upload-tab-content">
-                <form method="post" enctype="multipart/form-data" id="invoice-file-upload-form">
-                    {% csrf_token %}
-                    <input type="text" name="form_name" id="form_name" style="display: none;" value="invoice">
-                    <input type="file" class="file-input" id="invoice-file-input" name="file" style="display: none;">
-                    <label for="invoice-file-input" class="plus-upload-btn">
-                        <span class="plus-icon progress-percent" id="invoice-progress-percent">+</span>
-                    </label>
-                    <button type="submit" style="display: none;">Отправить</button>
-                </form>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>erp_name</th>
+                            <th>demand_name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in pivot_customers %}
+                            <tr>
+                                <td> {{ customer.erp_name }} </td>
+                                    <td>
+                                        <form class="auto-submit-form" method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="text" name="piv_customer_id" id="piv_customer_id" style="display: none;" value="{{customer.id}}">
+                                            <div class="info-tab-label-form-field">
+                                                <select class="info-tab-label-form-field-input customer-select l-100" name="customer">
+                                                    <option value="{{customer.root_customer.id|default_if_none:""}}" selected>{{customer.root_customer.demand_name|default_if_none:""}}</option>
+                                                    {% for dem in existing_customers %}
+                                                        {% if dem != customer.root_customer %}
+                                                            <option value="{{ dem.id }}">{{ dem.demand_name }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="info-tab w-42 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>LOGS</p>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll">
+                {% for log in logs %}
+                    {% if log.operation_type == 'INVOICE FILE INSERT'%}
+                        <p>[{{log.date_time|date:"M d, Y"}}]: {{log.operation_type}} {{log.operation_details}} file_rows: {{log.records_count}} aggregated_rows: {{log.aggregated_records_count}}</p>
+                    {% else %}
+                        <p>[{{log.date_time|date:"M d, Y"}}]: {{log.operation_type}} {{log.operation_details}}</p>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'datapull_service/js/progress_indicators.js' %}"></script>
+    <script src="{% static 'datapull_service/js/root/progress_indicators.js' %}"></script>
+    <script src="{% static 'datapull_service/js/root/root_switches.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,22 @@
+.root-pivots-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1312px;
+    height: 95%;
+}
+
+.upload-tabs-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 50px;
+    width: 150px;
+    height: 100%;
+}
+
+.w-42 {
+    width: 42%;
+}
