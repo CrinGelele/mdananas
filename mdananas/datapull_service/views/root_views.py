@@ -40,16 +40,11 @@ def process_invoice_file(file, request):
                 inv_object.xcode = row.get(col.get('column_name'))
             elif col.get('first_lvl') == 'Регистратор':
                 reg = row.get(col.get('column_name'))
+                inv_object.date_year = last_date.year
+                inv_object.date_month = last_date.month
+                inv_object.date_day = None
                 if 'Объект не найден' in reg:
-                    inv_object.date_year = last_date.year
-                    inv_object.date_month = last_date.month
-                    inv_object.date_day = last_date.day
                     only_nsv_flag = True
-                else:
-                    current_date = dateparser.parse(reg[-19: -9])
-                    inv_object.date_year = current_date.year
-                    inv_object.date_month = current_date.month
-                    inv_object.date_day = current_date.day
             if col.get('second_lvl') == 'Грузополучатель':
                 inv_object.shipped_to = row.get(col.get('column_name'))
                 continue
