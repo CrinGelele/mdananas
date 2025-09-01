@@ -40,8 +40,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'root_service',
     'export_service',
-    'domestic_service'
+    'domestic_service',
+    'datapull_service'
 ]
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_BEAT_SCHEDULE = {
+    'fetch-api-data-every-hour': {
+        'task': 'mdananas.tasks.fetch_api_data',
+        'schedule': 3600.0,  # каждые 60 минут
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,7 +69,7 @@ ROOT_URLCONF = 'mdananas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates/', 'root_service/templates/'],
+        'DIRS': ['templates/', 'root_service/templates/', 'datapull_serivce/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

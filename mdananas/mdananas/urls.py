@@ -7,5 +7,6 @@ urlpatterns = [
     path('', mdananas_views.main_page),
     path('root/', include('root_service.urls')),
     path('export/', include('export_service.urls')),
-    path('domestic/', include('domestic_service.urls'))
+    path('domestic/', include('domestic_service.urls')),
+    path('datapull/', include('datapull_service.urls'))
 ]
