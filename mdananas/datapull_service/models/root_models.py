@@ -6,10 +6,11 @@ class ROOT_TMP_Invoice(models.Model):
     date_day = models.CharField(max_length=255)
     xcode = models.CharField(max_length=255)
     customer = models.CharField(max_length=255)
+    shipped_to = models.CharField(max_length=255)
     gsv = models.CharField(max_length=255)
     nsv = models.CharField(max_length=255)
     cu = models.CharField(max_length=255)
-    isv = models.CharField(max_length=255)
+    on = models.CharField(max_length=255)
     contract_conditions = models.CharField(max_length=255)
     price_increase_delay = models.CharField(max_length=255)
     class Meta:
@@ -34,6 +35,7 @@ class ROOT_REF_Customer(models.Model):
 
 class ROOT_PIVOT_Customer(models.Model):
     erp_name = models.TextField()
+    shipped_to = models.TextField()
     root_customer = models.ForeignKey(ROOT_REF_Customer, on_delete=models.PROTECT, null=True)
     class Meta:
        managed = False

@@ -29,7 +29,7 @@
             <div class="upload-tab" style="background-image: url('{% static 'datapull_service/img/root_ananas.jpg' %}'); background-size: cover; background-position: center; width: 150px; height: 150px; margin: 0;">
             </div>
         </div>
-        <div class="info-tab w-42 info-tab-scroll">
+        <div class="info-tab w-50 info-tab-scroll">
             <summary class="info-tab-label">
                 <p>CUSTOMERS PIVOT</p>
             </summary>
@@ -38,6 +38,7 @@
                     <thead>
                         <tr>
                             <th>erp_name</th>
+                            <th>shipped_to</th>
                             <th>demand_name</th>
                         </tr>
                     </thead>
@@ -45,6 +46,7 @@
                         {% for customer in pivot_customers %}
                             <tr>
                                 <td> {{ customer.erp_name }} </td>
+                                <td> {{ customer.shipped_to }} </td>
                                     <td>
                                         <form class="auto-submit-form" method="post" action="">
                                             {% csrf_token %}
@@ -67,7 +69,7 @@
                 </table>
             </div>
         </div>
-        <div class="info-tab w-42 info-tab-scroll">
+        <div class="info-tab w-33 info-tab-scroll">
             <summary class="info-tab-label">
                 <p>LOGS</p>
             </summary>
