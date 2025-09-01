@@ -11,6 +11,7 @@ class ROOT_TMP_Invoice(models.Model):
     nsv = models.CharField(max_length=255)
     cu = models.CharField(max_length=255)
     on = models.CharField(max_length=255)
+    is_promo = models.CharField(max_length=255)
     contract_conditions = models.CharField(max_length=255)
     price_increase_delay = models.CharField(max_length=255)
     class Meta:

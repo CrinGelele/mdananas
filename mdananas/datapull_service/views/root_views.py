@@ -31,6 +31,7 @@ def process_invoice_file(file, request):
         if df.iloc[index, 0] == 'Итого':
             continue
         inv_object = ROOT_TMP_Invoice()
+        inv_object.is_promo = 0
         last_measure = None
         only_nsv_flag = False
         for col in header:
@@ -50,6 +51,8 @@ def process_invoice_file(file, request):
                 continue
             if col.get('second_lvl') is not nan:
                 last_measure = col.get('second_lvl')
+            if (col.get('first_lvl') == 'P1010-3' or col.get('first_lvl') == 'P1010-4') and not (row.get(col.get('column_name')) == ' '):
+                inv_object.is_promo = 1
             if col.get('third_lvl') == 'Сумма' and last_measure:
                 match last_measure:
                     case 'Штуки':
