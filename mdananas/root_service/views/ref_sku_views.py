@@ -112,7 +112,10 @@ def cu_page_save(request, cu_id):
             cu_object.category = form.cleaned_data.get('category')
             cu_object.groupname = form.cleaned_data.get('groupname')
             cu_object.shelf_life = form.cleaned_data.get('shelf_life')
+            cu_object.cons_active = form.cleaned_data.get('cons_active', 0)
             cu_object.save()
+        else:
+            print(form.errors)
     return redirect('show_cu', cu_id=cu_id)
 
 def cu_page_save_dimensions(request, cu_id):
@@ -359,6 +362,7 @@ def mix_page_save(request, mix_id):
             mix_object.groupname = form.cleaned_data.get('groupname')
             mix_object.status = form.cleaned_data.get('status')
             mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
+            mix_object.cons_active = form.cleaned_data.get('cons_active', 0)
             mix_object.save()
     return redirect('show_mix', mix_id=mix_id)
 

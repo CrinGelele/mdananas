@@ -10,6 +10,7 @@ class CuForm(forms.Form):
     shelf_life = forms.IntegerField(required=False)
     rus_definition = forms.CharField(required=False)
     root_pd = forms.CharField(required=False)
+    cons_active = forms.BooleanField(required=False)
 
 class CuDimensionsForm(forms.ModelForm):
     length = forms.FloatField(required=False)
@@ -98,6 +99,7 @@ class MixForm(forms.Form):
     mix_in_box = forms.FloatField(required=False)
     rus_definition = forms.CharField(required=False)
     root_pd = forms.CharField(required=False)
+    cons_active = forms.BooleanField(required=False)
 
 class MixCompositionForm(forms.ModelForm):
     class Meta:
