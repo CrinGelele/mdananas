@@ -72,7 +72,9 @@ TEMPLATES = [
         'DIRS': [
             BASE_DIR / 'templates',
             BASE_DIR / 'root_service' / 'templates',
-            BASE_DIR / 'datapull_service' / 'templates',  # исправлена опечатка
+            BASE_DIR / 'export_service' / 'templates',
+            BASE_DIR / 'domestic_service' / 'templates',
+            BASE_DIR / 'datapull_service' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -165,6 +167,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'root_service/static'),
     os.path.join(BASE_DIR, 'export_service/static'),
     os.path.join(BASE_DIR, 'domestic_service/static'), 
+    os.path.join(BASE_DIR, 'datapull_service/static'),
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
