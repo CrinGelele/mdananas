@@ -71,8 +71,7 @@ def process_competitors_file(file, request):
             continue
         if matrix[i][3] is not nan:
             current_material = matrix[i][3]
-            continue
-        for j in range(5, df.shape[1]):
+        for j in range(4, df.shape[1]):
             if date != 'Итог':
                 dt = dateparser.parse(date, languages=['ru'])
                 if matrix[i][j] is not nan:
@@ -107,7 +106,7 @@ def upload_competitors_data(competitors_data):
             schema_editor.create_model(KG_TMP_Competitor_Sale)
             KG_TMP_Competitor_Sale.objects.bulk_create(competitors_data)
             cursor.execute("EXEC [11_KG].[KG_PROC_MERGE_Competitors_Sales]")
-            cursor.execute("DROP TABLE IF EXISTS [11_KG].[KG_TMP_Competitors_sales];")
+            #cursor.execute("DROP TABLE IF EXISTS [11_KG].[KG_TMP_Competitors_sales];")
 
 def get_upload_progress(request):
     return JsonResponse({'sales_file_processing_progress': cache.get(f'sales_file_processing_progress_{request.session.session_key}', 0),
