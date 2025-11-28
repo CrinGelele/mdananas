@@ -99,7 +99,8 @@
                         <tr>
                             <th>Chain</th>
                             <th>Type</th>
-                            <th>Class</th>
+                            <th>Channel</th>
+                            <th>Chain_generalized</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,23 +108,41 @@
                             <tr>
                                 <td> {{ chain.chain_name }} </td>
                                 <td> {{ chain.chain_type }} </td>
-                                    <td>
-                                        <form class="auto-submit-form" method="post" action="">
-                                            {% csrf_token %}
-                                            <input type="text" name="chain_id" id="chain_id" style="display: none;" value="{{chain.id}}">
-                                            <div class="info-tab-label-form-field">
-                                                <select class="info-tab-label-form-field-input class-select l-100" name="chain_class">
-                                                    <option value="{{chain.chain_class|default_if_none:""}}" selected>{{chain.chain_class|default_if_none:""}}</option>
-                                                    {% for class in existing_classes %}
-                                                        {% if class != chain.chain_class %}
-                                                            <option value="{{ class|default_if_none:"" }}">{{ class|default_if_none:"" }}</option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    <option value="new">Добавить новую...</option>
-                                                </select>
-                                                <input class="info-tab-label-form-field-input l-100 new-class-field type="text" name="chain_class" style="display: none;" disabled>
-                                            </div>
-                                        </form>
+                                <td>
+                                    <form class="auto-submit-form" method="post" action="">
+                                        {% csrf_token %}
+                                        <input type="text" name="chain_id" id="chain_id" style="display: none;" value="{{chain.id}}">
+                                        <div class="info-tab-label-form-field">
+                                            <select class="info-tab-label-form-field-input channel-select l-100" name="channel">
+                                                <option value="{{chain.channel|default_if_none:""}}" selected>{{chain.channel|default_if_none:""}}</option>
+                                                {% for channel in existing_channels %}
+                                                    {% if channel != chain.channel %}
+                                                        <option value="{{ channel|default_if_none:"" }}">{{ channel|default_if_none:"" }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input l-100 new-channel-field type="text" name="channel" style="display: none;" disabled>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="auto-submit-form" method="post" action="">
+                                        {% csrf_token %}
+                                        <input type="text" name="chain_id" id="chain_id" style="display: none;" value="{{chain.id}}">
+                                        <div class="info-tab-label-form-field">
+                                            <select class="info-tab-label-form-field-input general-select l-100" name="general">
+                                                <option value="{{chain.chain_generalized|default_if_none:""}}" selected>{{chain.chain_generalized|default_if_none:""}}</option>
+                                                {% for general in existing_chains_generalized %}
+                                                    {% if general != chain.chain_generalized %}
+                                                        <option value="{{ general|default_if_none:"" }}">{{ general|default_if_none:"" }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="new">Добавить новую...</option>
+                                            </select>
+                                            <input class="info-tab-label-form-field-input l-100 new-general-field type="text" name="general" style="display: none;" disabled>
+                                        </div>
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}

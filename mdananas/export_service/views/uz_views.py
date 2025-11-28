@@ -26,7 +26,7 @@ def process_sales_file(file, request):
     total_rows = df.shape[0]
     for index, row in df.iterrows():
             dt = dateparser.parse(row['Date'][-10:])
-            if pd.isna(row['Volume']) or pd.isna(row['Value']):
+            if pd.isna(row['Volume']) and pd.isna(row['Value']):
                 continue
             result.append(UZ_TMP_Sale(
                 date_year = dt.year,
@@ -34,8 +34,8 @@ def process_sales_file(file, request):
                 chain_name = row['Названия строк'],
                 chain_type = row['ТИП ТТ'],
                 material = row['Код'],
-                volume = row['Volume'],
-                value = row['Value']
+                volume = 0 if pd.isna(row['Volume']) else row['Volume'],
+                value = 0 if pd.isna(row['Value']) else row['Value']
             ))
             cache.set(f'uz_sales_file_progress_{request.session.session_key}', int(index / total_rows * 100), 300)
     cache.set(f'uz_sales_file_active_{request.session.session_key}', 0, 300)
@@ -86,8 +86,9 @@ def uz_page(request):
         return response
     uz_pivot_sku_suo = request.COOKIES.get('uz_pivot_sku_suo', 'on') == 'on'
     existing_pivot_sku = UZ_PIVOT_SKU.objects.filter(is_last_upload=True) if uz_pivot_sku_suo else UZ_PIVOT_SKU.objects.all()
-    existing_chains = UZ_REF_Chain.objects.all().order_by('chain_class')
-    existing_classes = UZ_REF_Chain.objects.values_list('chain_class', flat=True).distinct()
+    existing_chains = UZ_REF_Chain.objects.all().order_by('chain_name')
+    existing_channels = UZ_REF_Chain.objects.values_list('channel', flat=True).distinct()
+    existing_chains_generalized = UZ_REF_Chain.objects.values_list('chain_generalized', flat=True).distinct()
     existing_comp_sku = UZ_REF_Competing_SKU.objects.all().order_by('material')
     existing_brands = UZ_REF_Competing_SKU.objects.values_list('brand', flat=True).distinct()
     existing_groups = UZ_REF_Competing_SKU.objects.values_list('groupname', flat=True).distinct()
@@ -108,7 +109,10 @@ def uz_page(request):
             form = ChainsRefForm(request.POST)
             if form.is_valid():
                 object = UZ_REF_Chain.objects.get(id = form.cleaned_data['chain_id'])
-                object.chain_class = form.cleaned_data['chain_class']
+                if form.cleaned_data['channel']:
+                    object.channel = form.cleaned_data['channel']
+                if form.cleaned_data['general']:
+                    object.chain_generalized = form.cleaned_data['general']
                 object.save()
             else:
                 form = CompSKURefForm(request.POST)
@@ -126,5 +130,5 @@ def uz_page(request):
     else:
         print(0)
     return render(request, "export_service/uz_page.html", context={'uz_pivot_sku_suo': uz_pivot_sku_suo, 'existing_pivot_sku': existing_pivot_sku, 'existing_chains': existing_chains,
-                                                                   'existing_classes': existing_classes, 'existing_comp_sku': existing_comp_sku, 'existing_brands': existing_brands,
-                                                                   'existing_groups': existing_groups, 'existing_subgroups': existing_subgroups})
+                                                                   'existing_channels': existing_channels, 'existing_comp_sku': existing_comp_sku, 'existing_brands': existing_brands,
+                                                                   'existing_groups': existing_groups, 'existing_subgroups': existing_subgroups, 'existing_chains_generalized': existing_chains_generalized})

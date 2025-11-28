@@ -39,7 +39,8 @@ class UZ_PIVOT_SKU(models.Model):
 class UZ_REF_Chain(models.Model):
     chain_type = models.TextField()
     chain_name = models.TextField()
-    chain_class = models.TextField()
+    channel = models.TextField() #ex chain_class
+    chain_generalized = models.TextField()
     class Meta:
        managed = False
        db_table = '[10_UZ].[UZ_REF_Chains]'

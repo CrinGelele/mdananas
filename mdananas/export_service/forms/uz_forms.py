@@ -5,7 +5,8 @@ class FileUploadForm(forms.Form):
     form_name = forms.CharField(max_length=20)
 
 class ChainsRefForm(forms.Form):
-    chain_class = forms.CharField(required=False)
+    channel = forms.CharField(required=False)
+    general = forms.CharField(required=False)
     chain_id = forms.IntegerField()
 
 class CompSKURefForm(forms.Form):

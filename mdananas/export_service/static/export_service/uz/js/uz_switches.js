@@ -1,5 +1,5 @@
 window.addEventListener('load', function() {
-    document.querySelectorAll('.new-class-field').forEach(field => {
+        document.querySelectorAll('.new-general-field').forEach(field => {
         field.addEventListener('change', function() {
             const formData = new FormData(this.form);
             fetch(this.form.action, {
@@ -8,15 +8,41 @@ window.addEventListener('load', function() {
             });
         });
     });
-    document.querySelectorAll('.class-select').forEach(field => {
+    document.querySelectorAll('.general-select').forEach(field => {
         field.addEventListener('change', function() {
-            const newClassField = field.closest('td').querySelector('.new-class-field');
+            const newGeneralField = field.closest('td').querySelector('.new-general-field');
             if (this.value === 'new') {
-                newClassField.style.display = 'flex';
-                newClassField.disabled = false;
+                newGeneralField.style.display = 'flex';
+                newGeneralField.disabled = false;
                 this.style.display = 'none';
             } else {
-                newClassField.style.display = 'none';
+                newGeneralField.style.display = 'none';
+            }
+            const formData = new FormData(this.form);
+            fetch(this.form.action, {
+                method: 'POST',
+                body: formData,
+            });
+        });
+    });
+    document.querySelectorAll('.new-channel-field').forEach(field => {
+        field.addEventListener('change', function() {
+            const formData = new FormData(this.form);
+            fetch(this.form.action, {
+                method: 'POST',
+                body: formData,
+            });
+        });
+    });
+    document.querySelectorAll('.channel-select').forEach(field => {
+        field.addEventListener('change', function() {
+            const newChannelField = field.closest('td').querySelector('.new-channel-field');
+            if (this.value === 'new') {
+                newChannelField.style.display = 'flex';
+                newChannelField.disabled = false;
+                this.style.display = 'none';
+            } else {
+                newChannelField.style.display = 'none';
             }
             const formData = new FormData(this.form);
             fetch(this.form.action, {
