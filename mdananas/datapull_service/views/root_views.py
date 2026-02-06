@@ -67,6 +67,10 @@ def process_invoice_file(file, request):
                         inv_object.contract_conditions = row.get(col.get('column_name')) if not only_nsv_flag else 0
                     case 'Price increase delay':
                         inv_object.price_increase_delay = row.get(col.get('column_name')) if not only_nsv_flag else 0
+                    case 'Contract conditions (услуги)':
+                        inv_object.contract_conditions_services = row.get(col.get('column_name'))
+                    case 'Contract conditions (премия)':
+                        inv_object.contract_conditions_bonus = row.get(col.get('column_name'))
                     case _:
                         pass
         result.append(inv_object)

@@ -60,6 +60,12 @@
                             {% endfor %}
                         </select>
                     </div>
+                    {% if not is_create_mode %}
+                    <div class="info-tab-label-form-field">
+                        <label for="cons_active">cons_active</label>
+                        <input type="checkbox" id="cons_active" name ="cons_active" {% if is_cons_active %} checked {% endif %}>
+                    </div>
+                    {% endif %}
             </div>
         </details>
     </form>
