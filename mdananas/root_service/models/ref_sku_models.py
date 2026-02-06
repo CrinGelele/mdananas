@@ -23,7 +23,6 @@ class Cu(models.Model):
     groupname = models.CharField(max_length=25, null=False)
     shelf_life = models.SmallIntegerField(null=True)
     supplier = models.ForeignKey('Supplier', on_delete=models.PROTECT, null=True)
-    cons_active = models.BooleanField()
 
     def __str__(self):
         return self.xcode_cu
@@ -116,7 +115,7 @@ class Mix(models.Model):
     groupname = models.CharField(max_length=25, null=False)
     status = models.CharField(max_length=5, null=False)
     mix_in_box = models.IntegerField()
-    cons_active = models.BooleanField()
+
     class Meta:
        managed = False
        db_table = '[00_ROOT].[ROOT_REF_SKU_MIX]'
@@ -168,6 +167,16 @@ class MixDescription(models.Model):
     root_mix = models.ForeignKey('Mix', on_delete=models.PROTECT, null=False, related_name='desc')
     rus_description = models.TextField(null=True)
     eng_description = models.TextField(null=True)
+
     class Meta:
         managed = False
         db_table = '[00_ROOT].[ROOT_REF_SKU_MIX_Descriptions]'
+
+class Active_list(models.Model):
+    root_tu = models.ForeignKey('Tu', on_delete=models.PROTECT, null=True)
+    root_mix = models.ForeignKey('Mix', on_delete=models.PROTECT, null=True)
+    cons_active = models.BooleanField(null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[00_ROOT].[ROOT_REF_SKU_Active_list]'

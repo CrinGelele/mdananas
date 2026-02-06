@@ -1,0 +1,108 @@
+/* Основные стили */
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Стили дерева */
+.tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.level {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 15px 0;
+    gap: 15px;
+}
+
+.node {
+    background: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    min-width: 160px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.node.selected {
+    background: #FF5722;
+    border-color: white;
+    box-shadow: 0 0 10px #FF5722, 0 5px 15px rgba(255,87,34,0.3);
+}
+
+.node.parent {
+    background: #2196F3;
+}
+
+.connector {
+    height: 20px;
+    width: 2px;
+    background: #999;
+    margin: 5px auto;
+}
+
+/* Информационная панель */
+.info-panel {
+    margin: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.controls {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background: #45a049;
+}
+
+.btn-reset {
+    background: #f44336;
+}
+
+.btn-reset:hover {
+    background: #d32f2f;
+}
+
+/* Цвета по уровням */
+.node[data-level="0"] { background: #FF5722; } /* Уровень 0 */
+.node[data-level="1"] { background: #2196F3; } /* Уровень 1 */
+.node[data-level="2"] { background: #4CAF50; } /* Уровень 2 */
+.node[data-level="3"] { background: #9C27B0; } /* Уровень 3 */
+.node[data-level="4"] { background: #FF9800; } /* Уровень 4 */
+
+.node[data-level="0"]:hover { background: #FF7043; }
+.node[data-level="1"]:hover { background: #42A5F5; }
+.node[data-level="2"]:hover { background: #66BB6A; }
+.node[data-level="3"]:hover { background: #AB47BC; }
+.node[data-level="4"]:hover { background: #FFB74D; }
