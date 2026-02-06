@@ -27,6 +27,22 @@
         </div>
         <div class="upload-tab">
             <summary class="upload-tab-label">
+                <p>KZ</p>
+            </summary>
+            <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="kz-file-upload-form">
+                    {% csrf_token %}
+                    <input type="text" name="form_name" id="form_name" style="display: none;" value="kz">
+                    <input type="file" class="file-input" id="kz-file-input" name="file" style="display: none;">
+                    <label for="kz-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="kz-progress-percent">+</span>
+                    </label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
+            </div>
+        </div>
+        <div class="upload-tab">
+            <summary class="upload-tab-label">
                 <p>RU</p>
             </summary>
             <div class="upload-tab-content">

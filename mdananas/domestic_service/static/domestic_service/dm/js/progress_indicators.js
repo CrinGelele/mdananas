@@ -24,6 +24,13 @@ function trackProgress(active_form, file_name) {
                         clearInterval(progressInterval);
                     }
                 }
+                if (file_name === 'kz') {
+                    percentElement.textContent = data.kz_file_progress + '%';
+                    if (!data.kz_file_active) {
+                        percentElement.textContent = '100%';
+                        clearInterval(progressInterval);
+                    }
+                }
                 if (file_name === 'implant') {
                     percentElement.textContent = data.implant_file_progress + '%';
                     if (!data.implant_file_active) {
@@ -70,6 +77,7 @@ function addFileInputChangeListener(active_form, file_name) {
 
 window.addEventListener('load', function() {
     addFileInputChangeListener(document.getElementById('by-file-upload-form'), 'by');
+    addFileInputChangeListener(document.getElementById('kz-file-upload-form'), 'kz');
     addFileInputChangeListener(document.getElementById('implant-file-upload-form'), 'implant');
     addFileInputChangeListener(document.getElementById('dm-stores-file-upload-form'), 'stores');
     addFileInputChangeListener(document.getElementById('dm-clusters-file-upload-form'), 'clusters');

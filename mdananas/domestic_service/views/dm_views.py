@@ -34,7 +34,8 @@ def process_by_file(file, request):
             store_dm = row['КодМагазина'],
             store_name = row['Магазин'],
             material = row['КодТовара'],
-            purchase = row['Приходы (с возвратами и перемещениями) ШТ'],
+            purchase_volume = row['Приходы (с возвратами и перемещениями) ШТ'],
+            purchase_value = row['Приходы (с возвратами и перемещениями) ЗЦ руб'],
             volume = row['Товарооборот ШТ'],
             value = row['Товарооборот ФЦ руб'],
             stock = row['Остаток ШТ']
@@ -42,6 +43,33 @@ def process_by_file(file, request):
         cache.set(f'by_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300) 
     cache.set(f'by_file_active_{request.session.session_key}', 0, 300)
     cache.set(f'by_file_progress_{request.session.session_key}', 0, 300) 
+    return result
+
+def process_kz_file(file, request):
+    cache.set(f'kz_file_progress_{request.session.session_key}', 0, 300)
+    months = {
+        'янв' : 1, 'фев' : 2, 'мар' : 3, 'апр' : 4, 'май' : 5, 'июн' : 6,
+        'июл' : 7, 'авг' : 8, 'сен' : 9, 'окт' : 10, 'ноя' : 11, 'дек' : 12
+    }
+    df = pd.read_excel(file, header=0)
+    result = []
+    total_rows = df.shape[0]
+    for index, row in df.iterrows():
+        result.append(DM_TMP_KZ_Sale(
+            date_year = row['Год'],
+            date_month = months[row['Месяц']],
+            store_dm = row['КодМагазина'],
+            store_name = row['Магазин'],
+            material = row['КодТовара'],
+            purchase_volume = row['Приходы (с возвратами и перемещениями) ШТ'],
+            purchase_value = row['Приходы (с возвратами и перемещениями) ЗЦ руб'],
+            volume = row['Товарооборот ШТ'],
+            value = row['Товарооборот ФЦ руб'],
+            stock = row['Остаток ШТ']
+        ))
+        cache.set(f'kz_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300) 
+    cache.set(f'kz_file_active_{request.session.session_key}', 0, 300)
+    cache.set(f'kz_file_progress_{request.session.session_key}', 0, 300) 
     return result
 
 def process_decade_file(file, request):
@@ -160,6 +188,8 @@ def process_clusters_file(file, request):
 def get_progress(request):
     return JsonResponse({'by_file_progress': cache.get(f'by_file_progress_{request.session.session_key}', 0),
                          'by_file_active': cache.get(f'by_file_active_{request.session.session_key}', 0),
+                         'kz_file_progress': cache.get(f'kz_file_progress_{request.session.session_key}', 0),
+                         'kz_file_active': cache.get(f'kz_file_active_{request.session.session_key}', 0),
                          'implant_file_progress': cache.get(f'implant_file_progress_{request.session.session_key}', 0),
                          'implant_file_active': cache.get(f'implant_file_active_{request.session.session_key}', 0),
                          'dm_stores_file_progress': cache.get(f'dm_stores_file_progress_{request.session.session_key}', 0),
@@ -169,6 +199,7 @@ def get_progress(request):
 
 def dm_page(request):
     cache.set(f'by_file_active_{request.session.session_key}', 1, 300)
+    cache.set(f'kz_file_active_{request.session.session_key}', 1, 300)
     cache.set(f'implant_file_active_{request.session.session_key}', 1, 300)
     cache.set(f'dm_stores_file_active_{request.session.session_key}', 1, 300)
     cache.set(f'dm_clusters_file_active_{request.session.session_key}', 1, 300)
@@ -186,6 +217,9 @@ def dm_page(request):
             match form.cleaned_data['form_name']:
                 case 'by':
                     upload_file(process_by_file(form.cleaned_data['file'], request), DM_TMP_BY_Sale, '[20_DM].[DM_PROC_MERGE_BY_Sales]')
+                    return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
+                case 'kz':
+                    upload_file(process_kz_file(form.cleaned_data['file'], request), DM_TMP_KZ_Sale, '[20_DM].[DM_PROC_MERGE_KZ_Sales]')
                     return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
                 case 'implant':
                     upload_file(process_implant_file(form.cleaned_data['file'], request), DM_TMP_RU_Sale, '[20_DM].[DM_PROC_MERGE_RU_Sales]', big=True)
