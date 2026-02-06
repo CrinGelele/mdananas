@@ -167,13 +167,15 @@ def tu_page(request, tu_id):
     tu_descriptions, created_tu_descriptions = TuDescription.objects.get_or_create(root_tu=tu_object)
     tu_logistics_info, created_tu_logistics_info = TuLogisticsInfo.objects.get_or_create(root_tu=tu_object)
     tu_order_info, created_tu_order_info = TuOrderInfo.objects.get_or_create(root_tu=tu_object)
+    active_list_object = Active_list.objects.filter(root_tu = tu_object).first()
+    is_cons_active = active_list_object.cons_active if active_list_object else False
     return render(request, 'root_service/tu_page.html', context = {'is_create_mode': False,
                                                                    'tu': tu_object, 'tu_descriptions': created_tu_descriptions if created_tu_descriptions else tu_descriptions,
                                                                    'dimensions': created_tu_dimensions if created_tu_dimensions else tu_dimensions,
                                                                    'logistics_info': created_tu_logistics_info if created_tu_logistics_info else tu_logistics_info,
                                                                    'order_info': created_tu_order_info if created_tu_order_info else tu_order_info,
                                                                    'existing_statuses': existing_statuses, 'existing_cu': existing_cu, 'existing_types': existing_types,
-                                                                   'existing_is_shared': existing_is_shared})
+                                                                   'existing_is_shared': existing_is_shared, 'is_cons_active': is_cons_active})
 
 def tu_creation_page(request):
     existing_statuses = Tu.objects.values_list('status', flat=True).distinct()
@@ -204,10 +206,21 @@ def tu_creation_page_save(request):
 
 def tu_page_save(request, tu_id):
     tu_object = get_object_or_404(Tu, id=tu_id)
+    active_list_object = Active_list.objects.filter(root_tu = tu_object).first()
     if request.method == 'POST':
         form = TuForm(request.POST, instance=tu_object)
         if form.is_valid():
+            if form.cleaned_data['cons_active']:
+                active_list_object = active_list_object if active_list_object else Active_list()
+                active_list_object.root_tu = tu_object
+                active_list_object.cons_active = True
+                active_list_object.save()
+            elif active_list_object:
+                active_list_object.cons_active = False
+                active_list_object.save()
             form.save()
+        else:
+            print(form.errors)
     return redirect('show_tu', tu_id=tu_id)
 
 def tu_page_save_descriptions(request, tu_id):
@@ -257,6 +270,8 @@ def mix_page(request, mix_id):
     mix_descriptions, created_mix_descriptions = MixDescription.objects.get_or_create(root_mix=mix_object)
     existing_statuses = Tu.objects.values_list('status', flat=True).distinct().order_by('status')
     compositions = MixComposition.objects.filter(root_mix = mix_id)
+    active_list_object = Active_list.objects.filter(root_mix = mix_object).first()
+    is_cons_active = active_list_object.cons_active if active_list_object else False
     MixComponentFormSet = inlineformset_factory(
         parent_model=Mix,
         model=MixComposition,
@@ -272,7 +287,8 @@ def mix_page(request, mix_id):
                                                                    'formset': formset, 'dimensions': created_mix_dimensions if created_mix_dimensions else mix_dimensions,
                                                                    'logistics_info': created_mix_logistics_info if created_mix_logistics_info else mix_logistics_info,
                                                                    'customs_info': created_mix_customs_info if created_mix_customs_info else mix_customs_info,
-                                                                   'descriptions': created_mix_descriptions if created_mix_descriptions else mix_descriptions})
+                                                                   'descriptions': created_mix_descriptions if created_mix_descriptions else mix_descriptions,
+                                                                   'is_cons_active': is_cons_active})
 
 def mix_page_save_dimensions(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
@@ -349,6 +365,7 @@ def mix_creation_page_save(request):
 
 def mix_page_save(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
+    active_list_object = Active_list.objects.filter(root_mix = mix_object).first()
     if request.method == 'POST':
         form = MixForm(request.POST)
         if form.is_valid():
@@ -364,6 +381,14 @@ def mix_page_save(request, mix_id):
             mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
             mix_object.cons_active = form.cleaned_data.get('cons_active', 0)
             mix_object.save()
+            if form.cleaned_data['cons_active']:
+                active_list_object = active_list_object if active_list_object else Active_list()
+                active_list_object.root_mix = mix_object
+                active_list_object.cons_active = True
+                active_list_object.save()
+            elif active_list_object:
+                active_list_object.cons_active = False
+                active_list_object.save()
     return redirect('show_mix', mix_id=mix_id)
 
 def mix_page_save_compositions(request, mix_id):

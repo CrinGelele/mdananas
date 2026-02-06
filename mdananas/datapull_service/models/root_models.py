@@ -14,6 +14,8 @@ class ROOT_TMP_Invoice(models.Model):
     is_promo = models.CharField(max_length=255)
     contract_conditions = models.CharField(max_length=255)
     price_increase_delay = models.CharField(max_length=255)
+    contract_conditions_services = models.CharField(max_length=255)
+    contract_conditions_bonus = models.CharField(max_length=255)
     class Meta:
        managed = False
        db_table = '[00_ROOT].[ROOT_TMP_Invoices]'

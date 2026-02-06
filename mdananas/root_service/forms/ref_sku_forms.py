@@ -10,7 +10,6 @@ class CuForm(forms.Form):
     shelf_life = forms.IntegerField(required=False)
     rus_definition = forms.CharField(required=False)
     root_pd = forms.CharField(required=False)
-    cons_active = forms.BooleanField(required=False)
 
 class CuDimensionsForm(forms.ModelForm):
     length = forms.FloatField(required=False)
@@ -51,6 +50,7 @@ class TuForm(forms.ModelForm):
     status = forms.CharField(required=True)
     type = forms.CharField(required=True)
     cu_in_tu = forms.IntegerField()
+    cons_active = forms.BooleanField(required=False)
     class Meta:
         model = Tu
         exclude = ["id"]
