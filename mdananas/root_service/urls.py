@@ -29,4 +29,6 @@ urlpatterns = [
     path('mix/<int:mix_id>/save-logistics_info/', ref_sku_views.mix_page_save_logistics_info, name='save_mix_logistics_info'),
     path('mix/<int:mix_id>/save-customs_info/', ref_sku_views.mix_page_save_customs_info, name='save_mix_customs_info'),
     path('mix/<int:mix_id>/save-descriptions/', ref_sku_views.mix_page_save_descriptions, name='save_mix_descriptions'),
+    path('cu/<int:cu_id>/set-classification/', ref_sku_views.cu_set_classification, name='cu_set_classification'),
+    path('mix/<int:mix_id>/set-classification/', ref_sku_views.mix_set_classification, name='mix_set_classification'),
 ]

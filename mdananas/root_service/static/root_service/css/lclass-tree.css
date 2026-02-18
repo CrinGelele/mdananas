@@ -1,0 +1,221 @@
+/* classification_tree.css - горизонтальная версия с центрированием */
+.tree-view {
+    font-family: system-ui, -apple-system, sans-serif;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px 12px;
+    background: #fafafa;
+    margin: 10px 0;
+    white-space: nowrap;
+    min-height: 180px;
+    scroll-behavior: smooth;
+    display: flex;
+    justify-content: center; /* Центрируем содержимое по горизонтали */
+    align-items: center; /* Центрируем по вертикали */
+}
+
+.tree-container {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: min-content;
+    margin: 0 auto; /* Дополнительное центрирование */
+}
+
+.tree-level {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 140px;
+    max-width: 160px;
+    width: auto;
+    background: white;
+    border-radius: 6px;
+    padding: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tree-level-header {
+    font-weight: bold;
+    padding: 4px 6px;
+    margin: -6px -6px 4px -6px;
+    background: #e3f2fd;
+    border-radius: 6px 6px 0 0;
+    color: #1976d2;
+    text-align: center;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tree-node {
+    margin: 1px 0;
+    cursor: pointer;
+    position: relative;
+}
+
+.tree-node-label {
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    font-size: 11px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    white-space: normal;
+    word-wrap: break-word;
+    min-height: 32px;
+    line-height: 1.3;
+}
+
+.tree-node-label:hover {
+    background: #e3f2fd;
+    border-color: #90caf9;
+    transform: translateX(1px);
+}
+
+.tree-node.selected > .tree-node-label {
+    background: #2196f3;
+    color: white;
+    font-weight: 500;
+    border-color: #1976d2;
+    box-shadow: 0 1px 4px rgba(33, 150, 243, 0.3);
+}
+
+.tree-node-label .level-badge {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    background: #e0e0e0;
+    border-radius: 9px;
+    font-size: 9px;
+    font-weight: bold;
+    color: #555;
+    flex-shrink: 0;
+}
+
+.tree-node.selected .level-badge {
+    background: #1565c0;
+    color: white;
+}
+
+/* Линия-связь между уровнями */
+.tree-level {
+    position: relative;
+}
+
+.tree-level:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #ccc;
+    font-weight: bold;
+    z-index: 1;
+}
+
+/* Индикатор загрузки */
+.loading-indicator {
+    display: none;
+    text-align: center;
+    padding: 15px;
+    color: #666;
+    font-size: 12px;
+}
+
+.tree-view.loading .loading-indicator {
+    display: block;
+}
+
+.tree-view.loading .tree-container {
+    display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .tree-view {
+        justify-content: flex-start; /* На мобильных прижимаем к левому краю для удобства скролла */
+    }
+    
+    .tree-level {
+        min-width: 120px;
+    }
+    
+    .tree-node-label {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+}
+
+/* Скроллбар */
+.tree-view::-webkit-scrollbar {
+    height: 6px;
+}
+
+.tree-view::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.tree-view::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.tree-view::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.tree-level {
+    animation: fadeIn 0.2s ease forwards;
+}
+
+/* Текст в узлах - перенос длинных слов */
+.tree-node-label {
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* Для очень длинных названий */
+.tree-node-label span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Когда колонок мало - центрируем особенно красиво */
+.tree-level:first-child:last-child {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Пустое состояние */
+.tree-view:empty::before {
+    content: 'Нет данных для отображения';
+    color: #999;
+    font-style: italic;
+    text-align: center;
+}

@@ -67,6 +67,7 @@
                         <label for="root_pd">rus_definition</label>
                         <select class="info-tab-label-form-field-input" id="root_pd-field" name="root_pd">
                             <option value="{{mix.root_pd.id|default_if_none:""}}" selected>{{mix.root_pd.rus_definition|default_if_none:""}}</option>
+                            <option value=""> </option>
                             {% for definition in definitions %}
                                 {% if definition.id != mix.root_pd.id %}
                                     <option value="{{ definition.id }}">{{ definition.rus_definition }}</option>
@@ -86,6 +87,12 @@
         </details>
     </form>
     {% if not is_create_mode %}
+    <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>LClassification</p>
+            </summary>
+            <div class="tree-view" id="classificationTree"></div>
+    </details>
     <form action="save-dimensions/" method="POST"> 
         {% csrf_token %}
         <details open class="info-tab">
@@ -249,6 +256,15 @@
 {% endblock %}
 
 {% block scripts %}
+{% csrf_token %}
+
+    <!-- Передаём данные в JavaScript -->
+    <script>
+        // Глобальные переменные для JS
+        window.TREE_DATA = {{ tree_data|safe }};
+        window.CURRENT_SELECTION_ID = {{ mix.root_lclass.id|default:"null"}};
+    </script>
+    <script src="{% static 'root_service/js/lclass-tree.js' %}"></script>
     <script src="{% static 'js/mix_switches.js' %}"></script>
     <script src="{% static 'js/detail_btns.js' %}"></script>
     <script src="{% static 'js/table_row_addition.js' %}"></script>

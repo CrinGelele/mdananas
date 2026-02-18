@@ -10,6 +10,7 @@ class CuForm(forms.Form):
     shelf_life = forms.IntegerField(required=False)
     rus_definition = forms.CharField(required=False)
     root_pd = forms.CharField(required=False)
+    tmp_xcode_cu = forms.CharField(required=False)
 
 class CuDimensionsForm(forms.ModelForm):
     length = forms.FloatField(required=False)
@@ -51,6 +52,7 @@ class TuForm(forms.ModelForm):
     type = forms.CharField(required=True)
     cu_in_tu = forms.IntegerField()
     cons_active = forms.BooleanField(required=False)
+    tmp_xcode_tu = forms.CharField(required=False)
     class Meta:
         model = Tu
         exclude = ["id"]
@@ -100,6 +102,7 @@ class MixForm(forms.Form):
     rus_definition = forms.CharField(required=False)
     root_pd = forms.CharField(required=False)
     cons_active = forms.BooleanField(required=False)
+    tmp_xcode_mix = forms.CharField(required=False)
 
 class MixCompositionForm(forms.ModelForm):
     class Meta:

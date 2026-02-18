@@ -17,6 +17,10 @@
                         <input class="info-tab-label-form-field-input" type="text" name="xcode_cu" value="{{cu.xcode_cu|default_if_none:""}}">
                     </div>
                     <div class="info-tab-label-form-field">
+                        <label for="tmp_xcode_cu">tmp_xcode</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="tmp_xcode_cu" value="{{cu.tmp_xcode_cu|default_if_none:""}}">
+                    </div>
+                    <div class="info-tab-label-form-field">
                         <label for="ean_cu">ean_cu</label>
                         <input class="info-tab-label-form-field-input" type="text" name="ean_cu" value="{{cu.ean_cu|default_if_none:""}}">
                     </div>
@@ -54,6 +58,7 @@
                     <div class="info-tab-label-form-field">
                         <label for="root_pd">rus_definition</label>
                         <select class="info-tab-label-form-field-input" id="root_pd-field" name="root_pd">
+                            <option value=""> </option>
                             <option value="{{cu.root_pd.id|default_if_none:""}}" selected>{{cu.root_pd.rus_definition|default_if_none:""}}</option>
                             {% for definition in definitions %}
                                 {% if definition.id != cu.root_pd.id %}
@@ -68,6 +73,12 @@
         </details>
     </form>
     {% if not is_create_mode %}
+    <details open class="info-tab">
+            <summary class="info-tab-label">
+                <p>LClassification</p>
+            </summary>
+            <div class="tree-view" id="classificationTree"></div>
+    </details>
     <form action="save-supplier/" method="POST"> 
         {% csrf_token %}
         <details open class="info-tab">
@@ -196,6 +207,17 @@
 {% endblock %}
 
 {% block scripts %}
+    {% csrf_token %}
+
+    <!-- Передаём данные в JavaScript -->
+    <script>
+        // Глобальные переменные для JS
+        window.TREE_DATA = {{ tree_data|safe }};
+        window.CURRENT_SELECTION_ID = {{ cu.root_lclass.id|default:"null" }};
+    </script>
+
+    <!-- Подключаем JS -->
+    <script src="{% static 'root_service/js/lclass-tree.js' %}"></script>
     <script src="{% static 'js/cu_switches.js' %}"></script>
     <script src="{% static 'js/cu_height_diameter_switch.js' %}"></script> 
     <script src="{% static 'js/detail_btns.js' %}"></script>  
