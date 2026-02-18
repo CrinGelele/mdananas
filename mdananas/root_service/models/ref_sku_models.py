@@ -23,9 +23,11 @@ class Cu(models.Model):
     groupname = models.CharField(max_length=25, null=False)
     shelf_life = models.SmallIntegerField(null=True)
     supplier = models.ForeignKey('Supplier', on_delete=models.PROTECT, null=True)
+    root_lclass = models.ForeignKey('LClassification', on_delete=models.PROTECT, null=True)
+    tmp_xcode_cu = models.CharField(max_length=15, unique=True, null=True)
 
     def __str__(self):
-        return self.xcode_cu
+        return self.xcode_cu if self.xcode_cu else self.tmp_xcode_cu
 
     class Meta:
        managed = False
@@ -62,6 +64,8 @@ class Tu(models.Model):
     status = models.CharField(max_length=5, null=False)
     type = models.CharField(max_length=1, null=False)
     cu_in_tu = models.IntegerField()
+    tmp_xcode_tu = models.CharField(max_length=15, unique=True, null=True)
+
     class Meta:
        managed = False
        db_table = '[00_ROOT].[ROOT_REF_SKU_TU]'
@@ -115,6 +119,8 @@ class Mix(models.Model):
     groupname = models.CharField(max_length=25, null=False)
     status = models.CharField(max_length=5, null=False)
     mix_in_box = models.IntegerField()
+    root_lclass = models.ForeignKey('LClassification', on_delete=models.PROTECT, null=True)
+    tmp_xcode_mix = models.CharField(max_length=15, unique=True, null=True)
 
     class Meta:
        managed = False
@@ -180,3 +186,14 @@ class Active_list(models.Model):
     class Meta:
         managed = False
         db_table = '[00_ROOT].[ROOT_REF_SKU_Active_list]'
+
+class LClassification(models.Model):
+    l1_class = models.CharField(max_length=30, null=True)
+    l2_class = models.CharField(max_length=30, null=True)
+    l3_class = models.CharField(max_length=30, null=True)
+    l4_class = models.CharField(max_length=30, null=True)
+    l5_class = models.CharField(max_length=30, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[00_ROOT].[ROOT_REF_SKU_LClassification]'

@@ -4,6 +4,10 @@ from django.forms import inlineformset_factory
 from django.db.models import Q
 from ..models.ref_sku_models import *
 from ..forms.ref_sku_forms import *
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
 
 def main_page(request):
     return HttpResponse("Hello, world!")
@@ -82,6 +86,29 @@ def cu_creation_page_save(request):
             print(form.errors)
     return redirect('cu_create')
 
+def get_lclass_tree():
+    classifications = LClassification.objects.all()
+    tree = {}
+    for item in classifications:
+        l1 = item.l1_class
+        l2 = item.l2_class
+        l3 = item.l3_class
+        l4 = item.l4_class
+        l5 = item.l5_class
+        
+        if l1 not in tree:
+            tree[l1] = {}
+        if l2 not in tree[l1]:
+            tree[l1][l2] = {}
+        if l3 not in tree[l1][l2]:
+            tree[l1][l2][l3] = {}
+        if l4 not in tree[l1][l2][l3]:
+            tree[l1][l2][l3][l4] = {}
+
+        tree[l1][l2][l3][l4][l5] = item.id
+    
+    return tree
+
 def cu_page(request, cu_id):
     cu_object = get_object_or_404(Cu, id=cu_id)
     existing_categories = Cu.objects.values_list('category', flat=True).distinct().order_by('category')
@@ -96,7 +123,114 @@ def cu_page(request, cu_id):
                                                                    'cu': cu_object, 'dimensions': created_cu_dimensions if created_cu_dimensions else cu_dimensions,
                                                                    'customs_info': created_cu_customs_info if created_cu_customs_info else cu_customs_info,
                                                                    'existing_categories': existing_categories, 'existing_groupnames': existing_groupnames,
-                                                                   'suppliers': suppliers, 'definitions': definitions, 'related_tus': related_tus, 'related_mixes': related_mixes})
+                                                                   'suppliers': suppliers, 'definitions': definitions, 'related_tus': related_tus, 'related_mixes': related_mixes,
+                                                                   'tree_data': get_lclass_tree()})
+#тут жоский вайбкодинг
+def cu_set_classification(request, cu_id):
+    try:
+        data = json.loads(request.body)
+        classification_id = data.get('classification_id')
+        
+        # Получаем объекты
+        cu = Cu.objects.get(id=cu_id)
+        classification = LClassification.objects.get(id=classification_id)
+        
+        # Привязываем классификацию к CU
+        cu.root_lclass = classification
+        cu.save()
+        
+        # Возвращаем успешный ответ
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Классификация успешно сохранена',
+            'data': {
+                'cu_id': cu_id,
+                'classification_id': classification_id,
+                'full_path': ""
+            }
+        })
+        
+    except Cu.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'CU не найден'
+        }, status=404)
+        
+    except LClassification.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Классификация не найдена'
+        }, status=404)
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+def mix_set_classification(request, mix_id):
+    """Сохранение классификации для MIX"""
+    try:
+        data = json.loads(request.body)
+        classification_id = data.get('classification_id')
+        
+        if not classification_id:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'classification_id is required'
+            }, status=400)
+        
+        # Получаем объекты
+        mix = get_object_or_404(Mix, id=mix_id)
+        classification = get_object_or_404(LClassification, id=classification_id)
+        
+        # Привязываем классификацию к MIX
+        mix.root_lclass = classification
+        mix.save()
+        
+        # Получаем полный путь
+        full_path = f"{classification.l1_class} / {classification.l2_class} / {classification.l3_class} / {classification.l4_class} / {classification.l5_class}"
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Классификация MIX успешно сохранена',
+            'data': {
+                'mix_id': mix_id,
+                'classification_id': classification_id,
+                'full_path': full_path,
+                'levels': {
+                    'l1': classification.l1_class,
+                    'l2': classification.l2_class,
+                    'l3': classification.l3_class,
+                    'l4': classification.l4_class,
+                    'l5': classification.l5_class
+                }
+            }
+        })
+        
+    except Mix.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'MIX with id {mix_id} not found'
+        }, status=404)
+        
+    except LClassification.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Classification with id {classification_id} not found'
+        }, status=404)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON'
+        }, status=400)
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 def cu_page_save(request, cu_id):
     cu_object = get_object_or_404(Cu, id=cu_id)
@@ -105,14 +239,16 @@ def cu_page_save(request, cu_id):
         if form.is_valid():
             if form.cleaned_data.get('rus_definition'):
                 cu_object.root_pd = Definition.objects.get_or_create(rus_definition=form.cleaned_data.get('rus_definition'))[0]
-            else:
+            elif form.cleaned_data.get('root_pd'):
                 cu_object.root_pd = Definition.objects.get(id=form.cleaned_data.get('root_pd'))
+            else:
+                cu_object.root_pd = None
             cu_object.xcode_cu = form.cleaned_data.get('xcode_cu')
-            cu_object.ean_cu = form.cleaned_data.get('ean_cu')
+            cu_object.ean_cu = form.cleaned_data.get('ean_cu') or None
             cu_object.category = form.cleaned_data.get('category')
             cu_object.groupname = form.cleaned_data.get('groupname')
             cu_object.shelf_life = form.cleaned_data.get('shelf_life')
-            cu_object.cons_active = form.cleaned_data.get('cons_active', 0)
+            cu_object.tmp_xcode_cu = form.cleaned_data.get('tmp_xcode_cu') or None
             cu_object.save()
         else:
             print(form.errors)
@@ -288,7 +424,7 @@ def mix_page(request, mix_id):
                                                                    'logistics_info': created_mix_logistics_info if created_mix_logistics_info else mix_logistics_info,
                                                                    'customs_info': created_mix_customs_info if created_mix_customs_info else mix_customs_info,
                                                                    'descriptions': created_mix_descriptions if created_mix_descriptions else mix_descriptions,
-                                                                   'is_cons_active': is_cons_active})
+                                                                   'is_cons_active': is_cons_active, 'tree_data': get_lclass_tree()})
 
 def mix_page_save_dimensions(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
@@ -371,15 +507,16 @@ def mix_page_save(request, mix_id):
         if form.is_valid():
             if form.cleaned_data.get('rus_definition'):
                 mix_object.root_pd = Definition.objects.get_or_create(rus_definition=form.cleaned_data.get('rus_definition'))[0]
-            else:
+            elif form.cleaned_data.get('root_pd'):
                 mix_object.root_pd = Definition.objects.get(id=form.cleaned_data.get('root_pd'))
+            else:
+                mix_object.root_pd = None
             mix_object.xcode_mix = form.cleaned_data.get('xcode_mix')
-            mix_object.ean_cu = form.cleaned_data.get('ean_mix')
+            mix_object.ean_mix = form.cleaned_data.get('ean_mix')
             mix_object.category = form.cleaned_data.get('category')
             mix_object.groupname = form.cleaned_data.get('groupname')
             mix_object.status = form.cleaned_data.get('status')
             mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
-            mix_object.cons_active = form.cleaned_data.get('cons_active', 0)
             mix_object.save()
             if form.cleaned_data['cons_active']:
                 active_list_object = active_list_object if active_list_object else Active_list()
