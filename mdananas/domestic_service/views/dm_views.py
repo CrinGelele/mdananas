@@ -20,17 +20,15 @@ def main_page(request):
 
 def process_by_file(file, request):
     cache.set(f'by_file_progress_{request.session.session_key}', 0, 300)
-    months = {
-        'янв' : 1, 'фев' : 2, 'мар' : 3, 'апр' : 4, 'май' : 5, 'июн' : 6,
-        'июл' : 7, 'авг' : 8, 'сен' : 9, 'окт' : 10, 'ноя' : 11, 'дек' : 12
-    }
     df = pd.read_excel(file, header=0)
     result = []
     total_rows = df.shape[0]
     for index, row in df.iterrows():
+        dt = pd.to_datetime(row['Дата'], unit='D', origin='1899-12-30')
         result.append(DM_TMP_BY_Sale(
-            date_year = row['Год'],
-            date_month = months[row['Месяц']],
+            date_year = dt.year,
+            date_month = dt.month,
+            date_day = dt.day,
             store_dm = row['КодМагазина'],
             store_name = row['Магазин'],
             material = row['КодТовара'],
@@ -47,17 +45,15 @@ def process_by_file(file, request):
 
 def process_kz_file(file, request):
     cache.set(f'kz_file_progress_{request.session.session_key}', 0, 300)
-    months = {
-        'янв' : 1, 'фев' : 2, 'мар' : 3, 'апр' : 4, 'май' : 5, 'июн' : 6,
-        'июл' : 7, 'авг' : 8, 'сен' : 9, 'окт' : 10, 'ноя' : 11, 'дек' : 12
-    }
     df = pd.read_excel(file, header=0)
     result = []
     total_rows = df.shape[0]
     for index, row in df.iterrows():
+        dt = pd.to_datetime(row['Дата'], unit='D', origin='1899-12-30')
         result.append(DM_TMP_KZ_Sale(
-            date_year = row['Год'],
-            date_month = months[row['Месяц']],
+            date_year = dt.year,
+            date_month = dt.month,
+            date_day = dt.day,
             store_dm = row['КодМагазина'],
             store_name = row['Магазин'],
             material = row['КодТовара'],
@@ -112,6 +108,8 @@ def process_implant_file(file, request):
                             object.fact_price_value = cell.v
                         case key if key == header.get('Остаток ШТ'):
                             object.stock = cell.v
+                        case key if key == header.get('Товарооборот ФЦ'):
+                            object.fc = cell.v
                         case _:
                             pass
                 result.append(object)
@@ -216,10 +214,10 @@ def dm_page(request):
         if form.is_valid():
             match form.cleaned_data['form_name']:
                 case 'by':
-                    upload_file(process_by_file(form.cleaned_data['file'], request), DM_TMP_BY_Sale, '[20_DM].[DM_PROC_MERGE_BY_Sales]')
+                    upload_file(process_by_file(form.cleaned_data['file'], request), DM_TMP_BY_Sale, '[20_DM].[DM_PROC_MERGE_BY_Sales]', big=True)
                     return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
                 case 'kz':
-                    upload_file(process_kz_file(form.cleaned_data['file'], request), DM_TMP_KZ_Sale, '[20_DM].[DM_PROC_MERGE_KZ_Sales]')
+                    upload_file(process_kz_file(form.cleaned_data['file'], request), DM_TMP_KZ_Sale, '[20_DM].[DM_PROC_MERGE_KZ_Sales]', big=True)
                     return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
                 case 'implant':
                     upload_file(process_implant_file(form.cleaned_data['file'], request), DM_TMP_RU_Sale, '[20_DM].[DM_PROC_MERGE_RU_Sales]', big=True)

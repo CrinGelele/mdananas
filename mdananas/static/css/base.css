@@ -38,6 +38,7 @@ details > summary {
         display: inline;
         color: rgb(45 143 254 / 1);
         font-weight: 500;
+        font-family: "Inter", sans-serif;
         text-decoration: none;
     }
 

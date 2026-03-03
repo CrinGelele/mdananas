@@ -4,6 +4,7 @@ from root_service.models.ref_sku_models import Cu, Mix
 class DM_TMP_BY_Sale(models.Model):
     date_year = models.CharField(max_length=255)
     date_month = models.CharField(max_length=255)
+    date_day = models.CharField(max_length=255)
     store_dm = models.CharField(max_length=255)
     store_name = models.CharField(max_length=255)
     material = models.CharField(max_length=255)
@@ -19,6 +20,7 @@ class DM_TMP_BY_Sale(models.Model):
 class DM_TMP_KZ_Sale(models.Model):
     date_year = models.CharField(max_length=255)
     date_month = models.CharField(max_length=255)
+    date_day = models.CharField(max_length=255)
     store_dm = models.CharField(max_length=255)
     store_name = models.CharField(max_length=255)
     material = models.CharField(max_length=255)
@@ -43,6 +45,7 @@ class DM_TMP_RU_Sale(models.Model):
     purchase_price_value = models.CharField(max_length=255)
     fact_price_value = models.CharField(max_length=255)
     stock = models.CharField(max_length=255)
+    fc = models.CharField(max_length=255)
     class Meta:
        managed = False
        db_table = '[20_DM].[DM_TMP_RU_Sales]'
