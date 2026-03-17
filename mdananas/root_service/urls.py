@@ -16,6 +16,7 @@ urlpatterns = [
     path('tu/create/', ref_sku_views.tu_creation_page, name='tu_create'),
     path('tu/create/save/', ref_sku_views.tu_creation_page_save, name='tu_create_save'),
     path('tu/<int:tu_id>/save/', ref_sku_views.tu_page_save, name='save_tu'),
+    path('tu/<int:tu_id>/copy/', ref_sku_views.tu_page_copy, name='copy_tu'),
     path('tu/<int:tu_id>/save-descriptions/', ref_sku_views.tu_page_save_descriptions, name='save_tu_descriptions'),
     path('tu/<int:tu_id>/save-dimensions/', ref_sku_views.tu_page_save_dimensions, name='save_tu_dimensions'),
     path('tu/<int:tu_id>/save-logistics_info/', ref_sku_views.tu_page_save_logistics_info, name='save_tu_logistics_info'),

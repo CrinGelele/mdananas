@@ -47,9 +47,9 @@ class CuCustomsInfoForm(forms.ModelForm):
 
 class TuForm(forms.ModelForm):
     xcode_tu = forms.CharField(required=True)
-    ean_tu = forms.CharField(required=True)
-    status = forms.CharField(required=True)
-    type = forms.CharField(required=True)
+    ean_tu = forms.CharField(required=False)
+    status = forms.CharField(required=False)
+    type = forms.CharField(required=False)
     cu_in_tu = forms.IntegerField()
     cons_active = forms.BooleanField(required=False)
     tmp_xcode_tu = forms.CharField(required=False)

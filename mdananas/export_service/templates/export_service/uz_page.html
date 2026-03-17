@@ -75,11 +75,32 @@
                         {% for pivot_sku in existing_pivot_sku %}
                             <tr>
                                 <td> {{ pivot_sku.material }} </td>
-                                <td>
-                                    <input type="checkbox" class="auto-submit-input disabled" value="1" name="is_mix" {% if pivot_sku.is_mix %} checked {% endif %}>
-                                </td>
-                                <td>
-                                    <input class="info-tab-label-form-field-input l-100 disabled" value="{% if pivot_sku.is_mix %}{{pivot_sku.root_mix.xcode_mix}}{% else %}{{ pivot_sku.root_cu.xcode_cu }}{% endif %}">
+                                <form class="auto-submit-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <td>
+                                            <input type="checkbox" class="auto-submit-input" value="1" name="is_mix" {% if pivot_sku.is_mix %} checked {% endif %}>
+                                    </td>
+                                    <td>
+                                            <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input cu-select" {% if pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_cu">
+                                                <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}}</option>
+                                                {% for cu in existing_cu %}
+                                                    {% if cu.id != pivot_sku.root_cu.id %}
+                                                        <option value="{{ cu.id|default_if_none:"" }}">{{ cu.xcode_cu }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input mix-select" {% if not pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_mix">
+                                                <option value="{{pivot_sku.root_mix.id|default_if_none:""}}" selected>{{pivot_sku.root_mix.xcode_mix}}</option>
+                                                {% for mix in existing_mix %}
+                                                    {% if mix.id != pivot_sku.root_mix.id %}
+                                                        <option value="{{ mix.id|default_if_none:"" }}">{{ mix.xcode_mix }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                    </td>
+                                </form>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -236,4 +257,5 @@
 {% block scripts %}
     <script src="{% static 'export_service/uz/js/progress_indicators.js' %}"></script>
     <script src="{% static 'export_service/uz/js/uz_switches.js' %}"></script>
+    <script src="{% static 'export_service/uz/js/pivot_sku_autosave.js' %}"></script>
 {% endblock %}

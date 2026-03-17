@@ -359,6 +359,28 @@ def tu_page_save(request, tu_id):
             print(form.errors)
     return redirect('show_tu', tu_id=tu_id)
 
+def copy_tu_side_object(object, tu):
+    object.pk = None
+    object.id = None
+    object.root_tu = tu
+    object.save()
+
+def tu_page_copy(request, tu_id):
+    tu_object = get_object_or_404(Tu, id=tu_id)
+    new_description = get_object_or_404(TuDescription, root_tu = tu_object)
+    new_dimensions = get_object_or_404(TuDimensions, root_tu = tu_object)
+    new_logistics_info = get_object_or_404(TuLogisticsInfo, root_tu = tu_object)
+    new_order_info = get_object_or_404(TuOrderInfo, root_tu = tu_object)
+    tu_object.pk = None
+    tu_object.id = None
+    tu_object.xcode_tu = f"{tu_object.xcode_tu}-COPY"
+    tu_object.save()
+    copy_tu_side_object(new_description, tu_object)
+    copy_tu_side_object(new_dimensions, tu_object)
+    copy_tu_side_object(new_logistics_info, tu_object)
+    copy_tu_side_object(new_order_info, tu_object)
+    return redirect('show_tu', tu_id=tu_object.id)
+
 def tu_page_save_descriptions(request, tu_id):
     tu_object = get_object_or_404(Tu, id=tu_id)
     tu_descriptions, created_tu_descriptions = TuDescription.objects.get_or_create(root_tu=tu_object)

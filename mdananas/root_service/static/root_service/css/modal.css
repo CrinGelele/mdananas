@@ -1,0 +1,352 @@
+/* Стили для модального окна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 400px;
+    color: rgb(38 67 100 / 1);
+    max-width: 82rem;
+    border-radius: 40px;
+    box-shadow: -6px -6px 20px rgba(186, 202, 247, .1), 24px 24px 30px rgba(209, 220, 250, .12), 8px 8px 8px rgba(163, 184, 245, .1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header p {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    color: rgb(38 67 100 / 1);
+    font-weight: 500;
+    font-style: normal;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-option-btn {
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    background-color: rgb(45 143 254 / 1);
+    color: white;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    border: none ;
+}
+
+.modal-option-btn:hover {
+    background-color: #1976D2;
+}
+
+.modal-option-btn:last-child {
+    background-color: #2196F3;
+}
+
+.modal-option-btn:last-child:hover {
+    background-color: #1976D2;
+}
+
+/* Дополнительные стили для прокрутки и модального окна с ТУ */
+
+/* Широкое модальное окно для списка ТУ */
+.wide-modal {
+    width: 800px;
+    max-width: 90%;
+    margin: 5% auto; /* Уменьшаем отступ сверху для больших экранов */
+}
+
+/* Панель инструментов */
+.modal-toolbar {
+    margin-bottom: 2px;
+}
+
+.search-container {
+    margin-bottom: 0px;
+}
+
+#searchExisting {
+    width: 100%;
+    padding: 12px 20px;
+    border: 2px solid #e0e8f0;
+    border-radius: 40px; /* Скругление под ваш стиль */
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    box-sizing: border-box;
+    transition: all 0.3s;
+    background-color: #f8fafc;
+}
+
+#searchExisting:focus {
+    outline: none;
+    border-color: rgb(45 143 254 / 1);
+    box-shadow: 0 0 0 3px rgba(45, 143, 254, 0.1);
+}
+
+#searchExisting::placeholder {
+    color: #94a3b8;
+    font-family: "Inter", sans-serif;
+}
+
+/* Контейнер с прокруткой */
+.existing-items-container {
+    max-height: 400px;  /* Фиксированная высота для прокрутки */
+    overflow-y: auto;    /* Вертикальная прокрутка */
+    overflow-x: hidden;  /* Скрываем горизонтальную прокрутку */
+    border-radius: 24px; /* Скругление под ваш стиль */
+    background-color: #f8fafc;
+    margin: 5px 0;
+    padding: 5px;
+    
+    scrollbar-width: none;  /* для Firefox */
+    -ms-overflow-style: none;  /* для Internet Explorer и Edge */
+}
+
+.existing-items-container::-webkit-scrollbar {
+    display: none;  /* или width: 0; */
+}
+
+.existing-items-container::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 20px;
+}
+
+.existing-items-container::-webkit-scrollbar-thumb {
+    background: rgb(45 143 254 / 0.5);
+    border-radius: 20px;
+}
+
+.existing-items-container::-webkit-scrollbar-thumb:hover {
+    background: rgb(45 143 254 / 0.8);
+}
+
+/* Список элементов */
+.existing-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Карточка ТУ - обновленная под ваш дизайн */
+.existing-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-radius: 30px; /* Скругление под ваш стиль */
+    cursor: pointer;
+    transition: all 0.3s;
+    background-color: white;
+    border: 1px solid #eef2f6;
+    margin: 2px 0;
+}
+
+.existing-item-card:hover {
+    background-color: #f0f7ff;
+    border-color: rgb(45 143 254 / 0.3);
+    transform: translateX(5px);
+    box-shadow: 8px 8px 16px rgba(163, 184, 245, 0.2);
+}
+
+/* Информация об элементе */
+.item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+
+.item-name {
+    font-weight: 600;
+    color: rgb(38 67 100 / 1);
+    font-size: 15px;
+    font-family: "Inter", sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-description {
+    font-size: 13px;
+    color: #64748b;
+    font-family: "Inter", sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-code {
+    font-size: 12px;
+    color: rgb(45 143 254 / 1);
+    background-color: rgba(45, 143, 254, 0.1);
+    padding: 4px 12px;
+    border-radius: 40px;
+    display: inline-block;
+    width: fit-content;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    border: 1px solid rgba(45, 143, 254, 0.2);
+}
+
+/* Дополнительные стили для карточек ТУ с галочкой */
+.item-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Индикатор выбора (стрелка) */
+.select-indicator {
+    color: rgb(45 143 254 / 1);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: "Inter", sans-serif;
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    background-color: rgba(45, 143, 254, 0.1);
+    padding: 6px 12px;
+    border-radius: 40px;
+}
+
+.existing-item-card:hover .select-indicator {
+    opacity: 1;
+}
+
+/* Скрываем стрелку у выбранного элемента */
+.existing-item-card.selected .select-indicator {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Стили для выбранной карточки */
+.existing-item-card.selected {
+    background-color: #2196F3;
+    border: 2px solid #2196F3;
+    transform: translateX(5px);
+}
+
+.existing-item-card.selected .item-name {
+    color: white;
+    font-weight: 600;
+}
+
+/* Панель подтверждения */
+.confirmation-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f0fe 100%);
+    border-radius: 50px;
+    margin-top: 15px;
+    border: 1px solid rgba(45, 143, 254, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.selected-item-info {
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    color: rgb(38 67 100 / 1);
+    font-weight: 500;
+    flex: 1;
+}
+
+.confirm-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.confirm-btn:hover {
+    background-color: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.confirm-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.cancel-btn {
+    background-color: transparent;
+    color: #ef5350;
+    border: 1px solid #ef5350;
+    padding: 9px 22px;
+    border-radius: 40px;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 10px;
+}
+
+.cancel-btn:hover {
+    background-color: #ef5350;
+    color: white;
+    transform: translateY(-2px);
+}
+
+
+.existing-item-card.selected {
+    animation: selectedPulse 2s infinite;
+}
+
+/* Убираем анимацию пульсации при наведении */
+.existing-item-card.selected:hover {
+    animation: none;
+}

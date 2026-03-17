@@ -100,7 +100,7 @@
             <div class="info-tab" style="width: 100% !important; min-height: 0 !important; height: 59% !important;">
                 <summary class="info-tab-label">
                     <p>TU</p>
-                    <button class="info-tab-label-form-save-btn" onclick="window.location.href='{% url 'tu_create' %}'">+New</button>
+                    <button class="info-tab-label-form-save-btn" onclick="openCreateModal()">+New</button>
                 </summary>
                 <div class="info-tab-label-form info-tab-label-form-scroll">
                     <table>
@@ -124,6 +124,70 @@
         </div>
     </div>
 </div>
+
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <p>TU CREATION</p>
+        </div>
+        <div class="modal-body">
+            <button class="modal-option-btn" onclick="createNew()">
+                Create new
+            </button>
+            <button class="modal-option-btn" onclick="openExistingModal()">
+                Copy existing
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Второе модальное окно - выбор существующего ТУ -->
+<div id="existingModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <p>COPY TU</p>
+        </div>
+        <div class="modal-body">
+            <!-- Поиск и информация -->
+            <div class="modal-toolbar">
+                <div class="search-container">
+                    <input type="text" id="searchExisting" placeholder="Search" 
+                           onkeyup="filterExistingTU()" autocomplete="off">
+                </div>
+            </div>
+            
+            <!-- Контейнер с прокруткой для списка ТУ -->
+            <div class="existing-items-container">
+                <div class="existing-items-list">
+                    {% for tu in existing_tu %}
+                    <div class="existing-item-card" onclick="selectExistingTU('{{ tu.id }}')" data-id="{{ tu.id }}">
+                        <div class="item-info">
+                            <span class="item-name">{{ tu.xcode_tu }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-items-message">
+                        Нет доступных ТУ для выбора
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Кнопка подтверждения выбора (появляется при выборе) -->
+            <div class="confirmation-bar" id="confirmationBar" style="display: none;">
+                <button class="confirm-btn" onclick="confirmSelection()" id="confirmBtn">
+                    <span class="confirm-icon">✓</span>
+                    Confirm
+                </button>
+                <button class="cancel-btn" onclick="cancelSelection()">
+                    <span class="confirm-icon">✕</span>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -131,4 +195,5 @@
     <script src="{% static 'js/detail_btns.js' %}"></script>
     <script src="{% static 'js/table_row_addition.js' %}"></script>
     <script src="{% static 'js/filters.js' %}"></script>
+    <script src="{% static 'root_service/js/modal.js' %}"></script>
 {% endblock %}

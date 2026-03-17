@@ -93,6 +93,8 @@ def uz_page(request):
     existing_brands = UZ_REF_Competing_SKU.objects.values_list('brand', flat=True).distinct()
     existing_groups = UZ_REF_Competing_SKU.objects.values_list('groupname', flat=True).distinct()
     existing_subgroups = UZ_REF_Competing_SKU.objects.values_list('subgroupname', flat=True).distinct()
+    existing_cu = Cu.objects.all().order_by('xcode_cu')
+    existing_mix = Mix.objects.all().order_by('xcode_mix')
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -126,9 +128,21 @@ def uz_page(request):
                         object.subgroupname = form.cleaned_data['subgroup']
                     object.save()
                 else:
-                    print(form.errors)
-    else:
-        print(0)
+                    form = PivotSKUForm(request.POST)
+                    if form.is_valid():
+                        object = UZ_PIVOT_SKU.objects.get(id = form.cleaned_data['pivot_sku_id'])
+                        if form.cleaned_data['is_mix']:
+                            object.is_mix = True
+                            object.root_cu = None
+                            object.root_mix = Mix.objects.get(id = form.cleaned_data['root_mix']) if form.cleaned_data['root_mix'] else None
+                        else:
+                            object.is_mix = False
+                            object.root_mix = None
+                            object.root_cu = Cu.objects.get(id = form.cleaned_data['root_cu']) if form.cleaned_data['root_cu'] else None
+                        object.save()
+                    else:
+                        print(form.errors)
     return render(request, "export_service/uz_page.html", context={'uz_pivot_sku_suo': uz_pivot_sku_suo, 'existing_pivot_sku': existing_pivot_sku, 'existing_chains': existing_chains,
                                                                    'existing_channels': existing_channels, 'existing_comp_sku': existing_comp_sku, 'existing_brands': existing_brands,
-                                                                   'existing_groups': existing_groups, 'existing_subgroups': existing_subgroups, 'existing_chains_generalized': existing_chains_generalized})
+                                                                   'existing_groups': existing_groups, 'existing_subgroups': existing_subgroups, 'existing_chains_generalized': existing_chains_generalized,
+                                                                   'existing_cu': existing_cu, 'existing_mix': existing_mix})

@@ -14,3 +14,9 @@ class CompSKURefForm(forms.Form):
     group = forms.CharField(required=False)
     subgroup = forms.CharField(required=False)
     comp_sku_id = forms.IntegerField()
+
+class PivotSKUForm(forms.Form):
+    root_cu = forms.IntegerField(required=False)
+    is_mix = forms.BooleanField(required=False)
+    root_mix = forms.IntegerField(required=False)
+    pivot_sku_id = forms.IntegerField()
