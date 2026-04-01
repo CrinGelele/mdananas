@@ -406,6 +406,8 @@ def tu_page_save_logistics_info(request, tu_id):
         form = TuLogisticsInfoForm(request.POST, instance=created_tu_logistics_info if created_tu_logistics_info else tu_logistics_info)
         if form.is_valid():
             form.save()
+        else:
+            print(form.errors)
     return redirect('show_tu', tu_id=tu_id)
 
 def tu_page_save_order_info(request, tu_id):

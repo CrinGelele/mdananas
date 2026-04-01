@@ -89,6 +89,7 @@ class TuLogisticsInfo(models.Model):
     pal_per_truck = models.IntegerField(null=True)
     gross_weight_pal = models.FloatField(null=True)
     gross_weight_tu = models.FloatField(null=True)
+    tu_per_pal = models.FloatField(null=True)
 
     class Meta:
        managed = False
@@ -153,6 +154,7 @@ class MixLogisticsInfo(models.Model):
     pal_per_truck = models.IntegerField(null=True)
     gross_weight_pal = models.FloatField(null=True)
     gross_weight_tu = models.FloatField(null=True)
+    tu_per_pal = models.FloatField(null=True)
 
     class Meta:
        managed = False

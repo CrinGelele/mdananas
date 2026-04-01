@@ -50,7 +50,7 @@ class TuForm(forms.ModelForm):
     ean_tu = forms.CharField(required=False)
     status = forms.CharField(required=False)
     type = forms.CharField(required=False)
-    cu_in_tu = forms.IntegerField()
+    cu_in_tu = forms.IntegerField(required=False)
     cons_active = forms.BooleanField(required=False)
     tmp_xcode_tu = forms.CharField(required=False)
     class Meta:
@@ -73,6 +73,7 @@ class TuLogisticsInfoForm(forms.ModelForm):
     pal_per_truck = forms.IntegerField(required=False)
     gross_weight_pal = forms.FloatField(required=False)
     gross_weight_tu = forms.FloatField(required=False)
+    tu_per_pal = forms.FloatField(required=False)
     class Meta:
         model = TuLogisticsInfo
         exclude = ["id", "root_tu"]
@@ -135,6 +136,7 @@ class MixLogisticsInfoForm(forms.ModelForm):
     pal_per_truck = forms.IntegerField(required=False)
     gross_weight_pal = forms.FloatField(required=False)
     gross_weight_tu = forms.FloatField(required=False)
+    tu_per_pal = forms.FloatField(required=False)
     class Meta:
         model = MixLogisticsInfo
         exclude = ["id", "root_mix"]

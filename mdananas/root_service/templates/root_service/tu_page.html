@@ -100,7 +100,7 @@
                     </div>
                     <div class="info-tab-label-form-field">
                         <label for="net_weight">net_weight</label>
-                        <input class="info-tab-label-form-field-input" type="text" name="net_weight" value="{{dimensions.net_weight|default_if_none:""}}">
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="net_weight" value="{{dimensions.net_weight|default_if_none:""}}">
                         <span class="input-addon">kg</span>
                     </div>
             </div>
@@ -157,6 +157,11 @@
                         <label for="gross_weight_tu">gross_weight_tu</label>
                         <input class="info-tab-label-form-field-input" type="text" name="gross_weight_tu" value="{{logistics_info.gross_weight_tu|default_if_none:""}}">
                         <span class="input-addon">kg</span>
+                    </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="tu_per_pal">tu_per_pal</label>
+                        <input class="info-tab-label-form-field-input input-inactive" type="text" name="tu_per_pal" value="{{logistics_info.tu_per_pal|default_if_none:""}}">
+                        <span class="input-addon">pcs</span>
                     </div>
             </div>
         </details>
