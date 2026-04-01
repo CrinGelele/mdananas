@@ -111,6 +111,7 @@ def get_lclass_tree():
 
 def cu_page(request, cu_id):
     cu_object = get_object_or_404(Cu, id=cu_id)
+    existing_brands = Cu.objects.values_list('brand', flat=True).distinct().order_by('brand')
     existing_categories = Cu.objects.values_list('category', flat=True).distinct().order_by('category')
     existing_groupnames = Cu.objects.values_list('groupname', flat=True).distinct().order_by('groupname')
     definitions = Definition.objects.all()
@@ -124,7 +125,7 @@ def cu_page(request, cu_id):
                                                                    'customs_info': created_cu_customs_info if created_cu_customs_info else cu_customs_info,
                                                                    'existing_categories': existing_categories, 'existing_groupnames': existing_groupnames,
                                                                    'suppliers': suppliers, 'definitions': definitions, 'related_tus': related_tus, 'related_mixes': related_mixes,
-                                                                   'tree_data': get_lclass_tree()})
+                                                                   'tree_data': get_lclass_tree(), 'existing_brands': existing_brands})
 #тут жоский вайбкодинг
 def cu_set_classification(request, cu_id):
     try:
@@ -249,6 +250,7 @@ def cu_page_save(request, cu_id):
             cu_object.groupname = form.cleaned_data.get('groupname')
             cu_object.shelf_life = form.cleaned_data.get('shelf_life')
             cu_object.tmp_xcode_cu = form.cleaned_data.get('tmp_xcode_cu') or None
+            cu_object.brand = form.cleaned_data.get('brand') or None
             cu_object.save()
         else:
             print(form.errors)
@@ -419,6 +421,7 @@ def tu_page_save_order_info(request, tu_id):
 
 def mix_page(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
+    existing_brands = Mix.objects.values_list('brand', flat=True).distinct().order_by('brand')
     existing_categories = Mix.objects.values_list('category', flat=True).distinct().order_by('category')
     existing_groupnames = Mix.objects.values_list('groupname', flat=True).distinct().order_by('groupname')
     definitions = Definition.objects.all()
@@ -446,7 +449,7 @@ def mix_page(request, mix_id):
                                                                    'logistics_info': created_mix_logistics_info if created_mix_logistics_info else mix_logistics_info,
                                                                    'customs_info': created_mix_customs_info if created_mix_customs_info else mix_customs_info,
                                                                    'descriptions': created_mix_descriptions if created_mix_descriptions else mix_descriptions,
-                                                                   'is_cons_active': is_cons_active, 'tree_data': get_lclass_tree()})
+                                                                   'is_cons_active': is_cons_active, 'tree_data': get_lclass_tree(), 'existing_brands': existing_brands})
 
 def mix_page_save_dimensions(request, mix_id):
     mix_object = get_object_or_404(Mix, id=mix_id)
@@ -539,6 +542,7 @@ def mix_page_save(request, mix_id):
             mix_object.groupname = form.cleaned_data.get('groupname')
             mix_object.status = form.cleaned_data.get('status')
             mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
+            mix_object.brand = form.cleaned_data.get('brand') or None
             mix_object.save()
             if form.cleaned_data['cons_active']:
                 active_list_object = active_list_object if active_list_object else Active_list()

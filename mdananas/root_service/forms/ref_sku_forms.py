@@ -5,12 +5,13 @@ from django.forms import formset_factory
 class CuForm(forms.Form):
     xcode_cu = forms.CharField()
     ean_cu = forms.CharField(required=False)
-    category = forms.CharField()
-    groupname = forms.CharField()
+    category = forms.CharField(required=False)
+    groupname = forms.CharField(required=False)
     shelf_life = forms.IntegerField(required=False)
     rus_definition = forms.CharField(required=False)
     root_pd = forms.CharField(required=False)
     tmp_xcode_cu = forms.CharField(required=False)
+    brand = forms.CharField(required=False)
 
 class CuDimensionsForm(forms.ModelForm):
     length = forms.FloatField(required=False)
@@ -103,6 +104,7 @@ class MixForm(forms.Form):
     root_pd = forms.CharField(required=False)
     cons_active = forms.BooleanField(required=False)
     tmp_xcode_mix = forms.CharField(required=False)
+    brand = forms.CharField(required=False)
 
 class MixCompositionForm(forms.ModelForm):
     class Meta:

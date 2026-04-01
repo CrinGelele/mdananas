@@ -25,6 +25,19 @@
                         <input class="info-tab-label-form-field-input" type="text" name="ean_cu" value="{{cu.ean_cu|default_if_none:""}}">
                     </div>
                     <div class="info-tab-label-form-field">
+                        <label for="brand">brand</label>
+                        <select class="info-tab-label-form-field-input" id="brand-field" name="brand">
+                            <option value="{{cu.brand|default_if_none:""}}" selected>{{cu.brand|default_if_none:""}}</option>
+                            {% for brand in existing_brands %}
+                                {% if brand != cu.brand %}
+                                    <option value="{{ brand }}">{{ brand|default_if_none:"" }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            <option value="new">Добавить новую...</option>
+                        </select>
+                        <input class="info-tab-label-form-field-input" type="text" name="brand" id="new-brand-field" style="display: none;" disabled>
+                    </div>
+                    <div class="info-tab-label-form-field">
                         <label for="category">category</label>
                         <select class="info-tab-label-form-field-input" id="category-field" name="category">
                             <option value="{{cu.category|default_if_none:""}}" selected>{{cu.category|default_if_none:""}}</option>

@@ -1,4 +1,14 @@
 window.addEventListener('load', function() {
+    document.getElementById('brand-field').addEventListener('change', function() {
+        const newBrandField = document.getElementById('new-brand-field');
+        if (this.value === 'new') {
+            newBrandField.style.display = 'flex';
+            newBrandField.disabled = false;
+            this.style.display = 'none';
+        } else {
+            newBrandField.style.display = 'none';
+        }
+    });
     document.getElementById('category-field').addEventListener('change', function() {
         const newCategoryField = document.getElementById('new-category-field');
         if (this.value === 'new') {
