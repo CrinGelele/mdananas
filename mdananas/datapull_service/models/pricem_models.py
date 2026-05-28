@@ -81,3 +81,11 @@ class PRICEM_DATA_Monitoring_Additional_data(models.Model):
     class Meta:
         managed = False
         db_table = '[03_PRICEM].[PRICEM_DATA_Monitoring_Additional_data]'
+
+class TaskSchedule(models.Model):
+    time_hour = models.IntegerField(default=0)
+    time_minute = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    class Meta:
+        db_table = '[MDANANAS].[dbo].[SCHEDULE_DATAPULL_PRICEM]'
+        managed = False

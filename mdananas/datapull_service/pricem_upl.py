@@ -51,35 +51,7 @@ def nullify_empty_string(string):
         return None
     return string
 
-class IntMonitoringObject():
-    tmp_id = None
-    real_id = None
-    object = None
-
-def process_priceva_data():
-    data = pd.read_json('C:/GitRepos/mdananas/mdananas/datapull_service/views/data.json')
-    int_monitoring_objects = []
-    ext_monitoring_objects = []
-    if data is not None:
-        for index, row in data.iterrows():
-            int_monitoring_flag = is_internal_brand(row.get('brand_name'))
-            if int_monitoring_flag:
-                int_monitoring_objects.append(PRICEM_DATA_INT_Monitoring (
-                    client_code = row.get('client_code'),
-                    root_tu = get_tu_by_xcode(row.get('article')),
-                    root_mix = get_mix_by_xcode(row.get('article')),
-                ))
-            else:
-                ext_monitoring_objects.append(PRICEM_DATA_EXT_Monitoring (
-                    client_code = row.get('client_code'),
-                    material = row.get('article'),
-                    pricem_description = row.get('name'),
-                    category = row.get('category_name'),
-                    brand = row.get('brand_name'),
-                ))
-
-
-def main_page(request):
+def process_pricem():
     url = "https://api.priceva.ru/export?f=ei7/2jw/vCTkK1rtbWOfHhrt0AwY1QUa0Nrx7aO7"
     #data = priceva_api_call()
     data = pd.read_json('C:/GitRepos/mdananas/mdananas/datapull_service/views/data.json')
@@ -161,4 +133,4 @@ def main_page(request):
                                 header = data.get('header'),
                                 value = data.get('value'),
                             )
-    return JsonResponse({'status': '200 OK'}, safe=False) #HttpResponse(df.to_csv(index=False, sep=';'))
+    return JsonResponse({'status': '200 OK'}, safe=False)
