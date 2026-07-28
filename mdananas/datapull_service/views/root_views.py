@@ -44,6 +44,7 @@ def process_invoice_file(file, request):
                 inv_object.date_year = last_date.year
                 inv_object.date_month = last_date.month
                 inv_object.date_day = None
+                print('------------------------------------', reg)
                 if 'Объект не найден' in reg:
                     only_nsv_flag = True
             if col.get('second_lvl') == 'Грузополучатель':
