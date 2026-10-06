@@ -13,6 +13,7 @@ from datapull_service.models.pricem_models import (
     PricemLOG,
     TaskSchedule,
     PRICEM_DATA_INT_Monitoring,
+    PRICEM_DATA_Monitoring_Additional_data,
     PRICEM_DATA_Monitoring_Sources,
     PRICEM_DATA_Source_Offers,
 )
@@ -60,6 +61,61 @@ class RunnerTests(DatabaseTest):
 
     def tick(self, **kwargs):
         return run_tick(now=self.now, **kwargs)
+
+    def legacy_source_duplicates(self):
+        historical_slot = (self.now - timedelta(days=1)).replace(hour=9, minute=30)
+        persist_payload(normalize_payload(payload()), historical_slot)
+        product = PRICEM_DATA_INT_Monitoring.objects.using("ideal").get()
+        product.priceva_product_id = None
+        product.save(using="ideal")
+        source = PRICEM_DATA_Monitoring_Sources.objects.using("ideal").get()
+        source.priceva_source_id = None
+        source.save(using="ideal")
+        source_ids = [source.pk]
+        for status in (2, 3):
+            duplicate = PRICEM_DATA_Monitoring_Sources.objects.using("ideal").create(
+                pricem_int_monitoring=product,
+                url=source.url,
+                root_pivot_customer_id=source.root_pivot_customer_id,
+                region=source.region,
+                sale_option=source.sale_option,
+                status=status,
+                formula=f"old-{status}",
+            )
+            source_ids.append(duplicate.pk)
+            PRICEM_DATA_Source_Offers.objects.using("ideal").create(
+                pricem_source=duplicate,
+                upload_date=historical_slot.date(),
+                upload_time=time(9, 30),
+                offer="old offer",
+                price=status * 10,
+            )
+            PRICEM_DATA_Monitoring_Additional_data.objects.using("ideal").create(
+                pricem_source=duplicate, header="legacy", value=str(status)
+            )
+        return product, source_ids
+
+    def legacy_source_data(self, source_ids):
+        return {
+            "sources": list(
+                PRICEM_DATA_Monitoring_Sources.objects.using("ideal")
+                .filter(pk__in=source_ids)
+                .order_by("id")
+                .values()
+            ),
+            "offers": list(
+                PRICEM_DATA_Source_Offers.objects.using("ideal")
+                .filter(pricem_source_id__in=source_ids)
+                .order_by("id")
+                .values()
+            ),
+            "additional": list(
+                PRICEM_DATA_Monitoring_Additional_data.objects.using("ideal")
+                .filter(pricem_source_id__in=source_ids)
+                .order_by("id")
+                .values()
+            ),
+        }
 
     def test_catchup_uses_scheduled_date_and_minutes_and_is_not_repeated(self):
         result = self.tick()
@@ -281,6 +337,120 @@ class RunnerTests(DatabaseTest):
             "ambiguous existing rows",
             PricemImportRun.objects.using("ideal").get().last_error,
         )
+
+    def test_legacy_source_duplicates_get_new_id_without_changing_history(self):
+        product, source_ids = self.legacy_source_duplicates()
+        manual_tu = Tu.objects.using("ideal").create(
+            xcode_tu="MANUAL",
+            root_cu=self.tu.root_cu,
+            status="ACT",
+            type="A",
+            cu_in_tu=5,
+        )
+        product.root_tu = manual_tu
+        product.save(using="ideal")
+        historical = self.legacy_source_data(source_ids)
+
+        self.assertEqual(self.tick().status, "succeeded")
+        source = PRICEM_DATA_Monitoring_Sources.objects.using("ideal").get(
+            priceva_source_id="opaque-source-1"
+        )
+        self.assertNotIn(source.pk, source_ids)
+        self.assertEqual(source.pricem_int_monitoring_id, product.pk)
+        product.refresh_from_db(using="ideal")
+        self.assertEqual(product.root_tu_id, manual_tu.pk)
+        self.assertEqual(self.legacy_source_data(source_ids), historical)
+        current_offer = PRICEM_DATA_Source_Offers.objects.using("ideal").get(
+            upload_date=self.now.date(), upload_time=time(9, 30)
+        )
+        self.assertEqual(current_offer.pricem_source_id, source.pk)
+        counts = json.loads(PricemImportRun.objects.using("ideal").get().counts)
+        self.assertEqual(counts["sources_created_for_legacy_duplicates"], 1)
+
+        self.assertEqual(self.tick().status, "idle")
+        rows = export()
+        rows[0]["sources"][0].update(status=2, formula="new")
+        self.post.return_value.text = json.dumps(rows)
+        self.now = self.now.replace(hour=14, minute=16)
+        self.assertEqual(self.tick().status, "succeeded")
+        source.refresh_from_db(using="ideal")
+        self.assertEqual(source.status, 2)
+        self.assertEqual(source.formula, "new")
+        self.assertEqual(
+            PRICEM_DATA_Monitoring_Sources.objects.using("ideal").count(), 4
+        )
+        self.assertEqual(self.legacy_source_data(source_ids), historical)
+        latest = PricemImportRun.objects.using("ideal").latest("scheduled_at")
+        self.assertEqual(
+            json.loads(latest.counts)["sources_created_for_legacy_duplicates"], 0
+        )
+
+    def test_failed_snapshot_with_legacy_source_duplicates_can_retry_after_replacement(
+        self,
+    ):
+        _, source_ids = self.legacy_source_duplicates()
+        historical = self.legacy_source_data(source_ids)
+        raw = payload()
+        run = PricemImportRun.objects.using("ideal").create(
+            schedule=self.first,
+            scheduled_at=self.now.replace(hour=9, minute=30),
+            next_at=self.now.replace(hour=14, minute=15),
+            status="failed",
+            attempts=1,
+            payload=raw,
+            payload_hash=hashlib.sha256(raw.encode()).hexdigest(),
+            last_error="Legacy monitoring source: ambiguous existing rows",
+        )
+        self.now = self.now.replace(hour=14, minute=16)
+        self.assertEqual(self.tick(retry_run_id=run.pk).status, "succeeded")
+        self.post.assert_not_called()
+        run.refresh_from_db(using="ideal")
+        self.assertEqual(run.attempts, 2)
+        self.assertEqual(self.legacy_source_data(source_ids), historical)
+        offer = PRICEM_DATA_Source_Offers.objects.using("ideal").get(
+            upload_date=self.now.date(), upload_time=time(9, 30)
+        )
+        self.assertNotIn(offer.pricem_source_id, source_ids)
+
+    def test_new_source_for_legacy_duplicates_rolls_back_and_recovers(self):
+        product, source_ids = self.legacy_source_duplicates()
+        historical = self.legacy_source_data(source_ids)
+
+        def crash(products, scheduled_at):
+            persist_payload(products, scheduled_at)
+            raise OperationalError(
+                "failure after creating a source for legacy duplicates"
+            )
+
+        with patch("datapull_service.pricem.runner.persist_payload", side_effect=crash):
+            self.assertEqual(self.tick().status, "retry")
+        self.assertEqual(
+            PRICEM_DATA_Monitoring_Sources.objects.using("ideal").count(), 3
+        )
+        self.assertEqual(self.legacy_source_data(source_ids), historical)
+        product.refresh_from_db(using="ideal")
+        self.assertIsNone(product.priceva_product_id)
+        self.now += timedelta(seconds=61)
+        self.assertEqual(self.tick().status, "succeeded")
+        self.post.assert_called_once()
+        self.assertEqual(
+            PRICEM_DATA_Monitoring_Sources.objects.using("ideal").count(), 4
+        )
+        self.assertEqual(self.legacy_source_data(source_ids), historical)
+
+    def test_explicit_priceva_source_id_conflict_still_fails(self):
+        _, source_ids = self.legacy_source_duplicates()
+        other = PRICEM_DATA_INT_Monitoring.objects.using("ideal").create(
+            client_code="other"
+        )
+        PRICEM_DATA_Monitoring_Sources.objects.using("ideal").filter(
+            pk=source_ids[0]
+        ).update(priceva_source_id="opaque-source-1", pricem_int_monitoring=other)
+        historical = self.legacy_source_data(source_ids)
+        self.assertEqual(self.tick().status, "failed")
+        self.assertEqual(self.legacy_source_data(source_ids), historical)
+        run = PricemImportRun.objects.using("ideal").get()
+        self.assertIn("belongs to another monitoring product", run.last_error)
 
     def test_unauthorized_api_response_is_not_retried_automatically(self):
         response = requests.Response()

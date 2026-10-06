@@ -78,6 +78,7 @@ class ImportStore:
         )
         self.brands.update(p.brand for p in mixes if p.brand is not None)
         self.unmapped = 0
+        self.sources_created_for_legacy_duplicates = 0
 
     @staticmethod
     def source_key(source):
@@ -172,7 +173,14 @@ class ImportStore:
                 for s in self.sources_by_key[self.source_key(probe)]
                 if s.priceva_source_id is None
             ]
-            obj = one(legacy, "Legacy monitoring source")
+            if len(legacy) == 1:
+                obj = legacy[0]
+            elif legacy:
+                # Older imports included status/formula in the source lookup and
+                # could create several rows for the same stable fields. Give the
+                # current Priceva ID its own source; keep historical rows and
+                # their dependent data attached to their original source IDs.
+                self.sources_created_for_legacy_duplicates += 1
         if obj is None:
             obj = PRICEM_DATA_Monitoring_Sources.objects.using(DB).create(**fields)
         else:
@@ -251,4 +259,5 @@ def persist_payload(products, scheduled_at):
         "offers": len(offers),
         "additional": len(additional),
         "unmapped_products": store.unmapped,
+        "sources_created_for_legacy_duplicates": store.sources_created_for_legacy_duplicates,
     }
