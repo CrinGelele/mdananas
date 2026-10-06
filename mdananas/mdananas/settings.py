@@ -44,6 +44,16 @@ INSTALLED_APPS = [
     'datapull_service'
 ]
 
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_BEAT_SCHEDULE = {
+    'fetch-api-data-every-hour': {
+        'task': 'mdananas.tasks.fetch_api_data',
+        'schedule': 3600.0,  # каждые 60 минут
+    },
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -163,8 +173,3 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# The existing export URL remains the default; an environment override is optional.
-PRICEVA_EXPORT_URL = os.environ.get("PRICEVA_EXPORT_URL", 'https://api.priceva.ru/export?f=ei7/2jw/vCTkK1rtbWOfHhrt0AwY1QUa0Nrx7aO7')
-PRICEM_POLL_SECONDS = 15
-PRICEM_RETRY_DELAYS = (60, 300, 900)
