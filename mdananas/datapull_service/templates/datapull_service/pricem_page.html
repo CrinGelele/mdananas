@@ -10,7 +10,7 @@
 
 {% block content %}
 <div class="w-100 h-100 flex-row">
-    <div class="w-50 h-100 flex-column" style="margin-left: 50px;"> 
+    <div class="w-50 h-100 flex-column" style="margin-left: 50px;">
         <div class="info-tab info-tab-scroll" style="width: 96%;">
             <summary class="info-tab-label">
                 <p>INTERNAL MONITORING</p>
@@ -114,7 +114,7 @@
             </div>
         </div>
     </div>
-    <div class="right-part-container"> 
+    <div class="right-part-container">
         <details class="info-tab padding-x-2" style="width: 96%;" id="pricem_chains_pivot">
             <summary class="info-tab-label">
                 <p>Chains</p>
@@ -171,7 +171,7 @@
                                         <td> {{ chain.offer|default_if_none:"" }} </td>
                                         <td> {{ chain.promoplan_root_pivot_customer.erp_name|default_if_none:"" }} </td>
                                         <td> {{ chain.additional_seller|default_if_none:"" }} </td>
-                                        <td> 
+                                        <td>
                                             <form method="post" action="">
                                                 {% csrf_token %}
                                                 <input type="text" name="form_name" id="form_name" style="display: none;" value="delete_chain">
@@ -225,7 +225,7 @@
                                 <tr>
                                     <td> {{ task.time_hour|stringformat:"02d" }} </td>
                                     <td> {{ task.time_minute|stringformat:"02d" }} </td>
-                                    <td> 
+                                    <td>
                                         <form method="post" action="">
                                             {% csrf_token %}
                                             <input type="text" name="form_name" value="change_task" style="display: none;">
@@ -233,7 +233,7 @@
                                             <input class="auto-submit-input" type="checkbox" name="is_active" {% if task.is_active %} checked {% endif %}>
                                         </form>
                                     </td>
-                                    <td> 
+                                    <td>
                                         <form method="post" action="">
                                             {% csrf_token %}
                                             <input type="text" name="form_name" value="delete_task" style="display: none;">
