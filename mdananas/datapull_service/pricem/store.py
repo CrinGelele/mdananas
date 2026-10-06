@@ -78,6 +78,8 @@ class ImportStore:
         )
         self.brands.update(p.brand for p in mixes if p.brand is not None)
         self.unmapped = 0
+        self.sources_created_for_legacy_duplicates = 0
+        self.products_created_for_legacy_duplicates = 0
 
     @staticmethod
     def source_key(source):
@@ -90,29 +92,117 @@ class ImportStore:
             source.sale_option,
         )
 
-    def product(self, item):
+    @staticmethod
+    def product_mapping(product):
+        if isinstance(product, PRICEM_DATA_INT_Monitoring):
+            return {
+                "root_tu_id": product.root_tu_id,
+                "root_mix_id": product.root_mix_id,
+                "is_mix": product.is_mix,
+            }
+        return {"root_cmp_id": product.root_cmp_id}
+
+    def matches_article(self, product, article):
+        if not article:
+            return False
+        if isinstance(product, PRICEM_DATA_EXT_Monitoring):
+            return product.root_cmp_id in {p.pk for p in self.cmps.get(article, [])}
+        if product.root_tu_id is not None and product.root_mix_id is None:
+            return product.is_mix is not True and product.root_tu_id in {
+                p.pk for p in self.tus.get(article, [])
+            }
+        if product.root_mix_id is not None and product.root_tu_id is None:
+            return product.is_mix is not False and product.root_mix_id in {
+                p.pk for p in self.mixes.get(article, [])
+            }
+        return False
+
+    def product_plan(self, item):
+        """Resolve product identity and mapping without changing business data."""
         obj = one(self.products_by_id[item.priceva_id], "Priceva product ID")
+        mapping = {}
+        duplicated = False
         if obj is None:
             legacy = [
                 p
                 for p in self.products_by_code[item.client_code]
                 if p.priceva_product_id is None and p.client_code == item.client_code
             ]
-            obj = one(legacy, "Legacy product client code")
+            if len(legacy) > 1:
+                first = legacy[0]
+                mapping = self.product_mapping(first)
+                if any(
+                    type(product) is not type(first)
+                    or self.product_mapping(product) != mapping
+                    for product in legacy[1:]
+                ):
+                    # client_code can outlive a SKU change. The current article
+                    # can identify one existing mapping without changing any
+                    # historical mapping. Catalog EAN/xcode matches must be exact.
+                    matching = [
+                        product
+                        for product in legacy
+                        if self.matches_article(product, item.article)
+                    ]
+                    if len(matching) == 1:
+                        selected = matching[0]
+                        return (
+                            selected,
+                            isinstance(selected, PRICEM_DATA_INT_Monitoring),
+                            {},
+                            False,
+                        )
+                    labels = "; ".join(
+                        f"{'INT' if isinstance(product, PRICEM_DATA_INT_Monitoring) else 'EXT'}:"
+                        f"{product.pk} {self.product_mapping(product)}"
+                        for product in legacy[:10]
+                    )
+                    raise PayloadError(
+                        f"Legacy product client code {item.client_code!r}: "
+                        f"conflicting product kinds or manual mappings ({labels}); "
+                        "reconcile mappings before retrying"
+                    )
+                return (
+                    None,
+                    isinstance(first, PRICEM_DATA_INT_Monitoring),
+                    mapping,
+                    True,
+                )
+            obj = legacy[0] if legacy else None
         internal = (
             isinstance(obj, PRICEM_DATA_INT_Monitoring)
             if obj
             else item.fields["brand"] in self.brands
         )
+        return obj, internal, mapping, duplicated
+
+    def validate_product_mappings(self, products):
+        errors = []
+        for item in products:
+            try:
+                self.product_plan(item)
+            except PayloadError as error:
+                errors.append(str(error))
+        if errors:
+            details = " | ".join(errors[:10])
+            raise PayloadError(
+                f"Product preflight found {len(errors)} conflict(s): {details}"
+            )
+
+    def product(self, item):
+        obj, internal, mapping, duplicated = self.product_plan(item)
         model = PRICEM_DATA_INT_Monitoring if internal else PRICEM_DATA_EXT_Monitoring
         fields = {
             "priceva_product_id": item.priceva_id,
             "client_code": item.client_code,
+            **mapping,
         }
         if not internal:
             fields.update(item.fields, material=item.article)
         if obj is None:
             obj = model.objects.using(DB).create(**fields)
+            if duplicated:
+                self.products_created_for_legacy_duplicates += 1
         else:
             update(obj, fields)
         self.products_by_id[item.priceva_id] = [obj]
@@ -172,7 +262,14 @@ class ImportStore:
                 for s in self.sources_by_key[self.source_key(probe)]
                 if s.priceva_source_id is None
             ]
-            obj = one(legacy, "Legacy monitoring source")
+            if len(legacy) == 1:
+                obj = legacy[0]
+            elif legacy:
+                # Older imports included status/formula in the source lookup and
+                # could create several rows for the same stable fields. Give the
+                # current Priceva ID its own source; keep historical rows and
+                # their dependent data attached to their original source IDs.
+                self.sources_created_for_legacy_duplicates += 1
         if obj is None:
             obj = PRICEM_DATA_Monitoring_Sources.objects.using(DB).create(**fields)
         else:
@@ -209,6 +306,7 @@ class ImportStore:
 
 def persist_payload(products, scheduled_at):
     store = ImportStore()
+    store.validate_product_mappings(products)
     slot = scheduled_at.astimezone(MOSCOW)
     offers, additional, source_ids = [], [], []
     for item in products:
@@ -251,4 +349,6 @@ def persist_payload(products, scheduled_at):
         "offers": len(offers),
         "additional": len(additional),
         "unmapped_products": store.unmapped,
+        "sources_created_for_legacy_duplicates": store.sources_created_for_legacy_duplicates,
+        "products_created_for_legacy_duplicates": store.products_created_for_legacy_duplicates,
     }
