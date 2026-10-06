@@ -45,7 +45,9 @@ class CommandTests(DatabaseTest):
         child.poll.return_value = 1
         with (
             patch("datapull_service.management.commands.runsite.os.name", "posix"),
-            patch("datapull_service.management.commands.runsite.os.killpg") as kill,
+            patch(
+                "datapull_service.management.commands.runsite.os.killpg", create=True
+            ) as kill,
         ):
             stop_child(child)
         kill.assert_called_once_with(4321, signal.SIGINT)
