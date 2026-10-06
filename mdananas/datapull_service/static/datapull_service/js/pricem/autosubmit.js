@@ -5,7 +5,7 @@ window.addEventListener('load', function() {
                 return;
             }
             e.preventDefault();
-            if (input.type == 'checkbox') {
+            if (input.type == 'checkbox' && input.name == 'is_mix') {
                 if (input.checked) {
                     input.closest('tr').querySelector('.mix-select').style.display = 'flex';
                     input.closest('tr').querySelector('.tu-select').style.display = 'none';

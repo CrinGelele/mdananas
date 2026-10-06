@@ -3,6 +3,7 @@ from .root_models import ROOT_PIVOT_Customer
 from root_service.models.ref_sku_models import Tu, Mix, CMP
 
 class PRICEM_DATA_INT_Monitoring(models.Model):
+    priceva_product_id = models.CharField(max_length=100, null=True, blank=True)
     client_code = models.CharField(max_length=30, null=True, blank=True)
     root_tu = models.ForeignKey(Tu, on_delete=models.CASCADE, db_column='root_tu_id', null=True, blank=True)
     root_mix = models.ForeignKey(Mix, on_delete=models.CASCADE, db_column='root_mix_id', null=True, blank=True)
@@ -14,6 +15,7 @@ class PRICEM_DATA_INT_Monitoring(models.Model):
 
 
 class PRICEM_DATA_EXT_Monitoring(models.Model):
+    priceva_product_id = models.CharField(max_length=100, null=True, blank=True)
     client_code = models.CharField(max_length=30, null=True, blank=True)
     material = models.CharField(max_length=30, null=True, blank=True)
     pricem_description = models.TextField(null=True, blank=True)
@@ -45,6 +47,7 @@ class PRICEM_LINK_Tags(models.Model):
 
 
 class PRICEM_DATA_Monitoring_Sources(models.Model):
+    priceva_source_id = models.CharField(max_length=100, null=True, blank=True)
     pricem_int_monitoring = models.ForeignKey(PRICEM_DATA_INT_Monitoring, on_delete=models.CASCADE, db_column='pricem_int_monitoring_id', null=True, blank=True)
     pricem_ext_monitoring = models.ForeignKey(PRICEM_DATA_EXT_Monitoring, on_delete=models.CASCADE, db_column='pricem_ext_monitoring_id', null=True, blank=True)
     url = models.TextField()
@@ -70,7 +73,7 @@ class PRICEM_DATA_Source_Offers(models.Model):
     original_price = models.FloatField(null=True, blank=True)
     offer = models.TextField()
     upload_date = models.DateField()
-    upload_time = models.IntegerField()
+    upload_time = models.TimeField()
 
     class Meta:
         managed = False
@@ -111,3 +114,23 @@ class PricemLOG(models.Model):
     class Meta:
             db_table = '[MDANANAS].[dbo].[LOGS_DATAPULL_PRICEM]'
             managed = False
+
+
+class PricemImportRun(models.Model):
+    schedule = models.ForeignKey(TaskSchedule, on_delete=models.PROTECT, db_column='schedule_id')
+    scheduled_at = models.DateTimeField(unique=True)
+    next_at = models.DateTimeField()
+    status = models.CharField(max_length=16, default='pending')
+    attempts = models.IntegerField(default=0)
+    started_at = models.DateTimeField(null=True)
+    finished_at = models.DateTimeField(null=True)
+    next_retry_at = models.DateTimeField(null=True)
+    fetched_at = models.DateTimeField(null=True)
+    payload = models.TextField(null=True)
+    payload_hash = models.CharField(max_length=64, default='')
+    counts = models.TextField(default='{}')
+    last_error = models.TextField(default='')
+
+    class Meta:
+        managed = False
+        db_table = '[MDANANAS].[dbo].[DATAPULL_PRICEM_RUNS]'

@@ -2,8 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 class NewTaskForm(forms.Form):
-    time_hour = forms.IntegerField(required=True)
-    time_minute = forms.IntegerField(required=True)
+    time_hour = forms.IntegerField(required=True, min_value=0, max_value=23)
+    time_minute = forms.IntegerField(required=True, min_value=0, max_value=59)
     is_active = forms.BooleanField(required=False)
 
 class ActionTaskForm(forms.Form):

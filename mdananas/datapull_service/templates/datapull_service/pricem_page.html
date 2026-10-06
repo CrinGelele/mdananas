@@ -43,7 +43,7 @@
                                     <td>
                                             <input type="text" name="int_monitoring_id" id="int_monitoring_id" style="display: none;" value="{{int.id}}">
                                             <select class="info-tab-label-form-field-input l-100 auto-submit-input tu-select" {% if int.is_mix %} disabled style="display: none;" {% endif %} name="root_tu">
-                                                <option value="{{int.root_cu.id|default_if_none:""}}" selected>{{int.root_tu.xcode_tu}}</option>
+                                                <option value="{{int.root_tu.id|default_if_none:""}}" selected>{{int.root_tu.xcode_tu}}</option>
                                                 {% for tu in existing_tu %}
                                                     {% if tu.id != int.root_tu.id %}
                                                         <option value="{{ tu.id|default_if_none:"" }}">{{ tu.xcode_tu }}</option>
