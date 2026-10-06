@@ -35,5 +35,5 @@ def upload_file(file_data, model, proc, big=False):
                 bulk_insert_to_sqlserver(tmp_file.name.replace(os.sep, '/'), model)
             else:
                 model.objects.bulk_create(file_data)
-            cursor.execute(f"EXEC {proc}")
-            cursor.execute(f"DROP TABLE IF EXISTS {model._meta.db_table}")
+            #cursor.execute(f"EXEC {proc}")
+            #cursor.execute(f"DROP TABLE IF EXISTS {model._meta.db_table}")
