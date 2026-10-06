@@ -48,7 +48,7 @@ details > summary {
         justify-content: space-between;
         align-items: center;
         height: 100%;
-        width: 100%;
+        max-width: 82rem;
         padding-left: 35px;
         padding-right: 35px;
 
@@ -136,11 +136,6 @@ form {
     padding-right: 2% !important;
 }
 
-.padding-x-2 {
-    padding-left: 2% !important;
-    padding-right: 2% !important;
-}
-
 .info-tab-label {
     width: 100%;
     display: flex;
@@ -168,14 +163,7 @@ form {
 .info-tab-label-form-scroll {
     max-height: 700px !important;
     height: 100% !important;
-    overflow-x: hidden !important;
     overflow-y: auto !important;  
-    scrollbar-width: none;
-}
-
-.info-tab-label-form-scroll::-webkit-scrollbar {
-    width: 0;
-    height: 0;
 }
 
 .info-tab-label-form table {
@@ -327,8 +315,6 @@ form {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-left: auto;
-  margin-right: 20px;
 }
 
 .nav-links {
