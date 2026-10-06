@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ref_sku_page{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'datapull_service/css/root.css' %}">
+    <link rel="stylesheet" href="{% static 'datapull_service/css/pricem.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="w-100 h-100 flex-row">
+    <div class="w-50 h-100 flex-column" style="margin-left: 50px;"> 
+        <div class="info-tab info-tab-scroll" style="width: 96%;">
+            <summary class="info-tab-label">
+                <p>INTERNAL MONITORING</p>
+                <form method="get" action="" style="width: 150px;">
+                    <input type="hidden" name="pricem_int_suo" value="off">
+                    <label>
+                        Only unmapped
+                        <input type="checkbox" value="on" name="pricem_int_suo" {% if pricem_int_suo %}checked{% endif %} onchange="this.form.submit()">
+                    </label>
+                </form>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>material</th>
+                            <th>is_mix</th>
+                            <th>xcode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for int in int_monitorings %}
+                            <tr>
+                                <td> {{ int.client_code }} </td>
+                                <form class="auto-submit-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <td>
+                                            <input type="checkbox" class="auto-submit-input" value="1" name="is_mix" {% if int.is_mix %} checked {% endif %}>
+                                    </td>
+                                    <td>
+                                            <input type="text" name="int_monitoring_id" id="int_monitoring_id" style="display: none;" value="{{int.id}}">
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input tu-select" {% if int.is_mix %} disabled style="display: none;" {% endif %} name="root_tu">
+                                                <option value="{{int.root_cu.id|default_if_none:""}}" selected>{{int.root_tu.xcode_tu}}</option>
+                                                {% for tu in existing_tu %}
+                                                    {% if tu.id != int.root_tu.id %}
+                                                        <option value="{{ tu.id|default_if_none:"" }}">{{ tu.xcode_tu }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input mix-select" {% if not int.is_mix %} disabled style="display: none;" {% endif %} name="root_mix">
+                                                <option value="{{int.root_mix.id|default_if_none:""}}" selected>{{int.root_mix.xcode_mix}}</option>
+                                                {% for mix in existing_mix %}
+                                                    {% if mix.id != int.root_mix.id %}
+                                                        <option value="{{ mix.id|default_if_none:"" }}">{{ mix.xcode_mix }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                    </td>
+                                </form>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="info-tab info-tab-scroll" style="width: 96%;">
+            <summary class="info-tab-label">
+                <p>EXTERNAL MONITORING</p>
+                <form method="get" action="" style="width: 150px;">
+                    <input type="hidden" name="pricem_ext_suo" value="off">
+                    <label>
+                        Only unmapped
+                        <input type="checkbox" value="on" name="pricem_ext_suo" {% if pricem_ext_suo %}checked{% endif %} onchange="this.form.submit()">
+                    </label>
+                </form>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="dm_pivot_sku_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>material</th>
+                            <th>pricem_description</th>
+                            <th>brand</th>
+                            <th>ean</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ext in ext_monitorings %}
+                            <tr>
+                                <td> {{ ext.client_code }} </td>
+                                <td> {{ ext.pricem_description }} </td>
+                                <td> {{ ext.brand }} </td>
+                                <form class="auto-submit-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <td>
+                                            <input type="text" name="ext_monitoring_id" id="ext_monitoring_id" style="display: none;" value="{{ext.id}}">
+                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input cmp-select" name="root_cmp">
+                                                <option value="{{ext.root_cmp.id|default_if_none:""}}" selected>{{ext.root_cmp.ean}}</option>
+                                                {% for cmp in existing_cmp %}
+                                                    {% if cmp.id != ext.root_cmp.id %}
+                                                        <option value="{{ cmp.id|default_if_none:"" }}">{{ cmp.ean }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                    </td>
+                                </form>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="right-part-container"> 
+        <details class="info-tab padding-x-2" style="width: 96%;" id="pricem_chains_pivot">
+            <summary class="info-tab-label">
+                <p>Chains</p>
+            </summary>
+            <div class="content-wrapper">
+                <div class="content">
+                    <div class="info-tab-label-form">
+                        <table style="width: 100%; height: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0;">
+                            <thead style="width: 100%; height: 39px;">
+                                <tr style="width: 100%;">
+                                    <th style="width: 23%;">priceva_cust</th>
+                                    <th style="width: 23%;">offer</th>
+                                    <th style="width: 23%;">promopl_cust</th>
+                                    <th style="width: 23%;">additional_seller</th>
+                                    <th style="width: 8%;">action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="position: sticky; top: 39px; z-index: 1; background-color: white;">
+                                    <td>
+                                        <form method="post" action="" id="new_chain_form">
+                                            {% csrf_token %}
+                                            <input type="text" name="form_name" id="form_name" style="display: none;" value="create_chain">
+                                        </form>
+
+                                        <select form="new_chain_form" class="info-tab-label-form-field-input l-100" name="source_customer" style="width: 100%;">
+                                            <option selected value=""></option>
+                                            {% for customer in existing_customers %}
+                                                <option value="{{ customer.id|default_if_none:"" }}">{{ customer.erp_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input form="new_chain_form" type="text" class="info-tab-label-form-field-input l-100" name="offer" style="width: 100%;">
+                                    </td>
+                                    <td>
+                                        <select form="new_chain_form" class="info-tab-label-form-field-input l-100" name="promoplan_customer" style="width: 100%;">
+                                            <option selected value=""></option>
+                                            {% for customer in existing_customers %}
+                                                <option value="{{ customer.id|default_if_none:"" }}">{{ customer.erp_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input form="new_chain_form" type="text" class="info-tab-label-form-field-input l-100" name="additional_seller" style="width: 100%;">
+                                    </td>
+                                    <td>
+                                        <button form="new_chain_form" type="submit" style="width: 50%;">&#128190;</button>
+                                    </td>
+                                </tr>
+                                {% for chain in chains %}
+                                    <tr>
+                                        <td> {{ chain.source_root_pivot_customer.erp_name|default_if_none:"" }} </td>
+                                        <td> {{ chain.offer|default_if_none:"" }} </td>
+                                        <td> {{ chain.promoplan_root_pivot_customer.erp_name|default_if_none:"" }} </td>
+                                        <td> {{ chain.additional_seller|default_if_none:"" }} </td>
+                                        <td> 
+                                            <form method="post" action="">
+                                                {% csrf_token %}
+                                                <input type="text" name="form_name" id="form_name" style="display: none;" value="delete_chain">
+                                                <input type="text" name="chain_id" style="display: none;" value="{{chain.id}}">
+                                                <button type="submit">&#128465;</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </details>
+        <details class="info-tab padding-x-2" style="width: 96%;" id="pricem_schedule_pivot">
+            <summary class="info-tab-label">
+                <p>Schedule</p>
+            </summary>
+            <div class="content-wrapper">
+                <div class="content">
+                    <div class="info-tab-label-form">
+                        <table style="width: 100%; height: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0;">
+                            <thead style="width: 100%; height: 39px;">
+                                <tr style="width: 100%;">
+                                    <th style="width: 30.66%;">time_hour</th>
+                                    <th style="width: 30.66%;">time_minute</th>
+                                    <th style="width: 30.66%;">is_active</th>
+                                    <th style="width: 8%;">action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="position: sticky; top: 39px; z-index: 1; background-color: white;">
+                                    <td>
+                                        <form method="post" action="" id="new_task_form">
+                                            {% csrf_token %}
+                                        </form>
+                                        <input form="new_task_form" type="text" class="info-tab-label-form-field-input" name="time_hour" style="width: 50px;">
+                                    </td>
+                                    <td>
+                                        <input form="new_task_form" type="text" class="info-tab-label-form-field-input" name="time_minute" style="width: 50px;">
+                                    </td>
+                                    <td>
+                                        <input form="new_task_form" type="checkbox" class="info-tab-label-form-field-input" name="is_active" style="width: 100%;">
+                                    </td>
+                                    <td>
+                                        <button form="new_task_form" type="submit" style="width: 50%;">&#128190;</button>
+                                    </td>
+                                </tr>
+                            {% for task in schedule %}
+                                <tr>
+                                    <td> {{ task.time_hour|stringformat:"02d" }} </td>
+                                    <td> {{ task.time_minute|stringformat:"02d" }} </td>
+                                    <td> 
+                                        <form method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="text" name="form_name" value="change_task" style="display: none;">
+                                            <input type="text" name="task_id" value="{{task.id}}" style="display: none;">
+                                            <input class="auto-submit-input" type="checkbox" name="is_active" {% if task.is_active %} checked {% endif %}>
+                                        </form>
+                                    </td>
+                                    <td> 
+                                        <form method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="text" name="form_name" value="delete_task" style="display: none;">
+                                            <input type="text" name="task_id" style="display: none;" value="{{task.id}}">
+                                            <button type="submit">&#128465;</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </details>
+        <details open class="info-tab padding-x-2" style="width: 96%;" id="pricem_logs_pivot">
+            <summary class="info-tab-label">
+                <p>Logs</p>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll content" id="dm_pivot_sku_table">
+                <table>
+                    <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td> [{{log.date_time|date:"M d, Y"}}]: uploading for {{log.schedule.time_hour}}:{{log.schedule.time_minute}} {{log.status}} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'datapull_service/js/pricem/autosubmit.js' %}"></script>
+{% endblock %}

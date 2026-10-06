@@ -1,11 +1,12 @@
 from django.db import models
 from .root_models import ROOT_PIVOT_Customer
-from root_service.models.ref_sku_models import Tu, Cu, Mix
+from root_service.models.ref_sku_models import Tu, Mix, CMP
 
 class PRICEM_DATA_INT_Monitoring(models.Model):
     client_code = models.CharField(max_length=30, null=True, blank=True)
     root_tu = models.ForeignKey(Tu, on_delete=models.CASCADE, db_column='root_tu_id', null=True, blank=True)
     root_mix = models.ForeignKey(Mix, on_delete=models.CASCADE, db_column='root_mix_id', null=True, blank=True)
+    is_mix = models.BooleanField(null=True, blank=True)
 
     class Meta:
         managed = False
@@ -18,6 +19,7 @@ class PRICEM_DATA_EXT_Monitoring(models.Model):
     pricem_description = models.TextField(null=True, blank=True)
     brand = models.CharField(max_length=30, null=True, blank=True)
     category = models.CharField(max_length=30, null=True, blank=True)
+    root_cmp = models.ForeignKey(CMP, on_delete=models.CASCADE, db_column='root_cmp_id', null=True, blank=True)
 
     class Meta:
         managed = False
@@ -67,6 +69,8 @@ class PRICEM_DATA_Source_Offers(models.Model):
     original_currency = models.CharField(max_length=3, null=True, blank=True)
     original_price = models.FloatField(null=True, blank=True)
     offer = models.TextField()
+    upload_date = models.DateField()
+    upload_time = models.IntegerField()
 
     class Meta:
         managed = False
@@ -82,6 +86,15 @@ class PRICEM_DATA_Monitoring_Additional_data(models.Model):
         managed = False
         db_table = '[03_PRICEM].[PRICEM_DATA_Monitoring_Additional_data]'
 
+class PRICEM_PIVOT_Promoplan_chain(models.Model):
+    source_root_pivot_customer = models.ForeignKey(ROOT_PIVOT_Customer, on_delete=models.CASCADE, db_column='source_root_pivot_customer_id', null=True, blank=True, related_name='source_customer')
+    offer = models.TextField()
+    promoplan_root_pivot_customer = models.ForeignKey(ROOT_PIVOT_Customer, on_delete=models.CASCADE, db_column='promoplan_root_pivot_customer_id', null=True, blank=True, related_name='promoplan_customer')
+    additional_seller = models.TextField()
+    class Meta:
+        managed = False
+        db_table = '[03_PRICEM].[PRICEM_PIVOT_Promoplan_chains]'
+
 class TaskSchedule(models.Model):
     time_hour = models.IntegerField(default=0)
     time_minute = models.IntegerField(default=0)
@@ -89,3 +102,12 @@ class TaskSchedule(models.Model):
     class Meta:
         db_table = '[MDANANAS].[dbo].[SCHEDULE_DATAPULL_PRICEM]'
         managed = False
+
+class PricemLOG(models.Model):
+    date_time = models.DateTimeField()
+    schedule = models.ForeignKey(TaskSchedule, on_delete=models.PROTECT, db_column='pricem_schedule_id', null=True, blank=True)
+    status = models.TextField()
+
+    class Meta:
+            db_table = '[MDANANAS].[dbo].[LOGS_DATAPULL_PRICEM]'
+            managed = False

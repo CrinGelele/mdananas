@@ -199,3 +199,35 @@ class LClassification(models.Model):
     class Meta:
         managed = False
         db_table = '[00_ROOT].[ROOT_REF_SKU_LClassification]'
+
+class Type(models.Model):
+    taste = models.CharField(max_length=90, null=True)
+    packaging = models.CharField(max_length=50, null=True)
+    net_weight = models.FloatField(null=True)
+    is_mix = models.BooleanField(null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[00_ROOT].[ROOT_REF_SKU_Types]'
+
+class CMP(models.Model):
+    ean = models.CharField(max_length=20, null=True)
+    brand = models.CharField(max_length=30, null=True)
+    rus_description = models.TextField(null=True)
+    root_type = models.ForeignKey('Type', on_delete=models.PROTECT, null=True)
+    root_lclass = models.ForeignKey('LClassification', on_delete=models.PROTECT, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[00_ROOT].[ROOT_REF_SKU_CMP]'
+
+class PIVOT_CMP(models.Model):
+    ean = models.CharField(max_length=20, null=True)
+    brand = models.CharField(max_length=30, null=True)
+    rus_description = models.TextField(null=True)
+    root_type = models.ForeignKey('Type', on_delete=models.PROTECT, null=True)
+    root_lclass = models.ForeignKey('LClassification', on_delete=models.PROTECT, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[00_ROOT].[ROOT_REF_SKU_CMP]'
