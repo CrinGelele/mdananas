@@ -90,6 +90,10 @@
                         </select>
                         <input class="info-tab-label-form-field-input" type="text" name="rus_definition" id="new-rus_definition-field" style="display: none;" disabled>
                     </div>
+                    <div class="info-tab-label-form-field">
+                        <label for="shelf-life">shelf-life</label>
+                        <input class="info-tab-label-form-field-input" type="text" name="shelf_life" value="{{mix.shelf_life|default_if_none:"" }}">
+                    </div>
                     {% if not is_create_mode %}
                     <div class="info-tab-label-form-field">
                         <label for="cons_active">cons_active</label>
