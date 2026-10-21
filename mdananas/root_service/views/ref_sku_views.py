@@ -520,6 +520,7 @@ def mix_creation_page_save(request):
             mix_object.groupname = form.cleaned_data.get('groupname')
             mix_object.status = form.cleaned_data.get('status')
             mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
+            mix_object.shelf_life = form.cleaned_data.get('shelf_life')
             mix_object.save()
             return redirect('show_mix', mix_id=mix_object.id)
         else:
@@ -545,6 +546,7 @@ def mix_page_save(request, mix_id):
             mix_object.status = form.cleaned_data.get('status')
             mix_object.mix_in_box = form.cleaned_data.get('mix_in_box')
             mix_object.brand = form.cleaned_data.get('brand') or None
+            mix_object.shelf_life = form.cleaned_data.get('shelf_life')
             mix_object.save()
             if form.cleaned_data['cons_active']:
                 active_list_object = active_list_object if active_list_object else Active_list()

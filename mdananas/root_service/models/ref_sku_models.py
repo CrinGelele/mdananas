@@ -124,6 +124,7 @@ class Mix(models.Model):
     root_lclass = models.ForeignKey('LClassification', on_delete=models.PROTECT, null=True)
     tmp_xcode_mix = models.CharField(max_length=15, unique=True, null=True)
     brand = models.CharField(max_length=10, null=False)
+    shelf_life = models.SmallIntegerField(null=True)
 
     class Meta:
        managed = False

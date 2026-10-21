@@ -1,5 +1,5 @@
 window.addEventListener('load', function() {
-    let elements = document.querySelectorAll('.info-tab');
+    let elements = document.querySelectorAll('details.info-tab');
     elements.forEach((item) => {
         btn = item.querySelector('.info-tab-label-form-save-btn');
         if (btn) {

@@ -106,6 +106,7 @@ class MixForm(forms.Form):
     cons_active = forms.BooleanField(required=False)
     tmp_xcode_mix = forms.CharField(required=False)
     brand = forms.CharField(required=False)
+    shelf_life = forms.IntegerField(required=False)
 
 class MixCompositionForm(forms.ModelForm):
     class Meta:
