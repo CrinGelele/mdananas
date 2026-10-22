@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}BY Sales{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'domestic_service/dm/css/dm.css' %}">
+    <style>
+        /* Компактная сетка только для страницы Беларуси. */
+        .by-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 24px;
+            width: calc(100% - 70px);
+            max-width: 1312px;
+            height: calc(100% - 20px);
+            padding: 10px 0;
+            min-height: 0;
+        }
+
+        .by-left, .by-right {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            gap: 16px;
+        }
+
+        .by-left > .info-tab {
+            flex: 1 1 0;
+        }
+
+        .by-right > .info-tab {
+            flex: 1 1 0;
+        }
+
+        .by-layout .info-tab {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            margin: 0 !important;
+            padding: 0 16px;
+        }
+
+        .by-layout .info-tab-label {
+            flex: 0 0 auto;
+            min-height: 60px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .by-layout .info-tab-label form {
+            flex-direction: row;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .by-layout .info-tab-label-form-scroll {
+            flex: 1 1 auto;
+            height: auto !important;
+            min-height: 0;
+            max-height: none !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+
+        .by-layout .info-tab-label-form th,
+        .by-layout .info-tab-label-form td {
+            padding: 8px 6px;
+        }
+
+        .by-layout .info-tab-label-form table {
+            font-size: 14px;
+        }
+
+        .by-layout .by-upload-area {
+            flex: 0 0 auto;
+            min-width: 0;
+        }
+
+        .by-layout .by-uploads {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .by-layout .by-uploads .upload-tab {
+            flex: 0 0 160px;
+            width: 160px;
+            height: 160px;
+            aspect-ratio: auto;
+            margin: 0;
+        }
+
+        .by-layout .by-uploads .by-sales-tab {
+            flex-basis: 190px;
+            width: 190px;
+        }
+
+        .by-layout .by-uploads .plus-upload-btn {
+            width: 54px;
+            height: 54px;
+            margin: 8px auto 6px;
+        }
+
+        .by-layout .by-year-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: "Inter", sans-serif;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .by-layout .by-year-label input {
+            width: 60px !important;
+        }
+
+        .by-layout #by-upload-message {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: rgb(38 67 100 / 1);
+        }
+
+        .by-layout #by-upload-message:empty {
+            display: none;
+        }
+
+        .by-layout .by-competitors .info-tab-label form {
+            width: min(62%, 390px);
+        }
+
+        .by-layout .by-competitors .info-tab-label select {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .by-layout .by-competitors .info-tab-label button {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        /* На узких экранах не сжимаем таблицы: возвращаем обычную прокрутку. */
+        @media (max-width: 900px), (max-height: 580px) {
+            .by-layout {
+                display: flex;
+                flex-direction: column;
+                width: calc(100% - 32px);
+                height: auto;
+                min-height: 0;
+            }
+
+            .by-left > .info-tab,
+            .by-right > .info-tab {
+                flex: none;
+                height: 360px !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="by-layout">
+        <div class="by-left">
+        <div class="info-tab w-50 info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>SKU PIVOT</p>
+                <form method="get" action="" style="width: 170px;">
+                    <input type="hidden" name="by_pivot_sku_suo" value="off">
+                    <label>Only last upload
+                        <input type="checkbox" name="by_pivot_sku_suo" value="on" {% if by_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
+                    </label>
+                </form>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="by_pivot_sku_table">
+                <table>
+                    <thead><tr><th>Material</th><th>Desc</th><th>Xcode</th></tr></thead>
+                    <tbody>
+                    {% for sku in existing_pivot_sku %}
+                        <tr>
+                            <td>{{ sku.material }}</td>
+                            <td>{{ sku.by_description }}</td>
+                            <td>
+                                <form class="auto-submit-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="pivot_sku_id" value="{{ sku.id }}">
+                                    <select class="info-tab-label-form-field-input l-100 auto-submit-input" name="root_cu">
+                                        <option value="">—</option>
+                                        {% for cu in existing_cu %}
+                                            <option value="{{ cu.id }}" {% if cu.id == sku.root_cu_id %}selected{% endif %}>{{ cu.xcode_cu }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="info-tab w-50 info-tab-scroll">
+            <summary class="info-tab-label"><p>Stores REF</p></summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="by_stores_table">
+                <table>
+                    <thead><tr><th>Name</th><th>Chain</th><th>Channel</th></tr></thead>
+                    <tbody>
+                    {% for store in existing_stores %}
+                        <tr>
+                            <td>{{ store.store_by }}</td>
+                            <td>
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="store_id" value="{{ store.id }}">
+                                    <select class="info-tab-label-form-field-input l-100 chain-select" name="chain_name">
+                                        <option value="">—</option>
+                                        {% for chain in existing_chains %}
+                                            {% if chain %}<option value="{{ chain }}" {% if chain == store.chain_name %}selected{% endif %}>{{ chain }}</option>{% endif %}
+                                        {% endfor %}
+                                        <option value="new">Добавить новую...</option>
+                                    </select>
+                                    <input class="info-tab-label-form-field-input l-100 new-chain-field" type="text" name="chain_name" maxlength="55" style="display: none;" disabled>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="store_id" value="{{ store.id }}">
+                                    <select class="info-tab-label-form-field-input l-100 channel-select" name="channel">
+                                        <option value="">—</option>
+                                        {% for channel in existing_channels %}
+                                            {% if channel %}<option value="{{ channel }}" {% if channel == store.channel %}selected{% endif %}>{{ channel }}</option>{% endif %}
+                                        {% endfor %}
+                                        <option value="new">Добавить новую...</option>
+                                    </select>
+                                    <input class="info-tab-label-form-field-input l-100 new-channel-field" type="text" name="channel" maxlength="30" style="display: none;" disabled>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+        <div class="by-right">
+            <div class="by-upload-area">
+                <div class="by-uploads">
+        <div class="upload-tab by-sales-tab">
+            <summary class="upload-tab-label"><p>Sales</p></summary>
+            <div class="upload-tab-content">
+                <form method="post" enctype="multipart/form-data" id="sales-file-upload-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_name" value="sales">
+                    <input type="file" class="file-input" id="sales-file-input" name="file" accept=".xls" style="display: none;">
+                    <label for="sales-file-input" class="plus-upload-btn">
+                        <span class="plus-icon progress-percent" id="sales-progress-percent">+</span>
+                    </label>
+                    <label class="by-year-label">Год загрузки: <input type="number" name="year" min="2000" max="2099" style="width: 90px;"></label>
+                    <button type="submit" style="display: none;">Отправить</button>
+                </form>
+            </div>
+        </div>
+        <div class="upload-tab" style="background-image: url('{% static 'export_service/by/img/mdananas_by.png' %}'); background-size: cover; background-position: center;"></div>
+                </div>
+                <p id="by-upload-message"></p>
+            </div>
+        <div class="info-tab by-competitors info-tab-scroll">
+            <summary class="info-tab-label">
+                <p>Competitors SKU REF</p>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_comp_sku" value="1">
+                    <select name="pivot_sku_id" class="info-tab-label-form-field-input">
+                        {% for sku in existing_materials %}
+                            <option value="{{ sku.id }}">{{ sku.material }} — {{ sku.by_description }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Добавить SKU</button>
+                </form>
+            </summary>
+            <div class="info-tab-label-form info-tab-label-form-scroll" id="by_comp_sku_table">
+                <table>
+                    <thead><tr><th>Material</th><th>Desc</th><th>Brand</th><th>Category</th><th>Group</th></tr></thead>
+                    <tbody>
+                    {% for item in existing_comp_sku %}
+                        <tr>
+                            <td>{{ item.material }}</td>
+                            <td>{{ item.by_description }}</td>
+                            <td>
+                                <form class="auto-submit-form" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="comp_sku_id" value="{{ item.by_competitor_sku_id }}">
+                                    <input class="info-tab-label-form-field-input l-100 auto-submit-input" name="brand" maxlength="15" value="{{ item.by_competitor_sku.brand|default_if_none:'' }}">
+                                </form>
+                            </td>
+                            <td>
+                                <form class="auto-submit-form" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="comp_sku_id" value="{{ item.by_competitor_sku_id }}">
+                                    <input class="info-tab-label-form-field-input l-100 auto-submit-input" name="category" maxlength="15" value="{{ item.by_competitor_sku.category|default_if_none:'' }}">
+                                </form>
+                            </td>
+                            <td>
+                                <form class="auto-submit-form" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="comp_sku_id" value="{{ item.by_competitor_sku_id }}">
+                                    <input class="info-tab-label-form-field-input l-100 auto-submit-input" name="groupname" maxlength="25" value="{{ item.by_competitor_sku.groupname|default_if_none:'' }}">
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'export_service/by/js/by_switches.js' %}"></script>
+    <script src="{% static 'export_service/by/js/progress_indicators.js' %}"></script>
+    <script src="{% static 'export_service/by/js/pivot_sku_autosave.js' %}"></script>
+{% endblock %}
