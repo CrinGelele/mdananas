@@ -25,28 +25,33 @@ def process_sales_file(file, request):
     else:
         const_store_kg = None
     df = pd.read_excel(file, header=None)
-    total_cells = (df.shape[0] - 10) * (df.shape[1] - 6) 
     matrix = df.values
+    new_format = pd.notna(matrix[5][4])
+    first_measure_col = 4 if new_format else 5
+    total_cells = (df.shape[0] - 9) * (df.shape[1] - first_measure_col)
     result = []
     date = str(matrix[0][1]).replace('Анализ продаж', '')
     for i in range(8, df.shape[0] - 1):
-        if matrix[i][3] is not nan:
+        if pd.notna(matrix[i][3]):
             current_sku = matrix[i][3]
+            if not new_format:
+                continue
+        elif new_format:
             continue
-        for j in range(5, df.shape[1]):
+        for j in range(first_measure_col, df.shape[1]):
             if date != 'Итог':
                 dt = dateparser.parse(date, languages=['ru'])
-                if matrix[i][j] is not nan:
+                if pd.notna(matrix[i][j]):
                     result.append(KG_TMP_Sale(
                         date_year = dt.year,
                         date_month = dt.month,
                         store_kg = matrix[i][4] if not const_store_kg else const_store_kg,
-                        channel = 'Частное лицо' if not const_store_kg else matrix[i][4],
+                        channel = 'Частное лицо' if new_format or not const_store_kg else matrix[i][4],
                         material = current_sku,
                         measure_name = matrix[5][j],
                         measure_value = matrix[i][j]
                     ))
-            progress = int(((i - 10) * (df.shape[1] - 6) + (j - 6)) / total_cells * 100)
+            progress = int(((i - 8) * (df.shape[1] - first_measure_col) + (j - first_measure_col + 1)) / total_cells * 100)
             cache.set(f'sales_file_processing_progress_{request.session.session_key}', progress, 300) 
     cache.set(f'sales_file_processing_active_{request.session.session_key}', 0, 300)
     return result
