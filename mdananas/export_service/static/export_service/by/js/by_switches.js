@@ -17,6 +17,10 @@ window.addEventListener('load', function() {
             field.addEventListener('change', function() {
                 fetch(this.form.action, {method: 'POST', body: new FormData(this.form)});
             });
+
+            field.form.addEventListener('submit', function(event) {
+                event.preventDefault();
+            });
         });
     }
     addSwitch('chain');
