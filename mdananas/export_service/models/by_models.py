@@ -1,5 +1,5 @@
 from django.db import models
-from root_service.models.ref_sku_models import Cu
+from root_service.models.ref_sku_models import Cu, CMP
 
 
 class BY_TMP_Sale(models.Model):
@@ -19,6 +19,7 @@ class BY_TMP_Sale(models.Model):
 
 class BY_PIVOT_SKU(models.Model):
     root_cu = models.ForeignKey(Cu, on_delete=models.PROTECT, null=True)
+    root_cmp = models.ForeignKey(CMP, on_delete=models.PROTECT, null=True, blank=True)
     material = models.TextField()
     by_description = models.TextField()
     by_competitor_sku = models.ForeignKey('BY_REF_Competitor_SKU', on_delete=models.PROTECT, null=True)

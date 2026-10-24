@@ -120,11 +120,10 @@ def by_page(request):
     by_pivot_sku_suo = request.COOKIES.get('by_pivot_sku_suo', 'on') == 'on'
     existing_pivot_sku = BY_PIVOT_SKU.objects.filter(is_last_upload=True) if by_pivot_sku_suo else BY_PIVOT_SKU.objects.all()
     existing_stores = BY_REF_Store.objects.all().order_by('store_by')
-    existing_comp_sku = BY_PIVOT_SKU.objects.filter(by_competitor_sku__isnull=False).select_related('by_competitor_sku').order_by('material')
     existing_cu = Cu.objects.all().order_by('xcode_cu')
+    existing_cmp = CMP.objects.all().order_by('brand', 'rus_description')
     existing_chains = BY_REF_Store.objects.values_list('chain_name', flat=True).distinct().order_by('chain_name')
     existing_channels = BY_REF_Store.objects.values_list('channel', flat=True).distinct().order_by('channel')
-    existing_materials = BY_PIVOT_SKU.objects.filter(by_competitor_sku__isnull=True).order_by('material')
 
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
@@ -148,30 +147,18 @@ def by_page(request):
                 if 'channel' in request.POST:
                     item.channel = form.cleaned_data['channel'] or None
                 item.save()
-        elif 'comp_sku_id' in request.POST:
-            form = CompetitorRefForm(request.POST)
-            if form.is_valid():
-                item = BY_REF_Competitor_SKU.objects.get(id=form.cleaned_data['comp_sku_id'])
-                if 'brand' in request.POST:
-                    item.brand = form.cleaned_data['brand'] or None
-                if 'category' in request.POST:
-                    item.category = form.cleaned_data['category'] or None
-                if 'groupname' in request.POST:
-                    item.groupname = form.cleaned_data['groupname'] or None
-                item.save()
-        elif 'add_comp_sku' in request.POST:
-            form = CompetitorAddForm(request.POST)
-            if form.is_valid():
-                item = BY_PIVOT_SKU.objects.get(id=form.cleaned_data['pivot_sku_id'])
-                if item.by_competitor_sku_id is None:
-                    item.by_competitor_sku = BY_REF_Competitor_SKU.objects.create()
-                    item.save(update_fields=['by_competitor_sku'])
-                return HttpResponseRedirect(reverse('by_page'))
         elif 'pivot_sku_id' in request.POST:
             form = PivotSKUForm(request.POST)
             if form.is_valid():
                 item = BY_PIVOT_SKU.objects.get(id=form.cleaned_data['pivot_sku_id'])
-                item.root_cu = Cu.objects.get(id=form.cleaned_data['root_cu']) if form.cleaned_data['root_cu'] else None
+                if 'root_cu' in request.POST:
+                    item.root_cu = Cu.objects.get(id=form.cleaned_data['root_cu']) if form.cleaned_data['root_cu'] else None
+                    if item.root_cu:
+                        item.root_cmp = None
+                if 'root_cmp' in request.POST:
+                    item.root_cmp = CMP.objects.get(id=form.cleaned_data['root_cmp']) if form.cleaned_data['root_cmp'] else None
+                    if item.root_cmp:
+                        item.root_cu = None
                 item.save()
         if request.POST.get('form_name') == 'sales':
             return JsonResponse({'status': 'error', 'message': str(form.errors)}, status=400)
@@ -181,9 +168,8 @@ def by_page(request):
         'by_pivot_sku_suo': by_pivot_sku_suo,
         'existing_pivot_sku': existing_pivot_sku,
         'existing_stores': existing_stores,
-        'existing_comp_sku': existing_comp_sku,
         'existing_cu': existing_cu,
+        'existing_cmp': existing_cmp,
         'existing_chains': existing_chains,
         'existing_channels': existing_channels,
-        'existing_materials': existing_materials,
     })

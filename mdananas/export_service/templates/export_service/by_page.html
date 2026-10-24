@@ -187,11 +187,23 @@
                                 <form class="auto-submit-form" method="post" action="">
                                     {% csrf_token %}
                                     <input type="hidden" name="pivot_sku_id" value="{{ sku.id }}">
+                                    <label>
+                                        <input type="checkbox" class="competitor-toggle" {% if sku.root_cmp_id or sku.by_competitor_sku_id and not sku.root_cu_id %}checked{% endif %}>
+                                        Конкурент
+                                    </label>
                                     <select class="info-tab-label-form-field-input l-100 auto-submit-input" name="root_cu">
                                         <option value="">—</option>
                                         {% for cu in existing_cu %}
                                             <option value="{{ cu.id }}" {% if cu.id == sku.root_cu_id %}selected{% endif %}>{{ cu.xcode_cu }}</option>
                                         {% endfor %}
+                                    </select>
+
+                                    <input type="search" class="info-tab-label-form-field-input l-100 cmp-search"
+                                            placeholder="Поиск конкурента..." style="display: none;">
+                                    <select class="info-tab-label-form-field-input l-100 auto-submit-input cmp-select"
+                                            name="root_cmp" data-selected="{{ sku.root_cmp_id|default:'' }}"
+                                            style="display: none;" disabled>
+                                        <option value="">—</option>
                                     </select>
                                 </form>
                             </td>
@@ -199,6 +211,12 @@
                     {% endfor %}
                     </tbody>
                 </table>
+
+                <template id="by-cmp-options">
+                    {% for cmp in existing_cmp %}
+                        <option value="{{ cmp.id }}">{{ cmp.brand }} — {{ cmp.rus_description }} ({{ cmp.ean }})</option>
+                    {% endfor %}
+                </template>
             </div>
         </div>
         <div class="info-tab w-50 info-tab-scroll">
@@ -267,55 +285,6 @@
                 </div>
                 <p id="by-upload-message"></p>
             </div>
-        <div class="info-tab by-competitors info-tab-scroll">
-            <summary class="info-tab-label">
-                <p>Competitors SKU REF</p>
-                <form method="post" action="">
-                    {% csrf_token %}
-                    <input type="hidden" name="add_comp_sku" value="1">
-                    <select name="pivot_sku_id" class="info-tab-label-form-field-input">
-                        {% for sku in existing_materials %}
-                            <option value="{{ sku.id }}">{{ sku.material }} — {{ sku.by_description }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="submit">Добавить SKU</button>
-                </form>
-            </summary>
-            <div class="info-tab-label-form info-tab-label-form-scroll" id="by_comp_sku_table">
-                <table>
-                    <thead><tr><th>Material</th><th>Desc</th><th>Brand</th><th>Category</th><th>Group</th></tr></thead>
-                    <tbody>
-                    {% for item in existing_comp_sku %}
-                        <tr>
-                            <td>{{ item.material }}</td>
-                            <td>{{ item.by_description }}</td>
-                            <td>
-                                <form class="auto-submit-form" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="comp_sku_id" value="{{ item.by_competitor_sku_id }}">
-                                    <input class="info-tab-label-form-field-input l-100 auto-submit-input" name="brand" maxlength="15" value="{{ item.by_competitor_sku.brand|default_if_none:'' }}">
-                                </form>
-                            </td>
-                            <td>
-                                <form class="auto-submit-form" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="comp_sku_id" value="{{ item.by_competitor_sku_id }}">
-                                    <input class="info-tab-label-form-field-input l-100 auto-submit-input" name="category" maxlength="15" value="{{ item.by_competitor_sku.category|default_if_none:'' }}">
-                                </form>
-                            </td>
-                            <td>
-                                <form class="auto-submit-form" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="comp_sku_id" value="{{ item.by_competitor_sku_id }}">
-                                    <input class="info-tab-label-form-field-input l-100 auto-submit-input" name="groupname" maxlength="25" value="{{ item.by_competitor_sku.groupname|default_if_none:'' }}">
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
         </div>
     </div>
 {% endblock %}
