@@ -1,13 +1,12 @@
 CREATE OR ALTER PROCEDURE [15_BY].[BY_PROC_MERGE_Sales]
 AS
 BEGIN
-    -- Загружаем продажи только за 2027 год.
+    -- Проверяем корректность года загрузки.
     IF EXISTS (
         SELECT 1 FROM [15_BY].[BY_STAGE_Sales_Draft]
-        WHERE TRY_CONVERT(int, date_year) IS NULL
-           OR TRY_CONVERT(int, date_year) <> 2027
+        WHERE TRY_CONVERT(smallint, date_year) IS NULL
     )
-        THROW 51100, N'Разрешена загрузка продаж только за 2027 год.', 1;
+        THROW 51100, N'Некорректный год загрузки.', 1;
 
     MERGE [15_BY].[BY_PIVOT_SKU] BASE USING (
         SELECT material, MIN(material_desc) by_description
@@ -43,8 +42,7 @@ BEGIN
             OR B.store_by = N'"' + REPLACE(A.store_by, N'"', N'""') + N'"'
         LEFT JOIN [15_BY].[BY_PIVOT_SKU] C ON C.material = A.material
         GROUP BY A.date_year, A.date_month, B.id, C.id
-    ) TMP ON BASE.date_year = 2027
-         AND BASE.date_year = TMP.date_year
+    ) TMP ON BASE.date_year = TMP.date_year
          AND BASE.date_month = TMP.date_month
          AND BASE.by_store_id = TMP.by_store_id
          AND BASE.by_pivot_sku_id = TMP.by_pivot_sku_id

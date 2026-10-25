@@ -1,6 +1,5 @@
-import re
-
 import pandas as pd
+import dateparser
 import xlrd
 from django.core.cache import cache
 from django.db import DatabaseError
@@ -13,34 +12,42 @@ from ..models.by_models import *
 from mdananas.upload_tmp_file import upload_file
 
 
-MONTHS = ('январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
-          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь')
+def get_file_periods(sheet):
+    periods = []
+    for col in range(6, sheet.ncols, 2):
+        header = str(sheet.cell_value(3, col)).strip()
+        if not header or header.lower() == 'реализ. итого':
+            continue
+
+        dt = dateparser.parse(header, languages=['ru'])
+        if dt is None:
+            raise ValueError(f'Не удалось определить месяц и год: {header}')
+
+        if col + 1 >= sheet.ncols:
+            raise ValueError(f'Нет столбца суммы: {header}')
+
+        if any(year == dt.year and month == dt.month for year, month, _ in periods):
+            raise ValueError(f'Повторяется месяц {dt.month:02d}.{dt.year}.')
+
+        periods.append((dt.year, dt.month, col))
+
+    if not periods:
+        raise ValueError('В файле не найдены месяцы отчёта.')
+
+    return periods
 
 
-def get_file_year(sheet):
-    years = set()
-    for i in range(min(7, sheet.nrows)):
-        for j in range(sheet.ncols):
-            value = str(sheet.cell_value(i, j)).lower()
-            if any(month in value for month in MONTHS):
-                match = re.search(r'\b20\d{2}\b', value)
-                if match:
-                    years.add(int(match.group()))
-    return years.pop() if len(years) == 1 else None
-
-
-def process_sales_file(file, request, year=None):
+def process_sales_file(file, request):
     progress_key = f'by_sales_file_progress_{request.session.session_key}'
     cache.set(progress_key, 0, 300)
     book = xlrd.open_workbook(file_contents=file.read(), formatting_info=True)
     sheet = book.sheet_by_index(0)
     df = pd.read_excel(book, header=None, engine='xlrd', dtype={5: str})
 
-    date_year = year or get_file_year(sheet)
-    if not date_year:
-        raise ValueError('Не удалось определить год. Введите год отчёта под полем загрузки.')
-    if df.shape[0] < 9 or df.shape[1] < 18:
+    if df.shape[0] < 9 or df.shape[1] < 8:
         raise ValueError('Формат Excel не соответствует отчёту Беларуси.')
+
+    periods = get_file_periods(sheet)
 
     sku_rows = set(df.index[(pd.to_numeric(df.iloc[:, 5], errors='coerce').notna()) & (df.index >= 8)])
     if not sku_rows:
@@ -59,7 +66,7 @@ def process_sales_file(file, request, year=None):
         parents[level] = i
 
     result = []
-    totals = {month: [0, 0] for month in range(3, 9)}
+    totals = {(date_year, month): [0, 0] for date_year, month, col in periods}
     for count, i in enumerate(sorted(sku_rows), 1):
         if i not in locations or None in locations[i]:
             raise ValueError('Не удалось определить магазин для одного из товаров.')
@@ -70,15 +77,15 @@ def process_sales_file(file, request, year=None):
         if pd.isna(store_by) or pd.isna(material_desc):
             raise ValueError('В отчёте найден товар без магазина или описания.')
 
-        for month in range(3, 9):
-            volume = df.iat[i, 2 * month]
-            value = df.iat[i, 2 * month + 1]
+        for date_year, month, col in periods:
+            volume = df.iat[i, col]
+            value = df.iat[i, col + 1]
             if pd.isna(volume) and pd.isna(value):
                 continue
             volume = 0 if pd.isna(volume) else pd.to_numeric(volume, errors='raise')
             value = 0 if pd.isna(value) else pd.to_numeric(value, errors='raise')
-            totals[month][0] += float(volume)
-            totals[month][1] += float(value)
+            totals[(date_year, month)][0] += float(volume)
+            totals[(date_year, month)][1] += float(value)
             result.append(BY_TMP_Sale(
                 date_year=date_year,
                 date_month=month,
@@ -94,11 +101,12 @@ def process_sales_file(file, request, year=None):
     if not result:
         raise ValueError('В файле не найдены продажи.')
 
-    for month in range(3, 9):
-        quantity = float(df.iat[6, 2 * month])
-        value = float(df.iat[6, 2 * month + 1])
-        if abs(totals[month][0] - quantity) > 0.01 or abs(totals[month][1] - value) > 0.01:
-            raise ValueError(f'Не совпали итоги за месяц {month}.')
+    for date_year, month, col in periods:
+        quantity = float(df.iat[6, col])
+        value = float(df.iat[6, col + 1])
+        total = totals[(date_year, month)]
+        if abs(total[0] - quantity) > 0.01 or abs(total[1] - value) > 0.01:
+            raise ValueError(f'Не совпали итоги за {month:02d}.{date_year}.')
     return result
 
 
@@ -131,7 +139,7 @@ def by_page(request):
             active_key = f'by_sales_file_active_{request.session.session_key}'
             cache.set(active_key, 1, 300)
             try:
-                records = process_sales_file(form.cleaned_data['file'], request, form.cleaned_data['year'])
+                records = process_sales_file(form.cleaned_data['file'], request)
                 upload_file(records, BY_TMP_Sale, '[15_BY].[BY_PROC_MERGE_Sales]')
                 return JsonResponse({'status': 'success', 'redirect_url': reverse('by_page')})
             except (ValueError, xlrd.XLRDError, DatabaseError) as error:
