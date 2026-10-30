@@ -18,7 +18,8 @@ from mdananas.upload_tmp_file import upload_file
 def main_page(request):
     return HttpResponse("Hello, world!")
 
-def process_by_file(file, request):
+def process_by_file(file, request, currency='RUB'):
+    currency_name = {'RUB': 'руб', 'BYN': 'бел.руб'}[currency]
     cache.set(f'by_file_progress_{request.session.session_key}', 0, 300)
     df = pd.read_excel(file, header=0)
     result = []
@@ -33,9 +34,9 @@ def process_by_file(file, request):
             store_name = row['Магазин'],
             material = row['КодТовара'],
             purchase_volume = row['Приходы (с возвратами и перемещениями) ШТ'],
-            purchase_value = row['Приходы (с возвратами и перемещениями) ЗЦ руб'],
+            purchase_value = row[f'Приходы (с возвратами и перемещениями) ЗЦ {currency_name}'],
             volume = row['Товарооборот ШТ'],
-            value = row['Товарооборот ФЦ руб'],
+            value = row[f'Товарооборот ФЦ {currency_name}'],
             stock = row['Остаток ШТ']
         ))
         cache.set(f'by_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300) 
@@ -43,7 +44,8 @@ def process_by_file(file, request):
     cache.set(f'by_file_progress_{request.session.session_key}', 0, 300) 
     return result
 
-def process_kz_file(file, request):
+def process_kz_file(file, request, currency='RUB'):
+    currency_name = {'RUB': 'руб', 'KZT': 'тенге'}[currency]
     cache.set(f'kz_file_progress_{request.session.session_key}', 0, 300)
     df = pd.read_excel(file, header=0)
     result = []
@@ -58,9 +60,9 @@ def process_kz_file(file, request):
             store_name = row['Магазин'],
             material = row['КодТовара'],
             purchase_volume = row['Приходы (с возвратами и перемещениями) ШТ'],
-            purchase_value = row['Приходы (с возвратами и перемещениями) ЗЦ руб'],
+            purchase_value = row[f'Приходы (с возвратами и перемещениями) ЗЦ {currency_name}'],
             volume = row['Товарооборот ШТ'],
-            value = row['Товарооборот ФЦ руб'],
+            value = row[f'Товарооборот ФЦ {currency_name}'],
             stock = row['Остаток ШТ']
         ))
         cache.set(f'kz_file_progress_{request.session.session_key}', int((index + 1) / total_rows * 100), 300) 
@@ -214,10 +216,14 @@ def dm_page(request):
         if form.is_valid():
             match form.cleaned_data['form_name']:
                 case 'by':
-                    upload_file(process_by_file(form.cleaned_data['file'], request), DM_TMP_BY_Sale, '[20_DM].[DM_PROC_MERGE_BY_Sales]', big=True)
+                    currency = form.cleaned_data['currency']
+                    proc = '[20_DM].[DM_PROC_MERGE_BY_Local_Sales]' if currency == 'BYN' else '[20_DM].[DM_PROC_MERGE_BY_Sales]'
+                    upload_file(process_by_file(form.cleaned_data['file'], request, currency), DM_TMP_BY_Sale, proc, big=True, plain_csv=True)
                     return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
                 case 'kz':
-                    upload_file(process_kz_file(form.cleaned_data['file'], request), DM_TMP_KZ_Sale, '[20_DM].[DM_PROC_MERGE_KZ_Sales]', big=True)
+                    currency = form.cleaned_data['currency']
+                    proc = '[20_DM].[DM_PROC_MERGE_KZ_Local_Sales]' if currency == 'KZT' else '[20_DM].[DM_PROC_MERGE_KZ_Sales]'
+                    upload_file(process_kz_file(form.cleaned_data['file'], request, currency), DM_TMP_KZ_Sale, proc, big=True, plain_csv=True)
                     return JsonResponse({'status': 'success','redirect_url': reverse('dm_page')})
                 case 'implant':
                     upload_file(process_implant_file(form.cleaned_data['file'], request), DM_TMP_RU_Sale, '[20_DM].[DM_PROC_MERGE_RU_Sales]', big=True)

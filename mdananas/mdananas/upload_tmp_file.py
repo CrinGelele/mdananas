@@ -19,7 +19,7 @@ def bulk_insert_to_sqlserver(csv_path, model):
     if os.path.exists(csv_path):
         os.remove(csv_path)
 
-def upload_file(file_data, model, proc, big=False):
+def upload_file(file_data, model, proc, big=False, plain_csv=False):
     with connections['ideal'].cursor() as cursor:
         cursor.execute(f"DROP TABLE IF EXISTS {model._meta.db_table}")
         with IdealSchemaEditor(connection=connections['ideal']) as schema_editor:
@@ -27,7 +27,9 @@ def upload_file(file_data, model, proc, big=False):
             if big:
                 NETWORK_FOLDER = r"\\hru03\Public\BI\40. ERP data for SQL"
                 with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', encoding='utf-8', dir=NETWORK_FOLDER, delete=False) as tmp_file:
-                    writer = csv.writer(tmp_file, delimiter=';', lineterminator='\n')
+                    writer = csv.writer(tmp_file, delimiter=';', lineterminator='\n',
+                                        quoting=csv.QUOTE_NONE if plain_csv else csv.QUOTE_MINIMAL,
+                                        quotechar=None if plain_csv else '"')
                     writer.writerow([f.name for f in model._meta.fields])
                     for obj in file_data:
                         writer.writerow([getattr(obj, f.name) for f in model._meta.fields])
