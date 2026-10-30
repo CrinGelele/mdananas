@@ -17,6 +17,11 @@
                 <form method="post" enctype="multipart/form-data" id="by-file-upload-form">
                     {% csrf_token %}
                     <input type="text" name="form_name" id="form_name" style="display: none;" value="by">
+                    <label for="by-currency">Валюта файла</label>
+                    <select id="by-currency" name="currency">
+                        <option value="RUB">RUB</option>
+                        <option value="BYN">BYN</option>
+                    </select>
                     <input type="file" class="file-input" id="by-file-input" name="file" style="display: none;">
                     <label for="by-file-input" class="plus-upload-btn">
                         <span class="plus-icon progress-percent" id="by-progress-percent">+</span>
@@ -33,6 +38,11 @@
                 <form method="post" enctype="multipart/form-data" id="kz-file-upload-form">
                     {% csrf_token %}
                     <input type="text" name="form_name" id="form_name" style="display: none;" value="kz">
+                    <label for="kz-currency">Валюта файла</label>
+                    <select id="kz-currency" name="currency">
+                        <option value="RUB">RUB</option>
+                        <option value="KZT">KZT</option>
+                    </select>
                     <input type="file" class="file-input" id="kz-file-input" name="file" style="display: none;">
                     <label for="kz-file-input" class="plus-upload-btn">
                         <span class="plus-icon progress-percent" id="kz-progress-percent">+</span>
