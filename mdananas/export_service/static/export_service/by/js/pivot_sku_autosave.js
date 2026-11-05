@@ -43,8 +43,8 @@ window.addEventListener('load', function() {
         function toggleSelect() {
             cu.style.display = checkbox.checked ? 'none' : '';
             cu.disabled = checkbox.checked;
-            search.style.display = checkbox.checked ? '' : 'none';
-            cmp.style.display = checkbox.checked ? '' : 'none';
+            search.style.display = checkbox.checked ? 'block' : 'none';
+            cmp.style.display = checkbox.checked ? 'block' : 'none';
             cmp.disabled = !checkbox.checked;
         }
 

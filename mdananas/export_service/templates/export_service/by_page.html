@@ -4,148 +4,7 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'domestic_service/dm/css/dm.css' %}">
-    <style>
-        /* Компактная сетка только для страницы Беларуси. */
-        .by-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 24px;
-            width: calc(100% - 70px);
-            max-width: 1312px;
-            height: calc(100% - 20px);
-            padding: 10px 0;
-            min-height: 0;
-        }
-
-        .by-left, .by-right {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            min-height: 0;
-            gap: 16px;
-        }
-
-        .by-left > .info-tab {
-            flex: 1 1 0;
-        }
-
-        .by-right > .info-tab {
-            flex: 1 1 0;
-        }
-
-        .by-layout .info-tab {
-            width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            margin: 0 !important;
-            padding: 0 16px;
-        }
-
-        .by-layout .info-tab-label {
-            flex: 0 0 auto;
-            min-height: 60px;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .by-layout .info-tab-label form {
-            flex-direction: row;
-            justify-content: flex-end;
-            gap: 6px;
-        }
-
-        .by-layout .info-tab-label-form-scroll {
-            flex: 1 1 auto;
-            height: auto !important;
-            min-height: 0;
-            max-height: none !important;
-            overflow-y: auto !important;
-            overflow-x: auto !important;
-        }
-
-        .by-layout .info-tab-label-form th,
-        .by-layout .info-tab-label-form td {
-            padding: 8px 6px;
-        }
-
-        .by-layout .info-tab-label-form table {
-            font-size: 14px;
-        }
-
-        .by-layout .by-upload-area {
-            flex: 0 0 auto;
-            min-width: 0;
-        }
-
-        .by-layout .by-uploads {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .by-layout .by-uploads .upload-tab {
-            flex: 0 0 160px;
-            width: 160px;
-            height: 160px;
-            aspect-ratio: auto;
-            margin: 0;
-        }
-
-        .by-layout .by-uploads .by-sales-tab {
-            flex-basis: 190px;
-            width: 190px;
-        }
-
-        .by-layout .by-uploads .plus-upload-btn {
-            width: 54px;
-            height: 54px;
-            margin: 8px auto 6px;
-        }
-
-        .by-layout #by-upload-message {
-            margin: 4px 0 0;
-            font-size: 12px;
-            color: rgb(38 67 100 / 1);
-        }
-
-        .by-layout #by-upload-message:empty {
-            display: none;
-        }
-
-        .by-layout .by-competitors .info-tab-label form {
-            width: min(62%, 390px);
-        }
-
-        .by-layout .by-competitors .info-tab-label select {
-            flex: 1 1 auto;
-            min-width: 0;
-            max-width: 100%;
-        }
-
-        .by-layout .by-competitors .info-tab-label button {
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-
-        /* На узких экранах не сжимаем таблицы: возвращаем обычную прокрутку. */
-        @media (max-width: 900px), (max-height: 580px) {
-            .by-layout {
-                display: flex;
-                flex-direction: column;
-                width: calc(100% - 32px);
-                height: auto;
-                min-height: 0;
-            }
-
-            .by-left > .info-tab,
-            .by-right > .info-tab {
-                flex: none;
-                height: 360px !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'export_service/by/css/by.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -154,7 +13,7 @@
         <div class="info-tab w-50 info-tab-scroll">
             <summary class="info-tab-label">
                 <p>SKU PIVOT</p>
-                <form method="get" action="" style="width: 170px;">
+                <form method="get" action="" class="by-last-upload-form">
                     <input type="hidden" name="by_pivot_sku_suo" value="off">
                     <label>Only last upload
                         <input type="checkbox" name="by_pivot_sku_suo" value="on" {% if by_pivot_sku_suo %}checked{% endif %} onchange="this.form.submit()">
@@ -185,10 +44,10 @@
                                     </select>
 
                                     <input type="search" class="info-tab-label-form-field-input l-100 cmp-search"
-                                            placeholder="Поиск конкурента..." style="display: none;">
+                                            placeholder="Поиск конкурента...">
                                     <select class="info-tab-label-form-field-input l-100 auto-submit-input cmp-select"
                                             name="root_cmp" data-selected="{{ sku.root_cmp_id|default:'' }}"
-                                            style="display: none;" disabled>
+                                            disabled>
                                         <option value="">—</option>
                                     </select>
                                 </form>
@@ -225,7 +84,7 @@
                                         {% endfor %}
                                         <option value="new">Добавить новую...</option>
                                     </select>
-                                    <input class="info-tab-label-form-field-input l-100 new-chain-field" type="text" name="chain_name" maxlength="55" style="display: none;" disabled>
+                                    <input class="info-tab-label-form-field-input l-100 new-chain-field" type="text" name="chain_name" maxlength="55" disabled>
                                 </form>
                             </td>
                             <td>
@@ -239,7 +98,7 @@
                                         {% endfor %}
                                         <option value="new">Добавить новую...</option>
                                     </select>
-                                    <input class="info-tab-label-form-field-input l-100 new-channel-field" type="text" name="channel" maxlength="30" style="display: none;" disabled>
+                                    <input class="info-tab-label-form-field-input l-100 new-channel-field" type="text" name="channel" maxlength="30" disabled>
                                 </form>
                             </td>
                         </tr>
@@ -258,15 +117,15 @@
                 <form method="post" enctype="multipart/form-data" id="sales-file-upload-form">
                     {% csrf_token %}
                     <input type="hidden" name="form_name" value="sales">
-                    <input type="file" class="file-input" id="sales-file-input" name="file" accept=".xls" style="display: none;">
+                    <input type="file" class="file-input" id="sales-file-input" name="file" accept=".xls">
                     <label for="sales-file-input" class="plus-upload-btn">
                         <span class="plus-icon progress-percent" id="sales-progress-percent">+</span>
                     </label>
-                    <button type="submit" style="display: none;">Отправить</button>
+                    <button type="submit">Отправить</button>
                 </form>
             </div>
         </div>
-        <div class="upload-tab" style="background-image: url('{% static 'export_service/by/img/mdananas_by.png' %}'); background-size: cover; background-position: center;"></div>
+        <div class="upload-tab by-illustration"></div>
                 </div>
                 <p id="by-upload-message"></p>
             </div>
