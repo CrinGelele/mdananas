@@ -14,7 +14,7 @@ class BY_TMP_Sale(models.Model):
 
     class Meta:
        managed = False
-       db_table = '[15_BY].[BY_STAGE_Sales_Draft]'
+       db_table = '[15_BY].[BY_TMP_Sales]'
 
 
 class BY_PIVOT_SKU(models.Model):

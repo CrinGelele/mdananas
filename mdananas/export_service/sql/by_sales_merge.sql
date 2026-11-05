@@ -3,14 +3,14 @@ AS
 BEGIN
     -- Проверяем корректность года загрузки.
     IF EXISTS (
-        SELECT 1 FROM [15_BY].[BY_STAGE_Sales_Draft]
+        SELECT 1 FROM [15_BY].[BY_TMP_Sales]
         WHERE TRY_CONVERT(smallint, date_year) IS NULL
     )
         THROW 51100, N'Некорректный год загрузки.', 1;
 
     MERGE [15_BY].[BY_PIVOT_SKU] BASE USING (
         SELECT material, MIN(material_desc) by_description
-        FROM [15_BY].[BY_STAGE_Sales_Draft]
+        FROM [15_BY].[BY_TMP_Sales]
         GROUP BY material
     ) TMP ON BASE.material = TMP.material
     WHEN NOT MATCHED THEN INSERT (
@@ -20,7 +20,7 @@ BEGIN
     );
 
     MERGE [15_BY].[BY_REF_Stores] BASE USING (
-        SELECT DISTINCT store_by FROM [15_BY].[BY_STAGE_Sales_Draft]
+        SELECT DISTINCT store_by FROM [15_BY].[BY_TMP_Sales]
     ) TMP ON BASE.store_by = TMP.store_by
          OR BASE.store_by = N'"' + REPLACE(TMP.store_by, N'"', N'""') + N'"'
     WHEN NOT MATCHED THEN INSERT (
@@ -36,7 +36,7 @@ BEGIN
                SUM(CAST(A.volume AS float)) volume,
                SUM(CAST(A.purchase_price_value AS float)) purchase_price_value,
                SUM(CAST(A.fact_price_value AS float)) fact_price_value
-        FROM [15_BY].[BY_STAGE_Sales_Draft] A
+        FROM [15_BY].[BY_TMP_Sales] A
         LEFT JOIN [15_BY].[BY_REF_Stores] B
             ON B.store_by = A.store_by
             OR B.store_by = N'"' + REPLACE(A.store_by, N'"', N'""') + N'"'
@@ -62,7 +62,7 @@ BEGIN
     SET is_last_upload = CASE
         WHEN EXISTS (
             SELECT 1
-            FROM [15_BY].[BY_STAGE_Sales_Draft] S
+            FROM [15_BY].[BY_TMP_Sales] S
             WHERE S.material = P.material
         ) THEN 1
         ELSE 0
