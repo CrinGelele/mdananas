@@ -10,6 +10,16 @@ django.setup()
 from django.apps import apps
 from django.db import connections
 
+db = connections["ideal"].settings_dict
+
+if (
+    db["ENGINE"] != "django.db.backends.sqlite3"
+    or db["NAME"] != ":memory:"
+):
+    raise RuntimeError(
+        "Unsafe test database: tests/support.py can create tables "
+        "only in SQLite :memory:."
+    )
 
 MODELS = list(apps.get_models())
 for model in MODELS:

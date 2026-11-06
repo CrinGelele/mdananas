@@ -65,3 +65,7 @@
     max-width: 100px !important;
     min-width: 100px !important;
 }
+
+.header {
+    z-index: 100;
+}
