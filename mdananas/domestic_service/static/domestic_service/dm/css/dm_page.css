@@ -1,0 +1,126 @@
+.dm-page {
+    --dm-tile-size: clamp(11rem, calc((100vh - 7rem) / 3), 13rem);
+    display: grid;
+    grid-template-areas: "pivots uploads";
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 1312px;
+    height: 100%;
+    min-height: calc(var(--dm-tile-size) * 3 + 2.5rem);
+    padding: 0.5rem clamp(0.75rem, 2.75vw, 35px);
+}
+
+.dm-page .upload-container-long {
+    grid-area: uploads;
+    display: grid;
+    grid-template-columns: repeat(2, var(--dm-tile-size));
+    grid-auto-rows: var(--dm-tile-size);
+    align-content: start;
+    gap: 0.75rem;
+}
+
+.dm-page .upload-tab {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+}
+
+.dm-page .upload-tab-label p {
+    margin: 0.75rem 0;
+}
+
+.dm-page .upload-tab-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.dm-page .upload-tab-content form {
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+    font-family: "Inter", sans-serif;
+}
+
+.dm-page .plus-upload-btn {
+    margin: 0.25rem auto;
+}
+
+.dm-page .dm-currency-label {
+    font-size: 0.875rem;
+}
+
+.dm-page .dm-currency-select,
+.dm-page .info-tab-label-form-field-input {
+    min-height: 1.75rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #bccddd;
+    border-radius: 7px;
+    background-color: white;
+    color: inherit;
+    font-family: "Inter", sans-serif;
+    font-size: 0.875rem;
+}
+
+.dm-page .info-tab-label-form-field-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 16rem;
+    margin-inline: auto;
+}
+
+.dm-page .pivots-container {
+    grid-area: pivots;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+}
+
+.dm-page .pivots-container > .info-tab {
+    width: 100%;
+    max-height: none !important;
+    margin: 0;
+}
+
+.dm-page .info-tab-label {
+    flex-shrink: 0;
+}
+
+.dm-page .info-tab-label-form-scroll {
+    flex: 1;
+    min-height: 0;
+    height: auto !important;
+    max-height: none !important;
+}
+
+.dm-page .pivots-container table {
+    table-layout: fixed;
+}
+
+.dm-page .pivots-container th,
+.dm-page .pivots-container td {
+    text-align: center;
+}
+
+@media (max-width: 800px) {
+    .dm-page {
+        grid-template-areas:
+            "uploads"
+            "pivots";
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        height: auto;
+        min-height: 0;
+    }
+
+    .dm-page .upload-container-long {
+        grid-template-columns: repeat(auto-fit, var(--dm-tile-size));
+        justify-content: center;
+    }
+
+    .dm-page .pivots-container {
+        height: min(65vh, 40rem);
+        min-height: 18rem;
+    }
+}
