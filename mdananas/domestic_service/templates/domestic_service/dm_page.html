@@ -4,10 +4,11 @@
 {% block title %}ref_sku_page{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'domestic_service/dm/css/dm.css' %}">
+    <link rel="stylesheet" href="{% static 'domestic_service/dm/css/dm_page.css' %}">
 {% endblock %}
 
 {% block content %}
+<div class="dm-page">
     <div class="upload-container-long">
         <div class="upload-tab">
             <summary class="upload-tab-label">
@@ -17,8 +18,8 @@
                 <form method="post" enctype="multipart/form-data" id="by-file-upload-form">
                     {% csrf_token %}
                     <input type="text" name="form_name" id="form_name" style="display: none;" value="by">
-                    <label for="by-currency">Валюта файла</label>
-                    <select id="by-currency" name="currency">
+                    <label class="dm-currency-label" for="by-currency">Валюта файла</label>
+                    <select class="dm-currency-select" id="by-currency" name="currency">
                         <option value="RUB">RUB</option>
                         <option value="BYN">BYN</option>
                     </select>
@@ -38,8 +39,8 @@
                 <form method="post" enctype="multipart/form-data" id="kz-file-upload-form">
                     {% csrf_token %}
                     <input type="text" name="form_name" id="form_name" style="display: none;" value="kz">
-                    <label for="kz-currency">Валюта файла</label>
-                    <select id="kz-currency" name="currency">
+                    <label class="dm-currency-label" for="kz-currency">Валюта файла</label>
+                    <select class="dm-currency-select" id="kz-currency" name="currency">
                         <option value="RUB">RUB</option>
                         <option value="KZT">KZT</option>
                     </select>
@@ -103,7 +104,7 @@
         </div>
     </div>
     <div class="pivots-container">
-        <div class="info-tab w-50 info-tab-scroll">
+        <div class="info-tab info-tab-scroll">
             <summary class="info-tab-label">
                 <p>SKU PIVOT</p>
                 <form method="get" action="" style="width: 150px;">
@@ -135,7 +136,7 @@
                                     <td>
                                             <input type="text" name="pivot_sku_id" id="pivot_sku_id" style="display: none;" value="{{pivot_sku.id}}">
                                             <input type="text" name="form_name" id="form_name" style="display: none;" value="pivot_sku">
-                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input cu-select" {% if pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_cu">
+                                            <select class="info-tab-label-form-field-input auto-submit-input cu-select" {% if pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_cu">
                                                 <option value="{{pivot_sku.root_cu.id|default_if_none:""}}" selected>{{pivot_sku.root_cu.xcode_cu}}</option>
                                                 {% for cu in existing_cu %}
                                                     {% if cu.id != pivot_sku.root_cu.id %}
@@ -143,7 +144,7 @@
                                                     {% endif %}
                                                 {% endfor %}
                                             </select>
-                                            <select class="info-tab-label-form-field-input l-100 auto-submit-input mix-select" {% if not pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_mix">
+                                            <select class="info-tab-label-form-field-input auto-submit-input mix-select" {% if not pivot_sku.is_mix %} disabled style="display: none;" {% endif %} name="root_mix">
                                                 <option value="{{pivot_sku.root_mix.id|default_if_none:""}}" selected>{{pivot_sku.root_mix.xcode_mix}}</option>
                                                 {% for mix in existing_mix %}
                                                     {% if mix.id != pivot_sku.root_mix.id %}
@@ -159,10 +160,8 @@
                 </table>
             </div>
         </div>
-        <div class="info-tab w-50 info-tab-scroll">
-
-        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
