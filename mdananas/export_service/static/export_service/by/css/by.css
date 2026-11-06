@@ -97,10 +97,16 @@
             order: -1;
         }
 
+        .by-layout .by-sales-tab .upload-tab-content {
+            flex: 1;
+            display: grid;
+            place-items: center;
+        }
+
         .by-layout .by-uploads .plus-upload-btn {
             width: 54px;
             height: 54px;
-            margin: 8px auto 6px;
+            margin: 0;
         }
 
         .by-layout #by-upload-message {

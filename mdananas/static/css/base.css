@@ -249,6 +249,7 @@ form {
     font-style: normal;
     border-radius: 7px;
     border: solid 1px gray;
+    background-color: white;
 }
 
 .info-tab-label-form-field .input-addon {
