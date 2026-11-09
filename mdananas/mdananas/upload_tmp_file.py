@@ -4,12 +4,14 @@ import tempfile
 import csv
 import os
 
-def bulk_insert_to_sqlserver(csv_path, model):
+def bulk_insert_to_sqlserver(csv_path, model, plain_csv=False):
+    csv_options = "" if plain_csv else "FORMAT = 'CSV', FIELDQUOTE = '\"',"
     with connections['ideal'].cursor() as cursor:
         cursor.execute(f"""
             BULK INSERT {model._meta.db_table}
             FROM '{csv_path}'
             WITH (
+                {csv_options}
                 CODEPAGE = '65001',
                 FIRSTROW = 2,
                 ROWTERMINATOR = '\r\n',
@@ -34,7 +36,7 @@ def upload_file(file_data, model, proc, big=False, plain_csv=False):
                     for obj in file_data:
                         writer.writerow([getattr(obj, f.name) for f in model._meta.fields])
                     tmp_file.flush()
-                bulk_insert_to_sqlserver(tmp_file.name.replace(os.sep, '/'), model)
+                bulk_insert_to_sqlserver(tmp_file.name.replace(os.sep, '/'), model, plain_csv=plain_csv)
             else:
                 model.objects.bulk_create(file_data)
             cursor.execute(f"EXEC {proc}")
