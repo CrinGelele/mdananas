@@ -1,0 +1,155 @@
+.kaspi-page {
+    display: flex;
+    gap: 24px;
+    width: calc(100% - 48px);
+    max-width: 82rem;
+    height: calc(100% - 32px);
+    min-height: 0;
+    margin: 16px 24px;
+    font-family: "Inter", sans-serif;
+}
+
+.kaspi-page .kaspi-mapping {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0 24px;
+}
+
+.kaspi-mapping .info-tab-label,
+.kaspi-pagination {
+    flex-shrink: 0;
+}
+
+.kaspi-mapping .info-tab-label form {
+    width: auto;
+    font-size: 14px;
+}
+
+#kaspi_pivot_sku_table {
+    display: block;
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    overflow: auto;
+}
+
+.kaspi-mapping table {
+    min-width: 700px;
+    table-layout: fixed;
+    font-size: 14px;
+}
+
+.kaspi-mapping th:last-child {
+    width: 45%;
+}
+
+#kaspi_pivot_sku_table th,
+#kaspi_pivot_sku_table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.kaspi-mapping td {
+    overflow-wrap: anywhere;
+}
+
+.kaspi-mapping .cmp-search,
+.kaspi-mapping .cmp-select,
+#kaspi-file-input {
+    display: none;
+}
+
+.mapping-status {
+    margin: 4px 0;
+    font-size: 12px;
+}
+
+.kaspi-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+.kaspi-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 220px;
+    flex-shrink: 0;
+    min-height: 0;
+}
+
+.kaspi-right .kaspi-illustration {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: calc(100% - 216px);
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    object-fit: contain;
+}
+
+.kaspi-page .kaspi-upload {
+    width: 100%;
+    height: 200px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    aspect-ratio: auto;
+    margin: 0;
+}
+
+.kaspi-upload .upload-tab-content {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.kaspi-upload .plus-upload-btn {
+    margin: 0;
+}
+
+.kaspi-status {
+    font-size: 14px;
+    text-align: center;
+    overflow-wrap: anywhere;
+    margin: 8px 0;
+}
+
+.kaspi-status:empty {
+    display: none;
+}
+
+.kaspi-status.error,
+.mapping-status.error {
+    color: #b42318;
+}
+
+.is-loading .plus-icon {
+    font-size: 20px;
+}
+
+.is-loading .plus-upload-btn {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+@media (max-width: 800px) {
+    .kaspi-page {
+        gap: 12px;
+        width: calc(100% - 24px);
+        margin-inline: 12px;
+    }
+
+    .kaspi-right {
+        width: 160px;
+    }
+}

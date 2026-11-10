@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import kg_views, uz_views, by_views
+from .views import kg_views, uz_views, by_views, kaspi_views
 
 urlpatterns = [
     path('', kg_views.main_page, name='main_page'),
@@ -11,4 +11,6 @@ urlpatterns = [
     path('uz/get-progress/', uz_views.get_progress, name='get_progress'),
     path('by/', by_views.by_page, name='by_page'),
     path('by/get-progress/', by_views.get_progress, name='by_get_progress'),
+    path('kaspi/', kaspi_views.kaspi_page, name='kaspi_page'),
+    path('kaspi/get-progress/', kaspi_views.get_progress, name='kaspi_get_progress'),
 ]

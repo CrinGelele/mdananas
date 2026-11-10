@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'export_service/kaspi/css/kaspi.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="kaspi-page">
+        <div class="info-tab kaspi-mapping">
+            <summary class="info-tab-label">
+                <p>SKU PIVOT ({{ page.paginator.count }})</p>
+                <form method="get">
+                    <input type="hidden" name="unmapped" value="0">
+                    <label>
+                        <input type="checkbox" name="unmapped" value="1" {% if unmapped %}checked{% endif %} onchange="this.form.submit()">
+                        Только без связи
+                    </label>
+                </form>
+            </summary>
+            <div class="info-tab-label-form" id="kaspi_pivot_sku_table">
+                <table>
+                    <thead><tr><th>Артикул Kaspi</th><th>Описание</th><th>CU / CMP</th></tr></thead>
+                    <tbody>
+                    {% for sku in page %}
+                        <tr>
+                            <td>{{ sku.material }}</td>
+                            <td>{{ sku.material_desc_own|default:sku.material_desc_kaspi|default_if_none:'' }}</td>
+                            <td>
+                                <form class="auto-submit-form" method="post" action="{% url 'kaspi_page' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="pivot_sku_id" value="{{ sku.id }}">
+                                    <label>
+                                        <input type="checkbox" class="competitor-toggle" {% if sku.mapping_status == 'competitor' %}checked{% endif %}>
+                                        Конкурент
+                                    </label>
+                                    <select class="info-tab-label-form-field-input auto-submit-input" name="root_cu">
+                                        <option value="">—</option>
+                                        {% for cu in existing_cu %}
+                                            <option value="{{ cu.id }}" {% if cu.id == sku.root_cu_id %}selected{% endif %}>{{ cu.xcode_cu }} — {{ cu.brand }} ({{ cu.ean_cu|default_if_none:'' }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="search" class="info-tab-label-form-field-input cmp-search" placeholder="Поиск конкурента по названию или EAN">
+                                    <select class="info-tab-label-form-field-input auto-submit-input cmp-select" name="root_cmp"
+                                            data-selected="{{ sku.root_pivot_sku_cmp.root_cmp_id|default:'' }}" disabled>
+                                        <option value="">—</option>
+                                    </select>
+                                    <p class="mapping-status" role="status">{{ sku.get_mapping_status_display }}</p>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3">Товаров для сопоставления нет.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="kaspi-pagination">
+                {% if page.has_previous %}<a href="?unmapped={{ unmapped|yesno:'1,0' }}&amp;page={{ page.previous_page_number }}">Назад</a>{% endif %}
+                <span>{{ page.number }} / {{ page.paginator.num_pages }}</span>
+                {% if page.has_next %}<a href="?unmapped={{ unmapped|yesno:'1,0' }}&amp;page={{ page.next_page_number }}">Далее</a>{% endif %}
+            </div>
+        </div>
+
+        <div class="kaspi-right">
+            <img class="upload-tab kaspi-illustration"
+                 src="{% static 'export_service/kaspi/img/mdananas_kaspi.png' %}"
+                 alt="Ананас с пакетом Kaspi" width="512" height="512">
+            <div class="upload-tab kaspi-upload">
+                <summary class="upload-tab-label"><p>Загрузка продаж</p></summary>
+                <div class="upload-tab-content">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'kaspi_page' %}" id="kaspi-upload-form">
+                        {% csrf_token %}
+                        <input type="file" id="kaspi-file-input" name="file" accept=".xlsx" required>
+                        <label for="kaspi-file-input" class="plus-upload-btn" tabindex="0" aria-label="Выбрать архив заказов Kaspi">
+                            <span class="plus-icon">+</span>
+                        </label>
+                        <p class="kaspi-status" role="alert" aria-live="polite"></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template id="kaspi-cmp-options">
+        {% for cmp in existing_cmp %}
+            <option value="{{ cmp.id }}">{{ cmp.brand|default_if_none:'' }} — {{ cmp.rus_description|default_if_none:'' }} ({{ cmp.ean|default_if_none:'' }})</option>
+        {% endfor %}
+    </template>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'export_service/kaspi/js/kaspi_upload.js' %}"></script>
+    <script src="{% static 'export_service/kaspi/js/pivot_sku_autosave.js' %}"></script>
+{% endblock %}
