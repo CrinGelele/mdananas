@@ -224,13 +224,14 @@ class CMP(models.Model):
         managed = False
         db_table = '[00_ROOT].[ROOT_REF_SKU_CMP]'
 
-class PIVOT_CMP(models.Model):
-    ean = models.CharField(max_length=20, null=True)
-    brand = models.CharField(max_length=30, null=True)
-    rus_description = models.TextField(null=True)
-    root_type = models.ForeignKey('Type', on_delete=models.PROTECT, null=True)
-    root_lclass = models.ForeignKey('LClassification', on_delete=models.PROTECT, null=True)
+
+class PivotCMP(models.Model):
+    id = models.AutoField(primary_key=True)
+    root_pivot_customer_id = models.IntegerField(null=True)
+    xcode = models.CharField(max_length=20, null=True)
+    material = models.TextField(null=True)
+    root_cmp = models.ForeignKey(CMP, on_delete=models.PROTECT, null=True)
 
     class Meta:
         managed = False
-        db_table = '[00_ROOT].[ROOT_REF_SKU_CMP]'
+        db_table = '[00_ROOT].[ROOT_PIVOT_SKU_CMP]'
