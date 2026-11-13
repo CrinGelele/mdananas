@@ -9,7 +9,6 @@ from django.db import DatabaseError, connections, transaction
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils import timezone
 
 from root_service.models.ref_sku_models import Cu, CMP, PivotCMP
 
@@ -25,7 +24,6 @@ KASPI_COLUMNS = {
     'Название в системе продавца': 'material_desc_own',
     'Артикул': 'material',
     'Сумма': 'value',
-    'Категория': 'category',
     'Адрес самовывоза/доставки': 'address',
     'Дата изменения статуса': 'change_dt',
     'Статус': 'status',
@@ -134,7 +132,6 @@ def prepare_rows(records):
                 'courier_service': raw['courier_service'],
                 'shipment_warehouse': raw['shipment_warehouse'],
                 'signature_required': raw['signature_required'],
-                'currency': 'KZT',
                 'ship_price_cust': number(raw['ship_price_cust'], 2),
                 'ship_price_store': number(raw['ship_price_store'], 2),
                 'ship_compensation': number(raw['ship_compensation'], 2),
@@ -142,7 +139,6 @@ def prepare_rows(records):
             line = {
                 'material_desc_kaspi': raw['material_desc_kaspi'],
                 'material_desc_own': raw['material_desc_own'],
-                'category': raw['category'],
                 'volume': number(raw['volume'], 3),
                 'value': number(raw['value'], 2),
             }
@@ -167,8 +163,7 @@ def process_sales_file(file, request):
         order['receive_dt'] = order['receive_dt'].isoformat()
         order['fact_dt'] = order['fact_dt'].isoformat() if order['fact_dt'] else None
         result.append(KASPI_TMP_Sale(
-            **{**line, **order, 'source_key': 'kaspi_kz',
-               'order_number': order_number, 'material': material},
+            **line, **order, order_number=order_number, material=material,
         ))
         cache.set(f'kaspi_sales_file_progress_{request.session.session_key}',
                   int(index / len(lines) * 100), 300)
@@ -184,7 +179,7 @@ def save_sku_mapping(pivot_sku_id, root_cu, root_cmp):
                 'SET CONCAT_NULL_YIELDS_NULL ON; SET NUMERIC_ROUNDABORT OFF;'
             )
 
-        sku = KASPI_PIVOT_SKU.objects.using('ideal').get(id=pivot_sku_id, source_key='kaspi_kz')
+        sku = KASPI_PIVOT_SKU.objects.using('ideal').get(id=pivot_sku_id)
         sku.root_cu = root_cu
         sku.root_pivot_sku_cmp = None
         sku.mapping_status = 'own' if root_cu else 'pending'
@@ -204,9 +199,8 @@ def save_sku_mapping(pivot_sku_id, root_cu, root_cmp):
             )
             sku.mapping_status = 'competitor'
 
-        sku.updated_at = timezone.now()
         sku.save(using='ideal', update_fields=[
-            'root_cu', 'root_pivot_sku_cmp', 'mapping_status', 'updated_at',
+            'root_cu', 'root_pivot_sku_cmp', 'mapping_status',
         ])
 
     return sku.get_mapping_status_display()
@@ -251,7 +245,7 @@ def kaspi_page(request):
         return JsonResponse({'status': 'success', 'redirect_url': reverse('kaspi_page')})
 
     unmapped = request.GET.get('unmapped', '1') == '1'
-    skus = KASPI_PIVOT_SKU.objects.using('ideal').select_related('root_pivot_sku_cmp').filter(source_key='kaspi_kz')
+    skus = KASPI_PIVOT_SKU.objects.using('ideal').select_related('root_pivot_sku_cmp')
     if unmapped:
         skus = skus.filter(mapping_status='pending')
     page = Paginator(skus.order_by('id'), 50).get_page(request.GET.get('page'))

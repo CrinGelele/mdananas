@@ -18,40 +18,34 @@ BEGIN
 
         MERGE [17_KASPI].[KASPI_PIVOT_SKU] AS BASE
         USING (
-            SELECT source_key COLLATE Latin1_General_100_BIN2 AS source_key,
-                   material COLLATE Latin1_General_100_BIN2 AS material,
+            SELECT material COLLATE Latin1_General_100_BIN2 AS material,
                    MIN(material_desc_kaspi) AS material_desc_kaspi,
                    MIN(material_desc_own) AS material_desc_own
             FROM [17_KASPI].[KASPI_TMP_Sales]
-            GROUP BY source_key COLLATE Latin1_General_100_BIN2,
-                     material COLLATE Latin1_General_100_BIN2
+            GROUP BY material COLLATE Latin1_General_100_BIN2
         ) AS TMP
-            ON BASE.[source_key] = TMP.[source_key]
-            AND BASE.[material] = TMP.[material]
+            ON BASE.[material] = TMP.[material]
         WHEN MATCHED THEN UPDATE SET
             BASE.[material_desc_kaspi] = TMP.[material_desc_kaspi],
-            BASE.[material_desc_own] = TMP.[material_desc_own],
-            BASE.updated_at = SYSUTCDATETIME()
+            BASE.[material_desc_own] = TMP.[material_desc_own]
         WHEN NOT MATCHED THEN INSERT (
-            [source_key], [material], [material_desc_kaspi], [material_desc_own]
+            [material], [material_desc_kaspi], [material_desc_own]
         ) VALUES (
-            TMP.[source_key], TMP.[material], TMP.[material_desc_kaspi], TMP.[material_desc_own]
+            TMP.[material], TMP.[material_desc_kaspi], TMP.[material_desc_own]
         );
 
         MERGE [17_KASPI].[KASPI_DATA_Orders] AS BASE
         USING (
             SELECT DISTINCT
-                [source_key] COLLATE Latin1_General_100_BIN2 AS [source_key],
                 [order_number] COLLATE Latin1_General_100_BIN2 AS [order_number],
                 CONVERT(datetime2(0), [receive_dt], 126) AS [receive_dt],
                 [receive_has_time], [change_dt], [plan_dt], CONVERT(datetime2(0), [fact_dt], 126) AS [fact_dt],
                 [fact_has_time], [address], [status], [cancellation_reason], [payment_method],
-                [shipment_method], [courier_service], [shipment_warehouse], [signature_required], [currency],
+                [shipment_method], [courier_service], [shipment_warehouse], [signature_required],
                 [ship_price_cust], [ship_price_store], [ship_compensation]
             FROM [17_KASPI].[KASPI_TMP_Sales]
         ) AS TMP
-            ON BASE.[source_key] = TMP.[source_key]
-            AND BASE.[order_number] = TMP.[order_number]
+            ON BASE.[order_number] = TMP.[order_number]
         WHEN MATCHED THEN UPDATE SET
             BASE.[receive_dt] = TMP.[receive_dt],
             BASE.[receive_has_time] = TMP.[receive_has_time],
@@ -67,53 +61,41 @@ BEGIN
             BASE.[courier_service] = TMP.[courier_service],
             BASE.[shipment_warehouse] = TMP.[shipment_warehouse],
             BASE.[signature_required] = TMP.[signature_required],
-            BASE.[currency] = TMP.[currency],
             BASE.[ship_price_cust] = TMP.[ship_price_cust],
             BASE.[ship_price_store] = TMP.[ship_price_store],
-            BASE.[ship_compensation] = TMP.[ship_compensation],
-            BASE.updated_at = SYSUTCDATETIME()
+            BASE.[ship_compensation] = TMP.[ship_compensation]
         WHEN NOT MATCHED THEN INSERT (
-            [source_key], [order_number], [receive_dt], [receive_has_time], [change_dt], [plan_dt], [fact_dt],
+            [order_number], [receive_dt], [receive_has_time], [change_dt], [plan_dt], [fact_dt],
             [fact_has_time], [address], [status], [cancellation_reason], [payment_method], [shipment_method],
-            [courier_service], [shipment_warehouse], [signature_required], [currency], [ship_price_cust],
+            [courier_service], [shipment_warehouse], [signature_required], [ship_price_cust],
             [ship_price_store], [ship_compensation]
         ) VALUES (
-            TMP.[source_key], TMP.[order_number], TMP.[receive_dt], TMP.[receive_has_time], TMP.[change_dt],
+            TMP.[order_number], TMP.[receive_dt], TMP.[receive_has_time], TMP.[change_dt],
             TMP.[plan_dt], TMP.[fact_dt], TMP.[fact_has_time], TMP.[address], TMP.[status],
             TMP.[cancellation_reason], TMP.[payment_method], TMP.[shipment_method], TMP.[courier_service],
-            TMP.[shipment_warehouse], TMP.[signature_required], TMP.[currency], TMP.[ship_price_cust],
+            TMP.[shipment_warehouse], TMP.[signature_required], TMP.[ship_price_cust],
             TMP.[ship_price_store], TMP.[ship_compensation]
         );
 
         MERGE [17_KASPI].[KASPI_DATA_Order_Lines] AS BASE
         USING (
-            SELECT T.source_key COLLATE Latin1_General_100_BIN2 AS source_key,
-                   O.id AS kaspi_order_id, P.id AS kaspi_pivot_sku_id,
-                   T.[material_desc_kaspi], T.[material_desc_own], T.[category], T.[volume], T.[value]
+            SELECT O.id AS kaspi_order_id, P.id AS kaspi_pivot_sku_id,
+                   T.[volume], T.[value]
             FROM [17_KASPI].[KASPI_TMP_Sales] T
             JOIN [17_KASPI].[KASPI_DATA_Orders] O
-                ON O.source_key = T.source_key COLLATE Latin1_General_100_BIN2
-                   AND O.order_number = T.order_number COLLATE Latin1_General_100_BIN2
+                ON O.order_number = T.order_number COLLATE Latin1_General_100_BIN2
             JOIN [17_KASPI].[KASPI_PIVOT_SKU] P
-                ON P.source_key = T.source_key COLLATE Latin1_General_100_BIN2
-                   AND P.material = T.material COLLATE Latin1_General_100_BIN2
+                ON P.material = T.material COLLATE Latin1_General_100_BIN2
         ) AS TMP
-            ON BASE.[source_key] = TMP.[source_key]
-            AND BASE.[kaspi_order_id] = TMP.[kaspi_order_id]
+            ON BASE.[kaspi_order_id] = TMP.[kaspi_order_id]
             AND BASE.[kaspi_pivot_sku_id] = TMP.[kaspi_pivot_sku_id]
         WHEN MATCHED THEN UPDATE SET
-            BASE.[material_desc_kaspi] = TMP.[material_desc_kaspi],
-            BASE.[material_desc_own] = TMP.[material_desc_own],
-            BASE.[category] = TMP.[category],
             BASE.[volume] = TMP.[volume],
-            BASE.[value] = TMP.[value],
-            BASE.updated_at = SYSUTCDATETIME()
+            BASE.[value] = TMP.[value]
         WHEN NOT MATCHED THEN INSERT (
-            [source_key], [kaspi_order_id], [kaspi_pivot_sku_id], [material_desc_kaspi], [material_desc_own],
-            [category], [volume], [value]
+            [kaspi_order_id], [kaspi_pivot_sku_id], [volume], [value]
         ) VALUES (
-            TMP.[source_key], TMP.[kaspi_order_id], TMP.[kaspi_pivot_sku_id], TMP.[material_desc_kaspi],
-            TMP.[material_desc_own], TMP.[category], TMP.[volume], TMP.[value]
+            TMP.[kaspi_order_id], TMP.[kaspi_pivot_sku_id], TMP.[volume], TMP.[value]
         );
 
         COMMIT TRANSACTION;
