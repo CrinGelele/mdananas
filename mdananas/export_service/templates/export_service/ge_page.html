@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'export_service/ge/css/ge.css' %}">
+{% endblock %}
+{% block content %}
+
+<main class="ge-page" aria-label="Грузия">
+    <div class="ge-tables">
+        <section class="info-tab">
+            <header class="info-tab-label">
+                {% if competitors %}
+                    <h2>Конкуренты</h2>
+                    <a class="ge-ref-link" href="{% url 'ge_page' %}">Наши товары</a>
+                {% else %}
+                    <h2>Товары</h2>
+                    <form method="get" action="{% url 'ge_page' %}" class="ge-last-upload">
+                        <input type="hidden" name="ge_last_upload" value="off">
+                        <label>
+                            <input type="checkbox" name="ge_last_upload" value="on" {% if last_upload %}checked{% endif %} onchange="this.form.submit()">
+                            Из последней выгрузки
+                        </label>
+                    </form>
+                    <a class="ge-ref-link" href="?products=competitors">Конкуренты</a>
+                    <button type="button" class="ge-ref-link" aria-label="Справочник товаров" data-dialog="sku-ref">Справочник</button>
+                {% endif %}
+            </header>
+            <div class="info-tab-label-form ge-scroll" tabindex="0" aria-label="Товары без привязки">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Название в файле</th>
+                            <th scope="col">SKU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in skus %}
+                            <tr>
+                                <td>
+                                    {{ row.material }}
+                                    {% if competitors %}
+                                        <small>{{ row.ge_competing_sku.rus_description|default:'' }}</small>
+                                    {% elif row.ge_sku_id %}
+                                        <small>({{ row.ge_sku.root_sku.xcode }})</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'ge_page' %}" class="ge-mapping">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pivot_id" value="{{ row.id }}">
+                                        {% if competitors %}
+                                            <input type="search" class="info-tab-label-form-field-input" data-cmp-search
+                                                   aria-label="Поиск карточки для {{ row.material }}" placeholder="Бренд, название или штрихкод">
+                                            <select name="ref_id" class="info-tab-label-form-field-input" autocomplete="off"
+                                                    data-options="cmp-options" aria-label="Выбрать товар конкурента для {{ row.material }}" required>
+                                                <option value="">—</option>
+                                            </select>
+                                        {% else %}
+                                            <select name="root_cu_id" class="info-tab-label-form-field-input" autocomplete="off"
+                                                    data-options="sku-options" aria-label="Выбрать SKU для {{ row.material }}" required>
+                                                <option value="">—</option>
+                                            </select>
+                                        {% endif %}
+                                        <button type="submit" name="form_name" value="{% if competitors %}cmp_map{% else %}sku_map{% endif %}" class="ge-ref-link" hidden disabled>
+                                            Сохранить
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">
+                                    {% if competitors or not last_upload %}Все товары сопоставлены.
+                                    {% elif latest_period %}За {{ latest_period|date:"m.Y" }} все товары сопоставлены.
+                                    {% else %}Загрузите файл продаж или остатков, чтобы увидеть товары за последний период.{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if competitors %}
+            <template id="cmp-options">
+                {% for item in cmp_options %}
+                    <option value="{{ item.id }}">{{ item.brand|default:'' }} · {{ item.rus_description|default:'' }}{% if item.ean %} ({{ item.ean }}){% endif %} · ID {{ item.id }}</option>
+                {% endfor %}
+            </template>
+            {% else %}
+            <template id="sku-options">
+                {% for item in cus %}
+                    <option value="{{ item.id }}">{{ item.xcode_cu }}{% if item.root_pd.rus_definition %} · {{ item.root_pd.rus_definition }}{% endif %}</option>
+                {% endfor %}
+            </template>
+            {% endif %}
+        </section>
+        <section class="info-tab">
+            <header class="info-tab-label">
+                <h2>Магазины</h2>
+                <button type="button" class="ge-ref-link" aria-label="Справочник магазинов" data-dialog="store-ref">Справочник</button>
+            </header>
+            <div class="info-tab-label-form ge-scroll" tabindex="0" aria-label="Магазины без привязки">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Название в файле</th>
+                            <th scope="col">Магазин</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in stores %}
+                            <tr>
+                                <td>{{ row.store_ge }}</td>
+                                <td>
+                                    <form method="post" class="ge-mapping">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pivot_id" value="{{ row.id }}">
+                                        <select name="ref_id" class="info-tab-label-form-field-input" autocomplete="off"
+                                                data-options="store-options" aria-label="Сопоставить {{ row.store_ge }}" required>
+                                            <option value="">—</option>
+                                        </select>
+                                        <button type="submit" name="form_name" value="store_map" class="ge-ref-link" hidden disabled>
+                                            Сохранить
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">Все магазины сопоставлены.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <template id="store-options">
+                {% for item in store_refs %}
+                    <option value="{{ item.id }}">{{ item.translation }}</option>
+                {% endfor %}
+            </template>
+        </section>
+    </div>
+    <aside class="ge-uploads" aria-label="Загрузка Excel" data-progress-url="{% url 'ge_upload_progress' %}">
+        <img class="ge-illustration" src="{% static 'export_service/ge/img/mdananas_ge.jpg' %}" alt="" width="512" height="512">
+        <form method="post" action="{% url 'ge_page' %}" enctype="multipart/form-data" class="upload-tab">
+            {% csrf_token %}
+            <input type="hidden" name="form_name" value="sales">
+            <div class="upload-tab-label">
+                <p>Продажи</p>
+            </div>
+            <div class="upload-tab-content">
+                <label class="plus-upload-btn" title="Выбрать Excel с продажами">
+                    <span class="plus-icon" aria-hidden="true"></span>
+                    <input type="file" name="file" accept=".xlsx" aria-label="Выбрать Excel с продажами" required>
+                </label>
+            </div>
+        </form>
+        <form method="post" action="{% url 'ge_page' %}" enctype="multipart/form-data" class="upload-tab">
+            {% csrf_token %}
+            <input type="hidden" name="form_name" value="stock">
+            <div class="upload-tab-label">
+                <p>Остатки</p>
+            </div>
+            <div class="upload-tab-content">
+                <label class="plus-upload-btn" title="Выбрать Excel с остатками, например Stock 10.2026.xlsx">
+                    <span class="plus-icon" aria-hidden="true"></span>
+                    <input type="file" name="file" accept=".xlsx" aria-label="Выбрать Excel с остатками, например Stock 10.2026.xlsx" required>
+                </label>
+            </div>
+        </form>
+        <div role="status" class="ge-status">{% for message in messages %}
+            <p class="{{ message.tags }}">{{ message }}</p>
+        {% endfor %}</div>
+    </aside>
+</main>
+{% if not competitors %}
+<dialog id="sku-ref" class="ge-dialog" aria-labelledby="sku-heading"
+        {% if pending_pivot %}data-open data-return-url="{% url 'ge_page' %}"{% elif 'edit_sku' in request.GET %}data-open{% endif %}>
+    <header class="info-tab-label">
+        <h2 id="sku-heading">{% if pending_pivot %}Карточка для отчётов Грузии{% else %}Справочник товаров{% endif %}</h2>
+        <button type="button" class="ge-ref-link" data-close>Закрыть</button>
+    </header>
+    {% if pending_pivot %}
+        <p>{{ pending_pivot.material }}</p>
+        <p>Выбранный CU: {{ pending_cu.xcode_cu }}{% if pending_cu.root_pd.rus_definition %} · {{ pending_cu.root_pd.rus_definition }}{% endif %}</p>
+    {% else %}
+        <form method="get">
+            <label>
+                Запись
+                <select name="edit_sku">
+                    <option value="">Новая запись</option>
+                    {% for item in sku_refs %}
+                        <option value="{{ item.id }}" {% if selected_sku_ref.id == item.id %}selected{% endif %}>
+                            {{ item.root_sku.xcode }} · {{ item.root_sku.sku }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </form>
+    {% endif %}
+    <form method="post" action="{% url 'ge_page' %}">
+        {% csrf_token %}
+        {% if pending_pivot %}
+            <input type="hidden" name="form_name" value="sku_map">
+            <input type="hidden" name="pivot_id" value="{{ pending_pivot.id }}">
+            <input type="hidden" name="root_cu_id" value="{{ pending_cu.id }}">
+        {% else %}
+            <input type="hidden" name="form_name" value="sku_ref">
+            <input type="hidden" name="ref_id" value="{{ selected_sku_ref.id|default:'' }}">
+        {% endif %}
+        {% if pending_cards %}
+        <label>
+            Грузинская карточка
+            <select name="ref_id" required>
+                <option value="">Выбрать карточку</option>
+                {% for item in pending_cards %}
+                    <option value="{{ item.id }}">{{ item.root_sku.xcode }} · {{ item.root_sku.sku }}{% if item.translation %} · {{ item.translation }}{% endif %}{% if item.shipment %} ({{ item.shipment }}){% endif %}</option>
+                {% endfor %}
+            </select>
+        </label>
+        {% else %}
+        <label>
+            SKU прежнего справочника
+            {% if sku_ref_in_use and not pending_pivot %}
+                <input type="hidden" name="root_sku_id" value="{{ selected_sku_ref.root_sku_id }}">
+                <span>{{ selected_sku_ref.root_sku.xcode }} · {{ selected_sku_ref.root_sku.sku }}</span>
+            {% else %}
+                <select name="root_sku_id" required {% if pending_pivot %}data-report-sku{% endif %}>
+                    <option value="">Выбрать SKU</option>
+                    {% for item in root_skus %}
+                        <option value="{{ item.id }}" {% if selected_sku_ref.root_sku_id == item.id %}selected{% endif %}
+                                {% if item.id in ge_root_ids %}data-existing-card{% endif %}>{{ item.xcode }} · {{ item.sku }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            {% if pending_pivot %}<small>Если товара нет в прежнем справочнике для отчётов, закройте окно. Позиция останется в списке до добавления SKU.</small>{% endif %}
+        </label>
+        <label {% if pending_pivot %}data-card-field{% endif %}>
+            Перевод
+            <input name="translation" maxlength="90" value="{{ selected_sku_ref.translation|default:'' }}">
+        </label>
+        <label {% if pending_pivot %}data-card-field{% endif %}>
+            Shipment
+            <input name="shipment" maxlength="3" value="{{ selected_sku_ref.shipment|default:'' }}">
+        </label>
+        <label {% if pending_pivot %}data-card-field{% endif %}>
+            Дата открытия
+            <input type="date" name="open_date" value="{{ selected_sku_ref.open_date|date:'Y-m-d' }}">
+        </label>
+        <label {% if pending_pivot %}data-card-field{% endif %}>
+            Дата закрытия
+            <input type="date" name="close_date" value="{{ selected_sku_ref.close_date|date:'Y-m-d' }}">
+        </label>
+        {% endif %}
+        <button type="submit">
+            {% if pending_pivot %}Сопоставить{% elif selected_sku_ref %}Сохранить изменения{% else %}Добавить товар{% endif %}
+        </button>
+    </form>
+</dialog>
+{% endif %}
+<dialog id="store-ref" class="ge-dialog" aria-labelledby="store-heading" {% if 'edit_store' in request.GET %}data-open{% endif %}>
+    <header class="info-tab-label">
+        <h2 id="store-heading">Справочник магазинов</h2>
+        <button type="button" class="ge-ref-link" data-close>Закрыть</button>
+    </header>
+    <form method="get">
+        <label>
+            Запись
+            <select name="edit_store">
+                <option value="">Новая запись</option>
+                {% for item in store_refs %}
+                    <option value="{{ item.id }}" {% if selected_store_ref.id == item.id %}selected{% endif %}>
+                        {{ item.translation }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+    </form>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_name" value="store_ref">
+        <input type="hidden" name="ref_id" value="{{ selected_store_ref.id|default:'' }}">
+        <label>
+            Перевод
+            <input name="translation" maxlength="75" value="{{ selected_store_ref.translation|default:'' }}" required>
+        </label>
+        <label>
+            Канал
+            <input name="channel" maxlength="10" value="{{ selected_store_ref.channel|default:'' }}" required>
+        </label>
+        <label>
+            Город
+            <input name="city" maxlength="15" value="{{ selected_store_ref.city|default:'' }}">
+        </label>
+        <label>
+            Статус
+            <input name="store_status" maxlength="10" value="{{ selected_store_ref.store_status|default:'' }}" required>
+        </label>
+        <label>
+            Дата открытия
+            <input type="date" name="open_date" value="{{ selected_store_ref.open_date|date:'Y-m-d' }}">
+        </label>
+        <label>
+            Дата закрытия
+            <input type="date" name="close_date" value="{{ selected_store_ref.close_date|date:'Y-m-d' }}">
+        </label>
+        <button type="submit">
+            {% if selected_store_ref %}Сохранить изменения{% else %}Добавить магазин{% endif %}
+        </button>
+    </form>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'export_service/ge/js/ge_page.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,276 @@
+.ge-page {
+    --ge-tile-size: 190px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--ge-tile-size);
+    gap: 20px;
+    width: min(calc(100% - 40px), 82rem);
+    flex: 1;
+    min-height: 0;
+    margin: 12px 0;
+    font: 14px "Inter", sans-serif;
+}
+
+.ge-tables {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    min-height: 0;
+}
+
+.ge-tables .info-tab {
+    width: auto;
+    min-height: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0 20px 8px;
+}
+
+.ge-page .info-tab-label, .ge-dialog .info-tab-label {
+    align-items: center;
+    gap: 12px;
+}
+
+.ge-page h2, .ge-dialog h2 {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.ge-tables .info-tab-label {
+    flex-wrap: wrap;
+}
+
+.ge-last-upload {
+    width: auto;
+}
+
+.ge-ref-link {
+    color: #2269ae;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+.ge-ref-link:hover {
+    text-decoration: underline;
+}
+
+.ge-scroll {
+    display: block;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.ge-scroll table {
+    table-layout: fixed;
+}
+
+.ge-scroll thead th {
+    z-index: 1;
+    text-align: center;
+}
+
+.ge-scroll th, .ge-scroll td {
+    overflow-wrap: anywhere;
+}
+
+.ge-scroll select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 3px;
+}
+
+.ge-mapping {
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    gap: 6px;
+}
+
+.ge-mapping select {
+    flex: 1 1 10rem;
+}
+
+.ge-uploads {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(0, var(--ge-tile-size)));
+    align-content: start;
+    gap: 12px;
+    min-height: 0;
+}
+
+.ge-uploads .upload-tab, .ge-illustration {
+    justify-self: center;
+    height: 100%;
+    width: auto;
+    aspect-ratio: 1;
+    min-height: 0;
+    margin: 0;
+}
+
+.ge-uploads .upload-tab-content {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    flex: 1;
+}
+
+.ge-uploads .plus-upload-btn {
+    position: relative;
+    margin: 0;
+}
+
+.ge-uploads .plus-icon {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(currentColor, currentColor) center / 100% 2px no-repeat,
+                linear-gradient(currentColor, currentColor) center / 2px 100% no-repeat;
+}
+
+.ge-uploads .is-loading .plus-icon {
+    width: auto;
+    height: auto;
+    font-size: 20px;
+    background: none;
+}
+
+.ge-uploads .is-loading .plus-upload-btn {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.ge-illustration {
+    object-fit: cover;
+    border-radius: 40px;
+}
+
+.ge-uploads input[type=file] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.ge-uploads .plus-upload-btn:focus-within {
+    outline: 2px solid #2269ae;
+}
+
+.ge-status {
+    overflow: auto;
+    overflow-wrap: anywhere;
+}
+
+.ge-status:empty {
+    display: none;
+}
+
+.ge-status p {
+    margin: 0;
+}
+
+.ge-status .error, .ge-status.error {
+    color: #9d221b;
+}
+
+.ge-dialog {
+    width: min(520px, 94vw);
+    max-height: 88vh;
+    overflow: auto;
+    padding: 18px 24px;
+    border: 0;
+    border-radius: 16px;
+    color: #264364;
+    font: 14px "Inter", sans-serif;
+}
+
+.ge-dialog::backdrop {
+    background: rgb(20 38 65 / 35%);
+}
+
+.ge-dialog form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.ge-dialog label {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.ge-dialog label:has(select), .ge-dialog button[type=submit] {
+    grid-column: 1 / -1;
+}
+
+.ge-dialog select, .ge-dialog input {
+    width: 100%;
+    min-width: 0;
+    padding: 5px;
+    font: inherit;
+}
+
+.ge-dialog button[type=submit] {
+    justify-self: start;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+@media (min-width: 641px) and (max-height: 690px) {
+    .ge-page {
+        margin-block: 6px;
+    }
+
+    .ge-uploads {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 640px) {
+    .ge-page {
+        --ge-tile-size: min(92px, 22vw, 15vh);
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        width: calc(100% - 16px);
+        gap: 8px;
+    }
+
+    .ge-uploads {
+        grid-row: 1;
+        grid-template-rows: repeat(2, var(--ge-tile-size));
+        grid-template-columns: repeat(2, var(--ge-tile-size));
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .ge-uploads .upload-tab {
+        padding: 0 4px;
+        border-radius: 18px;
+    }
+
+    .ge-uploads .upload-tab-label p {
+        margin: 4px 0;
+    }
+
+    .ge-uploads .plus-upload-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+
+    .ge-status {
+        grid-column: 1 / -1;
+        max-height: 48px;
+    }
+
+    .ge-illustration {
+        grid-column: 1 / -1;
+        justify-self: center;
+        border-radius: 18px;
+    }
+}
